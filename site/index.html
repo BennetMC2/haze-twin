@@ -36,7 +36,7 @@
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
 [hidden]{display:none!important}
-body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45;overflow:hidden;font-variant-numeric:tabular-nums}
+body{overflow-x:clip;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45;overflow:hidden;font-variant-numeric:tabular-nums}
 button{font:inherit;color:inherit}
 a{color:var(--sky)}
 :focus-visible{outline:2px solid var(--sky);outline-offset:2px}
@@ -367,10 +367,14 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
   body{overflow:auto}
   .app{height:auto;display:flex;flex-direction:column}
   .col{overflow:visible}
-  .left{order:1}.mapcell{order:2;height:64vh;min-height:420px}.time{order:3}.right{order:4}
+  .mapcell{order:1;height:64vh;min-height:420px}.time{order:2}.left{order:3}.right{order:4}
   .showing{max-width:calc(100% - 80px)}
 }
 @media (max-width:560px){
+  .app{overflow-x:clip}
+  .actions{width:100%}
+  .actions .btn{flex:1 1 auto;font-size:13.5px;padding:0 8px;min-height:36px}
+  .today .tlink{margin-left:0}
   .headline{font-size:23px}
   .psi{font-size:54px}
   .key{display:none}
