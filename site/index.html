@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Haze Twin</title>
+<meta name="waqi-token" content="">
 <meta name="haze-ai" content="https://haze-ask.healthid-cloudflare.workers.dev/">
 <meta name="description" content="When will Singapore's haze get better? Day-by-day odds for the next 15 days, where the smoke is coming from, and why. Updated every hour.">
 <meta property="og:type" content="website">
@@ -101,7 +102,10 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .gtip[hidden]{display:none}
 .gtip .gt1{color:var(--ink);font-weight:600}
 .gtip b{color:var(--ink)}
-.bandscale{display:flex;flex-wrap:wrap;gap:4px}
+.bandscale{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.bandscale .bslabel{border:0;background:none;padding:0 2px 0 0;font-weight:600;color:var(--ink-3)}
+.psiline{margin:-4px 0 0}
+.psiline b{color:var(--ink)}
 .bandscale span{font-size:12px;color:var(--ink-2);border-left:3px solid var(--c);padding:1px 6px;background:rgba(255,255,255,.03);border-radius:2px}
 .facts a{color:var(--sky)}
 .how{margin:-4px 0 0;font-size:13.5px;color:var(--ink-3);line-height:1.45}
@@ -360,7 +364,8 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
           <span class="note" id="nowProv">24-hour PSI</span>
         </div>
       </div>
-      <div class="bandscale" aria-label="NEA PSI bands"><span style="--c:var(--good)">0–50 Good</span><span style="--c:var(--mod)">51–100 Moderate</span><span style="--c:var(--unh)">101–200 Unhealthy</span><span style="--c:var(--vunh)">201–300 Very unhealthy</span><span style="--c:var(--haz)">300+ Hazardous</span></div>
+      <p class="note psiline" id="psiLine" hidden></p>
+      <div class="bandscale" aria-label="NEA PSI bands"><span class="bslabel">PSI</span><span style="--c:var(--good)">0–50 Good</span><span style="--c:var(--mod)">51–100 Moderate</span><span style="--c:var(--unh)">101–200 Unhealthy</span><span style="--c:var(--vunh)">201–300 Very unhealthy</span><span style="--c:var(--haz)">300+ Hazardous</span></div>
       <div class="regions" role="group" aria-label="Area of Singapore" id="regions"></div>
       <h1 class="headline" id="headline">Loading…</h1>
       <p class="lede" id="lede"></p>
@@ -840,6 +845,10 @@ function renderAnswer(){
   $('psiNow').textContent=now!=null?Math.round(now):'–';
   const pill=$('psiBand');pill.textContent=b!=null?BANDS[b].name:'';pill.style.background=b!=null?COL.b[b]:'transparent';
   $('nowProv').textContent='24-hour PSI'+(state.region==='national'?'':', '+REG.find(r=>r[0]===state.region)[1])+', NEA at '+clock(new Date(INP.obs.time||INP.t0))+' today';
+  if(AQ&&state.region==='national'){const ab=aqiBand(AQ.aqi);$('psiNow').textContent=AQ.aqi;pill.textContent=ab.name;pill.style.background=ab.c;
+    $('nowProv').innerHTML='US AQI, Central Singapore. <a href="https://aqicn.org/city/singapore/central/" target="_blank" rel="noopener">AQICN</a> at '+esc(AQ.time);
+    $('psiLine').hidden=false;$('psiLine').innerHTML='NEA 24-hour PSI: <b>'+(now!=null?Math.round(now):'–')+'</b> ('+(b!=null?BANDS[b].name.toLowerCase():'')+'). The forecasts on this page use PSI.';}
+  else{$('psiLine').hidden=true;}
   let h='',parts=[];
   const by=(id)=>cs.find(c=>c.id===id)||{odds:0,outcome:''};
   if(reg.mode==='haze'){
@@ -1414,6 +1423,22 @@ async function openCalls(){
 }
 $('btnCall').addEventListener('click',()=>{if(FC)openCalls();});
 
+
+/* ---------- main reading from AQICN (World Air Quality Index), US AQI scale ---------- */
+let AQ=null;
+const WAQI_TOKEN=(document.querySelector('meta[name="waqi-token"]')||{}).content||'';
+const AQI_BANDS=[[50,'Good','#4FB286'],[100,'Moderate','#E8C547'],[150,'Unhealthy for sensitive groups','#E9973A'],[200,'Unhealthy','#D24B45'],[300,'Very unhealthy','#9B5DC4'],[1e9,'Hazardous','#7E2433']];
+function aqiBand(v){const b=AQI_BANDS.find(x=>v<=x[0]);return {name:b[1],c:b[2]};}
+async function loadAQ(){
+  if(!WAQI_TOKEN)return;
+  try{const ctl=new AbortController();setTimeout(()=>ctl.abort(),7000);
+    const r=await fetch('https://api.waqi.info/feed/singapore/central/?token='+encodeURIComponent(WAQI_TOKEN),{signal:ctl.signal});const js=await r.json();
+    if(js.status!=='ok'||!js.data||typeof js.data.aqi!=='number')return;
+    const t=js.data.time&&js.data.time.iso?new Date(js.data.time.iso):null;
+    AQ={aqi:js.data.aqi,time:t?clock(t):''};if(FC)renderAnswer();
+  }catch(e){}
+}
+
 /* ---------- guided tour ---------- */
 const TOUR=[
   ['cardNow','Start here','Today\'s PSI from NEA, and one sentence on what is most likely to happen next. The odds below it are the other ways it could go.'],
@@ -1458,6 +1483,7 @@ async function boot(){
     try{REC=await getJSON('data/record.json');}catch(e){REC=null;}
     try{RPL=await getJSON('data/replay.json');}catch(e){RPL=null;}
     RINGS=COAST.map(enc=>{const pts=[];let x=0,y=0;for(let i=0;i<enc.length;i+=2){x+=enc[i];y+=enc[i+1];pts.push([x/100,y/100]);}return pts;});
+    loadAQ();setInterval(loadAQ,15*60e3);
     try{prepWhy();}catch(e){WHY=null;}
     buildHot();buildWinds();buildThreads();renderAll();layout();initWind();syncT();
     let seen=false;try{seen=localStorage.getItem('hazeTourSeen')==='1';}catch(e){}if(!seen)setTimeout(startTour,900);
