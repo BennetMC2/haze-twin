@@ -56,14 +56,22 @@ def _download(args):
     url, path = args
     if path.exists() and path.stat().st_size > 1000:
         return path, None
-    try:
-        r = get(url, timeout=90, retries=4, min_interval=0.55, host_key="nomads")
-        if not r.content.startswith(b"GRIB"):
-            return path, "not GRIB: " + r.text[:100]
-        path.write_bytes(r.content)
-        return path, None
-    except Exception as e:
-        return path, str(e)[:160]
+    import time as _t
+    err = None
+    for attempt in range(4):
+        try:
+            r = get(url, timeout=90, retries=3, min_interval=0.75, host_key="nomads")
+            if r.content.startswith(b"GRIB"):
+                path.write_bytes(r.content)
+                return path, None
+            err = "not GRIB: " + r.text[:100]
+        except Exception as e:
+            err = str(e)[:160]
+        if "Rate Limit" in (err or "") or "not GRIB" in (err or ""):
+            _t.sleep(30 * (attempt + 1))
+        elif "404" in (err or ""):
+            break
+    return path, err
 
 
 def decode(path):
@@ -105,7 +113,7 @@ def decode(path):
     return out, lats, lons
 
 
-def fetch(log=print, workers=3):
+def fetch(log=print, workers=2):
     cycle = latest_cycle(log=log)
     log(f"  GEFS cycle {cycle:%Y-%m-%d %H}Z")
     base = WORK / "gefs" / cycle.strftime("%Y%m%d%H")

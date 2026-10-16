@@ -24,12 +24,14 @@ def get(url, *, headers=None, params=None, timeout=60, retries=4, min_interval=0
             err = str(e)
             r = None
         if r is not None:
-            if r.status_code == 200:
+            if 200 <= r.status_code < 300:
                 return r
             if r.status_code == 404 and ok_404:
                 return None
             err = f"HTTP {r.status_code}: {r.text[:200]}"
             if r.status_code in (400, 401, 403, 404) and attempt >= 1:
                 break
+        if r is not None and r.status_code == 302 and 'Rate Limit' in r.text:
+            time.sleep(30)
         time.sleep(min(60, 2 ** attempt * 2))
     raise RuntimeError(f"GET failed for {url.split('?')[0]}: {err}")

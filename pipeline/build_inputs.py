@@ -15,7 +15,7 @@ from datetime import datetime, timedelta, timezone
 import numpy as np
 
 sys.path.insert(0, __import__("os").path.dirname(__file__))
-from config import (SITE_DATA, WORK, ARRIVALS_H, EMIS_BINS_H, REGIONS, FIRE_GRID_DEG, WEST, EAST,
+from config import (SITE_DATA, WORK, ARRIVALS_H, AGE_EFOLD_H, EMIS_BINS_H, REGIONS, FIRE_GRID_DEG, WEST, EAST,
                     SOUTH, NORTH, WIND_DISPLAY_DEG, WIND_SCALE, SG_LON, SG_LAT)
 import trajectories
 
@@ -250,6 +250,7 @@ def main():
         "members": list(weather["members"]),
         "receptor": [SG_LON, SG_LAT],
         "arrivals_h": ARRIVALS_H,
+        "age_efold_h": AGE_EFOLD_H,
         "emis_bins_h": EMIS_BINS_H,
         "regions": [{**r, "frp0": frp0[i], "frp1": frp1[i], "n0": n0[i]} for i, r in enumerate(REGIONS)],
         "S": quant_log16(S),

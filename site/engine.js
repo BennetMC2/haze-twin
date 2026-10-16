@@ -123,10 +123,12 @@
     // emission bins inside the 72 hours before each arrival
     const win72 = inputs.arrivals_h.map(a => { const w = []; binMid.forEach((h, b) => { if (h <= a && h > a - 72) w.push(b); }); return w.length ? w : [binMid.findIndex(h => h > a - 12) >= 0 ? binMid.findIndex(h => h > a - 12) : B - 1]; });
     const nowBin = binMid.findIndex(h => h > -24 && h < 0);
+    const AGE_BUILT = inputs.age_efold_h || 96;
+    const ageTabs = [48, 64, 80].map(tau => { const g = new Float32Array(A * B); inputs.arrivals_h.forEach((a, i) => { binMid.forEach((h, b) => { const age = Math.max(0, a - h); g[i * B + b] = tau >= AGE_BUILT ? 1 : Math.exp(-age * (1 / tau - 1 / AGE_BUILT)); }); }); return g; });
     // past-season analogs from NEA history and the news signal
     const analogs = inputs.analogs && inputs.analogs.paths && inputs.analogs.paths.length ? inputs.analogs : null;
     const growthShift = (inputs.signals && typeof inputs.signals.growthShift === 'number') ? inputs.signals.growthShift : 0;
-    return { inputs, M, A, R, B, S, cum, isl, islands, ratio, binMid, arrIdx, futA, days, obs, nat, regRatio, K0, anchored, t0, trans, win24, fw, win72, nowBin, analogs, growthShift };
+    return { inputs, M, A, R, B, S, cum, isl, islands, ratio, binMid, arrIdx, futA, days, obs, nat, regRatio, K0, anchored, t0, trans, win24, fw, win72, nowBin, analogs, growthShift, ageTabs };
   }
 
   /* ---------- Monte Carlo ---------- */
@@ -156,7 +158,9 @@
       const thalf = Math.exp(Math.log(4) + r() * Math.log(10));   // days for fire activity to halve without rain: 4-40 (peat fires persist until rain)
       const rs = 0.02 + r() * 0.06;           // fraction of fire put out per mm of rain above ~6 mm/day
       const grow = model.growthShift + gauss(r) * 0.04;   // new fires, per day (news signal shifts the middle)
-      const rho = 0.15 + r() * 0.3;           // share of today's smoke that is regional haze, not tied to today's winds
+      const rho = 0.2 + r() * 0.6;            // share of today's smoke that is regional haze, not tied to today's winds (the readings pick it)
+      const dsat = 150 + r() * 200;           // smoke from direct transport levels off: dilution and mixing limit how high it can go (µg/m³)
+      const ageTab = model.ageTabs[Math.floor(r() * 3)];
       const bg = Math.max(5, 18 + gauss(r) * 5);
       pThalf[s] = thalf; pRain[s] = rs;
       for (let q = 0; q < R; q++) {
@@ -176,10 +180,11 @@
       const D0 = model.nat ? Math.max(0, model.nat - 18) : 0;
       const base = m * A * R * B;
       for (let a = 0; a < A; a++) {
-        let sum = 0; const off = base + a * R * B;
-        for (let k = 0; k < R * B; k++) sum += S[off + k] * E[k];
+        let sum = 0; const off = base + a * R * B; const go = a * B;
+        for (let q = 0; q < R; q++) { const oq = off + q * B, eq = q * B; for (let b = 0; b < B; b++) sum += S[oq + b] * E[eq + b] * ageTab[go + b]; }
         let act = 0; const wb = model.win72[a]; for (const b of wb) act += actBin[b]; act /= wb.length;
-        C[s * A + a] = bg + (1 - rho) * K * sum + rho * D0 * act;
+        const x = (1 - rho) * K * sum;
+        C[s * A + a] = bg + dsat * (1 - Math.exp(-x / dsat)) + rho * D0 * Math.min(act, 1.6);
       }
       // island shares (days 1-3)
       let s0 = 0, s1 = 0, s2 = 0;
@@ -339,7 +344,7 @@
         o.median = med;
         const cds = [], pks = [], pkds = []; for (let s = 0; s < N; s += Math.max(1, Math.floor(N / 8000))) if (cls[s] === c) { if (clearDay[s] > 0) cds.push(clearDay[s]); pks.push(peakV[s]); pkds.push(peakD[s]); }
         cds.sort((x, y) => x - y); pks.sort((x, y) => x - y); pkds.sort((x, y) => x - y);
-        const dl = (k) => days[Math.max(0, Math.min(days.length - 1, k - 1))].dow;
+        const dl = (k) => days[Number.isFinite(k) ? Math.max(0, Math.min(days.length - 1, k - 1)) : nC - 1].dow;
         if (def.id === 'early' || def.id === 'later') o.outcome = 'PSI 100 or below by ' + dl(quantile(cds, 0.5)) + '.';
         else if (def.id === 'stays') { let lastAbove = 0; days.slice(0, nC).forEach((d, k) => { if (med[dayF[k]] > 100) lastAbove = k + 1; }); o.outcome = 'Above 100 through ' + dl(lastAbove || nC) + '. Middle path near ' + Math.round(med[dayF[Math.min(2, days.length - 1)]] / 5) * 5 + '.'; }
         else if (def.id === 'worse') o.outcome = 'Peaks ' + Math.round(quantile(pks, 0.1) / 5) * 5 + '–' + Math.round(quantile(pks, 0.9) / 5) * 5 + ' around ' + dl(quantile(pkds, 0.5)) + '.';
