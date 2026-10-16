@@ -185,11 +185,20 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .layermenu label:hover{background:var(--raise)}
 .layermenu input{accent-color:var(--sky);width:16px;height:16px;margin:0}
 .layermenu small{color:var(--ink-3);font-size:12px;margin-left:auto}
-.key{bottom:12px;left:12px;display:flex;flex-wrap:wrap;gap:4px 14px;max-width:calc(100% - 24px);font-size:12.5px;color:var(--ink-2);background:rgba(14,24,32,.86);border:1px solid var(--line);border-radius:6px;padding:6px 10px;pointer-events:none}
+.key{bottom:12px;left:12px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;max-width:calc(100% - 24px);font-size:12.5px;color:var(--ink-2);background:rgba(14,24,32,.86);border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+.key .explain{border:0;background:transparent;color:var(--sky);cursor:pointer;font-size:12.5px;padding:2px 0;text-decoration:underline;text-underline-offset:2px}
+.explainer{bottom:56px;left:12px;width:min(420px,calc(100% - 24px));max-height:calc(100% - 140px);overflow-y:auto;background:var(--panel);border:1px solid var(--line-hi);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.explainer .xh{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.explainer .xh button{border:0;background:transparent;cursor:pointer;color:var(--ink-2);font-size:20px;line-height:1;width:30px;height:30px}
+.explainer dl{margin:0;display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px 10px;font-size:14px;color:var(--ink-2)}
+.explainer dt{padding-top:6px}
+.explainer dd{margin:0}
+.explainer dd b{color:var(--ink);font-weight:600}
 .key span{display:inline-flex;align-items:center;gap:6px}
 .ky-fire{width:9px;height:9px;border-radius:50%;background:var(--fire);box-shadow:0 0 6px var(--fire)}
 .ky-smoke{width:16px;height:9px;border-radius:5px;background:#6E6559}
 .ky-air{width:16px;height:2px;background:var(--c,var(--sA))}
+.ky-catch{width:16px;height:10px;border-radius:5px;background:var(--c,var(--sA));opacity:.55}
 .ky-wind{width:16px;height:1px;background:#9AB0BC}
 .ky-ap{width:8px;height:8px;transform:rotate(45deg);border:1.5px solid var(--ink-2)}
 .ky-st{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--ink)}
@@ -287,7 +296,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
       <div class="scale" aria-hidden="true"><span></span><div class="ax" id="ax"></div><span></span></div>
       <div id="dayList"></div>
       <div class="keyrow"><span><i class="k-mid"></i>Likely range</span><span><i class="k-wide"></i>Possible range</span><span><i class="k-dot"></i>Middle forecast</span></div>
-      <p class="note">Likely range: half of the simulated futures fall inside it. Possible range: 9 in 10 do.</p>
+      <p class="note">Likely range: half of the simulated futures fall inside it. Possible range: 90% do.</p>
     </section>
   </aside>
 
@@ -304,6 +313,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
       <div class="layermenu" id="layerMenu" hidden></div>
     </div>
     <div class="ov key" id="key"></div>
+    <div class="ov explainer" id="explainer" hidden role="dialog" aria-labelledby="exTitle"></div>
     <div class="ov tip" id="tip" hidden></div>
     <div class="ov runbox" id="runbox" hidden><b id="runCount">0</b><span id="runSub">futures run on this device</span></div>
     <div class="ov errbox" id="errbox" hidden></div>
@@ -318,7 +328,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     <section class="panel card" aria-labelledby="scTitle">
       <div class="head"><h2 id="scTitle">What could happen</h2><span class="note" id="scSpan"></span></div>
       <div class="dots" id="dots" role="img"></div>
-      <p class="note">Each square is 1 in 100 simulated futures. Select an outcome to see it on the map.</p>
+      <p class="note">Each square is 1% of the simulated futures. Select an outcome to see it on the map.</p>
       <div class="scen" id="scen"></div>
     </section>
 
@@ -423,7 +433,7 @@ const PLAIN={early:'Clears within a few days',later:'Clears later in the week',s
 
 /* ---------- state ---------- */
 const state={region:'national',sel:null,t:0,playing:false,playEnd:0,running:false,runFrac:1,
-  layers:{futures:true,smoke:true,wind:true,hot:true,air:true,st:false,sat:true},official:null,rerunAt:null};
+  layers:{futures:true,paths:false,smoke:true,wind:true,hot:true,air:true,st:false,sat:true},official:null,rerunAt:null};
 let INP=null,FC=null,REC=null,COAST=null;
 const t0=()=>new Date(INP.t0);
 const R=()=>FC.regions[state.region];
@@ -555,7 +565,11 @@ function hover(x,y){
   const tip=$('tip');if(!INP){tip.hidden=true;return;}const ex=INP.extras||{};let best=null,bd=12;
   if(state.layers.air)(ex.airports||[]).forEach(a=>{const s=P(a.lon,a.lat);const d=Math.hypot(s[0]-x,s[1]-y);if(d<bd){bd=d;best={t:a.name+' airport',d:(a.vis_km!=null?'Visibility '+a.vis_km+' km':'No visibility report')+(a.haze?', smoke haze reported':'')};}});
   if(state.layers.st)(ex.stations||[]).forEach(st=>{const s=P(st.lon,st.lat);const d=Math.hypot(s[0]-x,s[1]-y);if(d<bd){bd=d;best={t:'Air quality station',d:'PM2.5 '+Math.round(st.pm25)+' µg/m³, latest hour'};}});
-  const sg=P(SG[0],SG[1]);if(Math.hypot(sg[0]-x,sg[1]-y)<bd&&FC){best={t:'Singapore',d:'24-hour PSI '+Math.round(R().now)};}
+  if(!best&&FC&&state.layers.paths){let bt=null,bdd=7;for(const tr of THREADS){if(!threadVisible(tr))continue;if(state.sel!==null&&tr.frac[state.sel]<0.15)continue;for(let i=0;i<tr.pts.length;i++){const s=P(tr.pts[i][0],tr.pts[i][1]);const d=Math.hypot(s[0]-x,s[1]-y);if(d<bdd){bdd=d;bt=tr;}}}
+    if(bt){const a=new Date(t0().getTime()+bt.h*3600e3);const st=bt.pts[0];let nr=null,nd=1e9;(INP.regions||[]).forEach(g=>{const d=Math.hypot(g.lon-st[0],g.lat-st[1]);if(d<nd){nd=d;nr=g;}});
+      best={t:'Path of air reaching Singapore',d:'Arrives around '+dayName(a).split(' ')[0]+' '+clock(a)+'. About 4 days earlier it was '+(nd<2.5&&nr?'over '+nr.name:'out over the sea')+'.'};}}
+  if(!best&&FC&&state.layers.futures){const lon=(x-V.ox)/V.k,lat=(V.oy-y)/V.k;const f=catchAt(lon,lat);if(f>=0.04){const d=new Date(t0().getTime()+Math.round(state.t*4)*6*3600e3);best={t:'Where Singapore\'s air comes from',d:'Air reaching Singapore around '+dayName(d).split(' ')[0]+' '+clock(d)+' passes over here in the 4 days before'+(f>0.6?' in most forecasts':f>0.25?' in some forecasts':' in a few forecasts')+'. Smoke from fires here can reach Singapore.'};}}
+  const sg=P(SG[0],SG[1]);if(Math.hypot(sg[0]-x,sg[1]-y)<12&&FC){best={t:'Singapore',d:'24-hour PSI '+Math.round(R().now)};}
   if(!best){tip.hidden=true;return;}
   tip.innerHTML='<b>'+esc(best.t)+'</b>'+esc(best.d);tip.style.left=x+'px';tip.style.top=y+'px';tip.hidden=false;
 }
@@ -637,6 +651,23 @@ function buildThreads(){
 function threadVisible(tr){return Math.abs(tr.h-state.t*24)<=30;}
 let threadsDirty=true;
 function threadColor(tr){return state.sel===null?COL['--sA']:classColor(cls()[state.sel]);}
+const CG={lon0:92,lat1:10,d:0.2,nx:160,ny:100};const catchCv=document.createElement('canvas');catchCv.width=CG.nx;catchCv.height=CG.ny;const catchCtx=catchCv.getContext('2d');let CATCH=null;
+function buildCatch(){
+  const g=new Float32Array(CG.nx*CG.ny),seen=new Int32Array(CG.nx*CG.ny).fill(-1);let tot=0;const n=Math.ceil(THREADS.length*state.runFrac);
+  for(let k=0;k<n;k++){const tr=THREADS[k];if(!threadVisible(tr))continue;const w=state.sel===null?1:tr.frac[state.sel];if(w<=0)continue;tot+=w;
+    for(let i=0;i<tr.pts.length-1;i++){const a=tr.pts[i],b=tr.pts[i+1];const steps=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/CG.d));
+      for(let j=0;j<=steps;j++){const lon=a[0]+(b[0]-a[0])*j/steps,lat=a[1]+(b[1]-a[1])*j/steps;const ix=Math.floor((lon-CG.lon0)/CG.d),iy=Math.floor((CG.lat1-lat)/CG.d);
+        if(ix<0||iy<0||ix>=CG.nx||iy>=CG.ny)continue;const q=iy*CG.nx+ix;if(seen[q]!==k){seen[q]=k;g[q]+=w;}}}}
+  // spread a little: paths are averages, real air wanders around them
+  const t=new Float32Array(g.length);
+  for(let pass=0;pass<3;pass++){for(let y=0;y<CG.ny;y++)for(let x=0;x<CG.nx;x++){let sm=0,c=0;for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=CG.nx||yy>=CG.ny)continue;sm+=g[yy*CG.nx+xx];c++;}t[y*CG.nx+x]=sm/c;}g.set(t);}
+  CATCH={g:g,tot:Math.max(1e-6,tot)};
+  const col=state.sel===null?COL['--sA']:classColor(cls()[state.sel]);const h=col.replace('#','');const r=parseInt(h.slice(0,2),16),gg=parseInt(h.slice(2,4),16),bb=parseInt(h.slice(4,6),16);
+  const img=catchCtx.createImageData(CG.nx,CG.ny);let mx=0;for(let q=0;q<g.length;q++)if(g[q]>mx)mx=g[q];mx=Math.max(mx,1e-6);
+  for(let q=0;q<g.length;q++){const f=Math.min(1,g[q]/mx);const a=f<0.04?0:0.07+0.38*f;img.data[q*4]=r;img.data[q*4+1]=gg;img.data[q*4+2]=bb;img.data[q*4+3]=Math.round(a*255);}
+  catchCtx.putImageData(img,0,0);CATCH.mx=mx;
+}
+function catchAt(lon,lat){if(!CATCH)return 0;const ix=Math.floor((lon-CG.lon0)/CG.d),iy=Math.floor((CG.lat1-lat)/CG.d);if(ix<0||iy<0||ix>=CG.nx||iy>=CG.ny)return 0;return CATCH.g[iy*CG.nx+ix]/CATCH.mx;}
 function drawThreads(){
   const c=thctx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,threadCv.width,threadCv.height);c.setTransform(V.dpr,0,0,V.dpr,0,0);
   if(!FC)return;c.lineCap='round';c.lineJoin='round';
@@ -644,7 +675,7 @@ function drawThreads(){
   for(let k=0;k<n;k++){const tr=THREADS[k];if(!threadVisible(tr))continue;
     let a=0.3,lw=1;if(state.sel!==null){a=0.04+0.5*tr.frac[state.sel];lw=tr.frac[state.sel]>0.5?1.4:1;}
     c.strokeStyle=rgba(threadColor(tr),a);c.lineWidth=lw;c.beginPath();tr.pts.forEach((p,i)=>{const s=P(p[0],p[1]);if(i===0)c.moveTo(s[0],s[1]);else c.lineTo(s[0],s[1]);});c.stroke();}
-  threadsDirty=false;
+  buildCatch();threadsDirty=false;
 }
 function threadPoint(tr,u){const n=tr.pts.length-1;const f=u*n;const i=Math.min(n-1,Math.floor(f));const a=tr.pts[i],b=tr.pts[i+1],w=f-i;return [a[0]+(b[0]-a[0])*w,a[1]+(b[1]-a[1])*w];}
 
@@ -702,14 +733,14 @@ function renderAnswer(){
     else if(top.id==='worse')h='Likely to get worse this week.';
     else h='Likely to ease to 100 or below by '+end+'.';
     const w=by('worse'),clear=reg.clear;
-    if(top.id!=='worse'&&w.odds>=1)parts.push('<b>'+odds100(w.odds)+' in 100</b> chance it gets worse: '+esc(w.outcome.replace(/^Peaks/,'peaking at PSI').replace(/(\d)–(\d)/g,'$1 to $2').replace(/\.$/,''))+'.');
-    if(top.id!=='stays'&&by('stays').odds>=1)parts.push('<b>'+odds100(by('stays').odds)+' in 100</b> chance it stays above 100 all week.');
-    parts.push('<b>'+(clear<1?'Less than 1':odds100(clear))+' in 100</b> chance it is down to 100 or below by '+end+'.');
+    if(top.id!=='worse'&&w.odds>=1)parts.push('<b>'+odds100(w.odds)+'%</b> chance it gets worse: '+esc(w.outcome.replace(/^Peaks/,'peaking at PSI').replace(/(\d)–(\d)/g,'$1 to $2').replace(/\.$/,''))+'.');
+    if(top.id!=='stays'&&by('stays').odds>=1)parts.push('<b>'+odds100(by('stays').odds)+'%</b> chance it stays above 100 all week.');
+    parts.push('<b>'+(clear<1?'Under 1':odds100(clear))+'%</b> chance it is down to 100 or below by '+end+'.');
   }else{
     const clean=by('clean');const above=100-clean.odds;
     h=above>=50?'Haze likely to return this week.':'Likely to stay '+bandWord(typicalCore())+' this week.';
-    parts.push('<b>'+odds100(above)+' in 100</b> chance PSI goes above 100 by '+end+'.');
-    const w=by('worse');if(w.odds>=1)parts.push('<b>'+odds100(w.odds)+' in 100</b> chance of very unhealthy levels (above 200).');
+    parts.push('<b>'+odds100(above)+'%</b> chance PSI goes above 100 by '+end+'.');
+    const w=by('worse');if(w.odds>=1)parts.push('<b>'+odds100(w.odds)+'%</b> chance of very unhealthy levels (above 200).');
   }
   const se=FC.season;if(se&&reg.mode==='haze')parts.push('The haze season is most likely over around '+esc(se.median)+'.');
   $('headline').textContent=h;$('lede').innerHTML=parts.join(' ');
@@ -753,7 +784,7 @@ function renderScenarios(){
   raw.map((v,i)=>[v-fl[i],i]).sort((a,b)=>b[0]-a[0]).forEach(([,i])=>{if(left>0){fl[i]++;left--;}});
   const dots=$('dots');dots.innerHTML='';dots.classList.toggle('dim',state.sel!==null);
   const lab=[];
-  [3,2,1,0].forEach(ci=>{for(let k=0;k<fl[ci];k++){const i=document.createElement('i');i.style.background=classColor(cs[ci]);if(state.sel===ci)i.classList.add('on');dots.appendChild(i);}if(fl[ci])lab.push(plainName(cs[ci])+' '+fl[ci]+' in 100');});
+  [3,2,1,0].forEach(ci=>{for(let k=0;k<fl[ci];k++){const i=document.createElement('i');i.style.background=classColor(cs[ci]);if(state.sel===ci)i.classList.add('on');dots.appendChild(i);}if(fl[ci])lab.push(plainName(cs[ci])+' '+fl[ci]+'%');});
   dots.setAttribute('aria-label',lab.join(', '));
   $('scSpan').textContent='Next 6 days';
   const box=$('scen');box.innerHTML='';
@@ -762,7 +793,7 @@ function renderScenarios(){
     const d=document.createElement('div');d.className='sc'+(state.sel===ci?' on':'');d.style.setProperty('--c',classColor(c));
     const od=state.running&&prevReg?lerp(prevReg.classes[ci].odds,c.odds,state.runFrac):c.odds;
     const odTxt=od<1&&od>0?'<1':String(Math.round(od));
-    d.innerHTML='<button type="button" class="scbtn" aria-pressed="'+(state.sel===ci)+'"><span class="sw"></span><span class="nm"></span><span class="od">'+odTxt+' <small>in 100</small></span><span class="oc"></span></button>';
+    d.innerHTML='<button type="button" class="scbtn" aria-pressed="'+(state.sel===ci)+'"><span class="sw"></span><span class="nm"></span><span class="od">'+odTxt+'%</span><span class="oc"></span></button>';
     d.querySelector('.nm').textContent=plainName(c);
     d.querySelector('.oc').textContent=c.n?(c.outcome||''):'None of the futures do this.';
     if(c.watch&&c.n){const det=document.createElement('details');det.innerHTML='<summary>What would make this happen</summary><p></p>';det.querySelector('p').textContent=c.watch;d.appendChild(det);}
@@ -775,7 +806,7 @@ function islandOf(lon,lat){if(lat<-5.6&&lon>105.5)return 'Java';if(lon>=108.5)re
 function renderSources(){
   const ss=FC.sourceShare||{};const list=(FC.sourceRegions||[]).filter(r=>r.share>=1).slice(0,5);
   const k=Math.round((ss.Kalimantan||0)/10),s=Math.round((ss.Sumatra||0)/10);
-  $('srcLine').textContent='Of the fire smoke likely to reach Singapore, about '+k+' parts in 10 come from Kalimantan and '+s+' from Sumatra.';
+  $('srcLine').textContent='Of the fire smoke likely to reach Singapore, about '+k*10+'% comes from Kalimantan and '+s*10+'% from Sumatra.';
   const box=$('srcs');box.innerHTML='';const mx=Math.max(1,...list.map(r=>r.share));
   list.forEach(r=>{const el=document.createElement('div');el.className='src';el.innerHTML='<span></span><span class="bar"><i></i></span><span class="pc"></span>';el.children[0].textContent=r.name;el.querySelector('i').style.width=(r.share/mx*100)+'%';el.children[2].textContent=Math.round(r.share)+'%';box.appendChild(el);});
   const facts=$('facts');facts.innerHTML='';const add=(k,html)=>{const li=document.createElement('li');li.innerHTML='<span>'+k+'</span><span>'+html+'</span>';facts.appendChild(li);};
@@ -809,7 +840,7 @@ function renderNews(){
 }
 function renderSeason(){
   const se=FC.season;const card=$('seasonCard');if(!se){card.hidden=true;return;}card.hidden=false;const reg=R();
-  $('seasonLine').textContent=reg.mode==='haze'?'Most likely around '+se.median+'. 8 in 10 chance between '+se.p10+' and '+se.p90+'.':'Steady rains most likely set in around '+se.median+'.';
+  $('seasonLine').textContent=reg.mode==='haze'?'Most likely around '+se.median+'. 80% chance it falls between '+se.p10+' and '+se.p90+'.':'Steady rains most likely set in around '+se.median+'.';
   const rows=$('seasonRows');rows.innerHTML='';
   se.dates.forEach(d=>{const r=document.createElement('div');r.className='srow';r.innerHTML='<span></span><span class="bar"><i></i></span><span class="pc"></span>';r.children[0].textContent='By '+d.label;r.querySelector('i').style.width=d.p+'%';r.children[2].textContent=d.p+'%';rows.appendChild(r);});
   const cl=se.climate||{};const f=(x)=>x==null?'n/a':(x>0?'+':'')+Number(x).toFixed(2);
@@ -849,23 +880,40 @@ function markCurrent(){
 function renderShowing(){
   if(!FC)return;const reg=R();
   const sel=state.sel!==null?cls()[state.sel]:null;
-  if(state.t<0.01){$('showing1').textContent='Now, '+dayName(t0())+', '+clock(new Date(INP.obs.time||INP.t0));$('showing2').textContent=(sel?'Showing outcome: '+plainName(sel)+'. ':'')+'Fires from the last day, today\'s smoke and the air reaching Singapore.';}
+  if(state.t<0.01){$('showing1').textContent='Now, '+dayName(t0())+', '+clock(new Date(INP.obs.time||INP.t0));$('showing2').textContent=(sel?'Showing outcome: '+plainName(sel)+'. ':'')+'Fires in the last day, today\'s smoke, and the shaded area Singapore\'s air is coming from.';}
   else{const d=new Date(t0().getTime()+Math.round(state.t*8)*3*3600e3);const i=arrIndex(state.t*24);
     $('showing1').textContent='Forecast for '+dayName(d)+', '+clock(d);
     const v=sel&&sel.median.length?sel.median[i]:reg.pct.p50[i];
-    $('showing2').textContent=sel?'Outcome "'+plainName(sel)+'": PSI near '+v+'.':'PSI near '+v+' (likely '+(reg.pct.p25?reg.pct.p25[i]:reg.pct.p5[i])+' to '+(reg.pct.p75?reg.pct.p75[i]:reg.pct.p95[i])+'). Air paths and smoke follow the forecast winds.';}
+    $('showing2').textContent=sel?'Outcome "'+plainName(sel)+'": PSI near '+v+'.':'PSI near '+v+' (likely '+(reg.pct.p25?reg.pct.p25[i]:reg.pct.p5[i])+' to '+(reg.pct.p75?reg.pct.p75[i]:reg.pct.p95[i])+'). Shaded: where that day\'s air comes from.';}
 }
 function renderKey(){
   const k=$('key');const L=state.layers;const items=[];
   if(L.hot)items.push('<span><i class="ky-fire"></i>Fire hotspot</span>');
   if(L.smoke)items.push('<span><i class="ky-smoke"></i>Smoke</span>');
-  if(L.futures)items.push('<span><i class="ky-air" style="--c:'+(state.sel!==null?classColor(cls()[state.sel]):COL['--sA'])+'"></i>Air on its way to Singapore</span>');
+  if(L.futures)items.push('<span><i class="ky-catch" style="--c:'+(state.sel!==null?classColor(cls()[state.sel]):COL['--sA'])+'"></i>Where Singapore\'s air comes from</span>');
+  if(L.paths)items.push('<span><i class="ky-air" style="--c:'+(state.sel!==null?classColor(cls()[state.sel]):COL['--sA'])+'"></i>Air paths to Singapore</span>');
   if(L.wind)items.push('<span><i class="ky-wind"></i>Wind</span>');
   if(L.air)items.push('<span><i class="ky-ap"></i>Airport visibility</span>');
   if(L.st)items.push('<span><i class="ky-st"></i>Air quality station</span>');
-  k.innerHTML=items.join('');k.hidden=!items.length;
+  items.push('<button type="button" class="explain" id="explainBtn" aria-expanded="'+!$('explainer').hidden+'">What\'s on the map?</button>');
+  k.innerHTML=items.join('');k.hidden=false;
+  $('explainBtn').addEventListener('click',toggleExplainer);
 }
-const LAYERS=[['futures','Air on its way to Singapore'],['smoke','Smoke'],['hot','Fire hotspots'],['wind','Wind'],['air','Airport visibility'],['st','Air quality stations'],['sat','Satellite photo','yesterday']];
+function toggleExplainer(){const e=$('explainer');if(e.hidden){renderExplainer();e.hidden=false;}else e.hidden=true;const b=$('explainBtn');if(b)b.setAttribute('aria-expanded',String(!e.hidden));}
+function renderExplainer(){
+  const air=state.sel!==null?classColor(cls()[state.sel]):COL['--sA'];
+  const rows=[
+    ['<i class="ky-catch" style="--c:'+air+';display:inline-block"></i>','<b>Where Singapore\'s air comes from.</b> The air that will be over Singapore on the day you pick passed over this area in the 4 days before. Brighter means more of the '+FC.members+' weather forecasts agree. Fires inside it send smoke to Singapore; fires outside it mostly don\'t. It is not the wind: most air in the region goes elsewhere.'],
+    ['<i class="ky-air" style="--c:'+air+';display:inline-block"></i>','<b>Air paths to Singapore</b> (off by default, under Layers): the same thing drawn as one line per weather forecast.'],
+    ['<i class="ky-fire" style="display:inline-block"></i>','<b>Fire hotspots</b> seen by NASA satellites in the last day. Bigger and brighter means a hotter fire.'],
+    ['<i class="ky-smoke" style="display:inline-block"></i>','<b>Smoke</b> from those fires, drifting with the forecast winds. It is a picture of the model, not a satellite photo.'],
+    ['<i class="ky-wind" style="display:inline-block"></i>','<b>Wind</b> about 1 km up, where most of the smoke travels. This shows which way air and smoke are actually moving.'],
+    ['<i class="ky-ap" style="display:inline-block"></i>','<b>Airports</b> near the fires and how far you can see there. Orange means smoke haze is reported.'],
+  ];
+  $('explainer').innerHTML='<div class="xh"><h2 id="exTitle">What\'s on the map</h2><button type="button" aria-label="Close" id="exClose">×</button></div><dl>'+rows.map(r=>'<dt>'+r[0]+'</dt><dd>'+r[1]+'</dd>').join('')+'</dl><p class="note">Pick a day below the map, or press Play, to see how this changes. Point at the shaded area, an airport or Singapore for details.</p>';
+  $('exClose').addEventListener('click',toggleExplainer);
+}
+const LAYERS=[['futures','Where Singapore\'s air comes from'],['paths','Air paths to Singapore','detail'],['smoke','Smoke'],['hot','Fire hotspots'],['wind','Wind'],['air','Airport visibility'],['st','Air quality stations'],['sat','Satellite photo','yesterday']];
 function renderLayers(){
   const m=$('layerMenu');m.innerHTML='';
   LAYERS.forEach(l=>{const lab=document.createElement('label');lab.innerHTML='<input type="checkbox"><span></span>'+(l[2]?'<small>'+l[2]+'</small>':'');lab.children[1].textContent=l[1];const inp=lab.children[0];inp.checked=state.layers[l[0]];
@@ -981,14 +1029,8 @@ function render(now){
       c.globalAlpha=1;
     }
     if(state.layers.wind){if(!reduced)stepWind(F);c.setTransform(1,0,0,1,0,0);c.drawImage(trailCv,0,0);c.setTransform(V.dpr,0,0,V.dpr,0,0);}
-    if(state.layers.futures){
-      c.setTransform(1,0,0,1,0,0);c.drawImage(threadCv,0,0);c.setTransform(V.dpr,0,0,V.dpr,0,0);
-      c.globalCompositeOperation='lighter';const n=Math.ceil(THREADS.length*state.runFrac);
-      for(let k=0;k<n;k++){const tr=THREADS[k];if(!threadVisible(tr))continue;
-        if(state.sel===null){c.fillStyle=rgba(COL['--sA'],0.7);}else{const a=tr.frac[state.sel];if(a<0.15)continue;c.fillStyle=rgba(classColor(cls()[state.sel]),0.3+0.65*a);}
-        for(let j=0;j<2;j++){const u=(((tr.ph+j*0.5+tSec*tr.sp)%1)+1)%1;const pt=threadPoint(tr,u);const s=P(pt[0],pt[1]);c.beginPath();c.arc(s[0],s[1],1.5,0,Math.PI*2);c.fill();}}
-      c.globalCompositeOperation='source-over';
-    }
+    if(state.layers.futures&&CATCH){const a=P(CG.lon0,CG.lat1),b=P(CG.lon0+CG.nx*CG.d,CG.lat1-CG.ny*CG.d);c.imageSmoothingEnabled=true;c.drawImage(catchCv,a[0],a[1],b[0]-a[0],b[1]-a[1]);}
+    if(state.layers.paths){c.setTransform(1,0,0,1,0,0);c.drawImage(threadCv,0,0);c.setTransform(V.dpr,0,0,V.dpr,0,0);}
     if(state.layers.hot){
       c.globalCompositeOperation='lighter';const k=intensityAt(state.t);const kk=V.k0*Math.pow(VIEW.z,0.35);
       for(const h of HOT){const s=P(h.lon,h.lat);if(s[0]<-20||s[0]>V.w+20||s[1]<-20||s[1]>V.h+20)continue;const pulse=1+0.18*Math.sin(tSec*3+h.ph);const fresh=1-h.age/30;const r=(0.08+0.06*h.frp)*kk*Math.sqrt(k)*pulse;c.globalAlpha=clamp((0.3+0.7*k)*(0.5+0.5*fresh),0.1,1);c.drawImage(fireSprite,s[0]-r,s[1]-r,r*2,r*2);}
