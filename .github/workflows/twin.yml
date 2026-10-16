@@ -4,6 +4,9 @@ on:
   schedule:
     # about 7 hours after each GEFS cycle (00, 06, 12, 18 UTC), when the 16-day run is complete
     - cron: "40 1,7,13,19 * * *"
+  push:
+    branches: [main]
+    paths: ["pipeline/**", "engine/**", "site/**", ".github/workflows/**"]
   workflow_dispatch:
     inputs:
       sample:
@@ -54,24 +57,30 @@ jobs:
           ECMWF_ENS: "1"
           DATAGOVSG_API_KEY: ${{ secrets.DATAGOVSG_API_KEY }}
         run: |
+          set -o pipefail
           if [ "${{ github.event.inputs.sample }}" = "true" ]; then
-            python pipeline/build_inputs.py --sample
+            python pipeline/build_inputs.py --sample 2>&1 | tee run.log
           else
-            python pipeline/build_inputs.py
+            python pipeline/build_inputs.py 2>&1 | tee run.log
           fi
 
       - name: Run 100,000 futures
         run: |
+          set -o pipefail
           cp engine/engine.js site/engine.js
-          node engine/run.js --n 100000
+          node engine/run.js --n 100000 2>&1 | tee -a run.log
+          cp run.log site/data/run-log.txt
 
       - name: Save the forecast log
+        if: always()
         run: |
           git config user.name "haze-twin bot"
           git config user.email "haze-twin-bot@users.noreply.github.com"
+          mkdir -p history
+          [ -f run.log ] && cp run.log history/last-run.log || echo "no log" > history/last-run.log
           git add history
           if ! git diff --cached --quiet; then
-            T0=$(python -c "import json;print(json.load(open('site/data/inputs.json'))['t0'])")
+            T0=$(python -c "import json;print(json.load(open('site/data/inputs.json'))['t0'])" 2>/dev/null || date -u +%Y-%m-%dT%H:%M)
             git commit -m "Run ${T0} [skip ci]"
             git pull --rebase origin "${GITHUB_REF_NAME}"
             git push origin "HEAD:${GITHUB_REF_NAME}"
