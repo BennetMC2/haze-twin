@@ -1168,8 +1168,9 @@ async function ask(q){
   const out=$('askOut');out.hidden=false;out.innerHTML='<p class="q"></p><p>Thinking…</p>';out.querySelector('.q').textContent=q;
   let paras=null,by='Answer from this forecast';
   if(AI_URL){try{const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),20000);
-      const r=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,context:askContext()}),signal:ctl.signal});clearTimeout(tm);
-      if(r.ok){const js=await r.json();if(js.answer){paras=String(js.answer).split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);by='Answered by AI using this forecast. It can make mistakes.';}}
+      let code='';try{code=localStorage.getItem('hazePremium')||'';}catch(e){}
+      const r=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,context:askContext(),code:code}),signal:ctl.signal});clearTimeout(tm);
+      if(r.ok){const js=await r.json();if(js.answer){paras=String(js.answer).split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);by=js.tier==='premium'?'Answered by Claude (premium) using this forecast. It can make mistakes.':'Answered by AI using this forecast. It can make mistakes.';}}
     }catch(e){}}
   if(!paras)paras=localAnswer(q);
   out.innerHTML='';const qe=document.createElement('p');qe.className='q';qe.textContent=q;out.appendChild(qe);
@@ -1179,6 +1180,8 @@ async function ask(q){
 }
 $('askForm').addEventListener('submit',e=>{e.preventDefault();ask($('askIn').value);});
 renderAskSug();
+// premium code: open the site once with ?premium=CODE to save it on this device (?premium=off removes it)
+try{const pc=new URLSearchParams(location.search).get('premium');if(pc){if(pc==='off')localStorage.removeItem('hazePremium');else localStorage.setItem('hazePremium',pc);history.replaceState(null,'',location.pathname);}}catch(e){}
 
 /* ---------- guided tour ---------- */
 const TOUR=[

@@ -8,6 +8,7 @@
 //   ALLOWED_ORIGIN               https://bennetmc2.github.io
 //   DAILY_LIMIT                  e.g. 500 questions a day in total
 //   MODEL                        optional, default claude-haiku-5-5
+//   PREMIUM_CODES      (secret)  comma-separated codes that unlock Claude answers; everyone else gets Workers AI
 //
 // Free option: leave ANTHROPIC_API_KEY unset and add a Workers AI binding named AI
 // (Worker > Settings > Bindings > Workers AI). It then uses Cloudflare's own model
@@ -54,16 +55,18 @@ export default {
     }
 
     const userMsg = "Forecast data:\n" + context + "\n\nQuestion: " + q;
-    if (!env.ANTHROPIC_API_KEY && env.AI) {
+    const codes = String(env.PREMIUM_CODES || "").split(",").map((c) => c.trim()).filter(Boolean);
+    const premium = !!env.ANTHROPIC_API_KEY && codes.includes(String(body.code || "").trim());
+    if (!premium && env.AI) {
       try {
         const out = await env.AI.run(env.CF_MODEL || "@cf/meta/llama-3.1-8b-instruct", {
           messages: [{ role: "system", content: SYSTEM }, { role: "user", content: userMsg }],
           max_tokens: 400,
         });
-        return json({ answer: String(out.response || "").trim() }, 200, h);
+        return json({ answer: String(out.response || "").trim(), tier: "free" }, 200, h);
       } catch (e) { return json({ error: "model error" }, 502, h); }
     }
-    if (!env.ANTHROPIC_API_KEY) return json({ error: "no model configured" }, 500, h);
+    if (!premium) return json({ error: "no model configured" }, 500, h);
 
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -78,7 +81,7 @@ export default {
     if (!r.ok) return json({ error: "model error " + r.status }, 502, h);
     const out = await r.json();
     const answer = (out.content || []).filter((c) => c.type === "text").map((c) => c.text).join("\n").trim();
-    return json({ answer }, 200, h);
+    return json({ answer, tier: "premium" }, 200, h);
   },
 };
 
