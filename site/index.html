@@ -55,6 +55,7 @@ a{color:var(--sky)}
 h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .note{margin:0;font-size:13px;color:var(--ink-3)}
 .sub{margin:0;color:var(--ink-2);font-size:14.5px}
+.how{margin:-4px 0 0;font-size:13.5px;color:var(--ink-3);line-height:1.45}
 .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
 
 /* now */
@@ -224,6 +225,14 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .dchip .prog{position:absolute;left:0;top:0;bottom:3px;background:rgba(134,203,230,.12);width:0}
 .gap{flex:none;width:1px;background:var(--line-hi);margin:4px 3px}
 
+/* tour */
+.tourhole{position:fixed;z-index:50;border-radius:8px;box-shadow:0 0 0 9999px rgba(4,8,12,.72);outline:2px solid var(--sky);pointer-events:none;transition:all .25s ease}
+.tourcard{position:fixed;z-index:51;width:min(340px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--sky);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.tourcard h2{font-size:18px}
+.tourcard p{margin:0;color:var(--ink-2);font-size:14.5px}
+.tourcard .tnav{display:flex;align-items:center;gap:8px}
+.tourcard .tnav span{flex:1;font-size:13px;color:var(--ink-3)}
+@media (prefers-reduced-motion: reduce){.tourhole{transition:none}}
 /* dialogs */
 dialog{background:var(--panel);color:var(--ink);border:1px solid var(--line-hi);border-radius:8px;padding:0;width:min(680px,calc(100vw - 32px));max-height:calc(100vh - 48px)}
 dialog::backdrop{background:rgba(4,8,12,.7)}
@@ -264,12 +273,13 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 <div class="app" id="app">
 
   <header class="top">
-    <div class="brand">Haze Twin<span>Singapore haze forecast</span></div>
+    <div class="brand">Haze Twin<span>How bad Singapore's haze will be over the next 15 days, and why</span></div>
     <div class="status" role="status" aria-live="polite">
       <span class="live" id="liveDot"><i></i><span id="statusText">Loading the latest forecast…</span></span>
       <span id="nextText"></span>
     </div>
-    <div class="actions">
+    <div class="actions" id="actions">
+      <button class="btn" id="btnTour" type="button">Take the tour</button>
       <button class="btn" id="btnRecord" type="button">Track record</button>
       <button class="btn" id="btnHow" type="button">How it works</button>
       <button class="btn primary" id="btnRerun" type="button" aria-busy="false" title="Run 100,000 futures again on this device with NEA's latest reading">Rerun</button>
@@ -277,7 +287,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
   </header>
 
   <aside class="col left" aria-label="Summary">
-    <section class="panel card">
+    <section class="panel card" id="cardNow">
       <div class="now">
         <span class="psi" id="psiNow">–</span>
         <div class="nowtxt">
@@ -285,18 +295,19 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
           <span class="note" id="nowProv">24-hour PSI</span>
         </div>
       </div>
+      <p class="how">PSI is NEA's air pollution index for the last 24 hours. Above 100 is unhealthy, above 200 very unhealthy, above 300 hazardous. Tap an area of Singapore to see it.</p>
       <div class="regions" role="group" aria-label="Area of Singapore" id="regions"></div>
       <h1 class="headline" id="headline">Loading…</h1>
       <p class="lede" id="lede"></p>
       <p class="note">For what to do, follow <a href="https://www.haze.gov.sg/" target="_blank" rel="noopener">NEA's health advice</a>.</p>
     </section>
 
-    <section class="panel card" aria-labelledby="daysTitle">
+    <section class="panel card" id="cardDays" aria-labelledby="daysTitle">
       <div class="head"><h2 id="daysTitle">Next 15 days</h2><span class="note">24-hour PSI</span></div>
+      <p class="how">One row per day. The dot and number are the best guess. The coloured bar is where PSI will most likely be; the grey line is the full possible spread. Tap a day to see it on the map.</p>
       <div class="scale" aria-hidden="true"><span></span><div class="ax" id="ax"></div><span></span></div>
       <div id="dayList"></div>
       <div class="keyrow"><span><i class="k-mid"></i>Likely range</span><span><i class="k-wide"></i>Possible range</span><span><i class="k-dot"></i>Middle forecast</span></div>
-      <p class="note">Likely range: half of the simulated futures fall inside it. Possible range: 90% do.</p>
     </section>
   </aside>
 
@@ -319,21 +330,23 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     <div class="ov errbox" id="errbox" hidden></div>
   </section>
 
-  <section class="time panel" aria-label="Choose a day to show on the map">
+  <section class="time panel" id="timebar" aria-label="Choose a day to show on the map">
     <button class="btn play" id="btnPlay" type="button"><svg viewBox="0 0 12 12" aria-hidden="true"><path id="playIcon" d="M2 1l9 5-9 5z"/></svg><span id="playText">Play</span></button>
     <div class="daystrip" id="daystrip"></div>
   </section>
 
   <aside class="col right" aria-label="Detail">
-    <section class="panel card" aria-labelledby="scTitle">
+    <section class="panel card" id="cardScen" aria-labelledby="scTitle">
       <div class="head"><h2 id="scTitle">What could happen</h2><span class="note" id="scSpan"></span></div>
+      <p class="how">We played out 100,000 possible versions of the next 6 days and sorted them by how they turn out. The % is how many ended that way.</p>
       <div class="dots" id="dots" role="img"></div>
       <p class="note">Each square is 1% of the simulated futures. Select an outcome to see it on the map.</p>
       <div class="scen" id="scen"></div>
     </section>
 
-    <section class="panel card" aria-labelledby="srcTitle">
+    <section class="panel card" id="cardSrc" aria-labelledby="srcTitle">
       <div class="head"><h2 id="srcTitle">Where the smoke comes from</h2><span class="note">Next 3 days</span></div>
+      <p class="how">Which provinces' fires are sending smoke our way: how much is burning there, and whether the wind carries it to Singapore.</p>
       <p class="sub" id="srcLine"></p>
       <div class="srcs" id="srcs"></div>
       <ul class="facts" id="facts"></ul>
@@ -341,17 +354,20 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 
     <section class="panel card" id="changeCard" aria-labelledby="chTitle">
       <div class="head"><h2 id="chTitle">Since the last update</h2><span class="note" id="chWhen"></span></div>
+      <p class="how">The forecast is redone every 6 hours. This shows how the odds moved and what caused it.</p>
       <div class="changes" id="changes"></div>
     </section>
 
     <section class="panel card" aria-labelledby="fanTitle">
       <div class="head"><h2 id="fanTitle">PSI, past 2 days and next 15</h2></div>
+      <p class="how">Blue is what NEA measured. White is the best guess. The light bands show the likely and possible range, which widen further out because weather forecasts get less certain.</p>
       <canvas id="fan" role="img" aria-label="Chart of 24-hour PSI"></canvas>
       <div class="fankey"><span><i class="fk-meas"></i>Measured</span><span><i class="fk-mid"></i>Middle forecast</span><span><i class="fk-50"></i>Likely</span><span><i class="fk-90"></i>Possible</span></div>
     </section>
 
     <section class="panel card" id="newsCard" aria-labelledby="newsTitle">
       <div class="head"><h2 id="newsTitle">In the news</h2><span class="note">Last 3 days</span></div>
+      <p class="how">Recent reports about the fires. Lots of reports of fires spreading nudge the forecast slightly worse; rain and firefighting nudge it better.</p>
       <p class="sigline" id="sigLine"></p>
       <div class="sigs" id="sigChips"></div>
       <ul class="news" id="newsList"></ul>
@@ -359,6 +375,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 
     <section class="panel card" id="seasonCard" aria-labelledby="seTitle">
       <div class="head"><h2 id="seTitle">When the haze season ends</h2><span class="note">Experimental</span></div>
+      <p class="how">Haze usually ends when the monsoon rains set in over Sumatra and Kalimantan and put the fires out. This is the chance that has happened by each date.</p>
       <p class="sub" id="seasonLine"></p>
       <div id="seasonRows" style="display:flex;flex-direction:column;gap:6px"></div>
       <details class="more"><summary>How this is worked out</summary><div id="seasonMore"></div></details>
@@ -1062,6 +1079,39 @@ $('btnHow').addEventListener('click',()=>$('dlgHow').showModal());
 document.querySelectorAll('dialog [data-close]').forEach(b=>b.addEventListener('click',()=>b.closest('dialog').close()));
 document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close();}));
 
+/* ---------- guided tour ---------- */
+const TOUR=[
+  ['cardNow','Start here','Today\'s PSI from NEA, and one sentence on what is most likely to happen next. The odds below it are the other ways it could go.'],
+  ['cardDays','The next 15 days','One row per day, like a weather app. The number is the best guess; the coloured bar is the likely range. The first 6 days are the most reliable.'],
+  ['mapcell','The map','Orange dots are fires seen by satellite. Grey is their smoke. The yellow shading is where the air reaching Singapore is coming from: fires inside it matter most. Drag to move, scroll to zoom, and use "What\'s on the map?" for more.'],
+  ['timebar','Move through time','Pick a day, or press Play, to watch the fires, smoke and Singapore\'s air change over the coming days.'],
+  ['cardScen','What could happen','The model played out 100,000 versions of the next 6 days. Each coloured square is 1% of them. Tap an outcome to see that version on the map and chart.'],
+  ['cardSrc','Where the smoke comes from','Which provinces are sending the most smoke our way, plus fires, rain and visibility near the fires.'],
+  ['actions','Check our work','"Track record" shows how past forecasts compared with what NEA measured. "How it works" explains the model. "Rerun" runs it again on your device with NEA\'s latest reading.'],
+];
+let tourI=-1,tourHole=null,tourCard=null,tourLast=null;
+let tourScroll=[];
+function startTour(){tourLast=document.activeElement;tourI=0;tourScroll=[...document.querySelectorAll('.col')].map(c=>c.scrollTop).concat([window.scrollY]);if(!tourHole){tourHole=document.createElement('div');tourHole.className='tourhole';tourCard=document.createElement('div');tourCard.className='tourcard';tourCard.setAttribute('role','dialog');tourCard.setAttribute('aria-modal','true');tourCard.setAttribute('aria-labelledby','tourTitle');document.body.append(tourHole,tourCard);}
+  tourHole.hidden=tourCard.hidden=false;showTour();}
+function endTour(){tourI=-1;document.querySelectorAll('.col').forEach((c,i)=>{c.scrollTop=tourScroll[i]||0;});window.scrollTo(0,tourScroll[tourScroll.length-1]||0);if(tourHole){tourHole.hidden=tourCard.hidden=true;}try{localStorage.setItem('hazeTourSeen','1');}catch(e){}if(tourLast&&tourLast.focus)tourLast.focus();}
+function showTour(){
+  const [id,title,text]=TOUR[tourI];const el=$(id);
+  el.scrollIntoView({block:'nearest',behavior:reduced?'auto':'smooth'});
+  const place=()=>{const r=el.getBoundingClientRect();const pad=6;
+    Object.assign(tourHole.style,{left:(r.left-pad)+'px',top:(r.top-pad)+'px',width:(r.width+pad*2)+'px',height:(r.height+pad*2)+'px'});
+    tourCard.innerHTML='<h2 id="tourTitle"></h2><p></p><div class="tnav"><span>'+(tourI+1)+' of '+TOUR.length+'</span>'+(tourI?'<button class="btn" type="button" data-t="back">Back</button>':'<button class="btn" type="button" data-t="skip">Skip</button>')+'<button class="btn primary" type="button" data-t="next">'+(tourI===TOUR.length-1?'Done':'Next')+'</button></div>';
+    tourCard.querySelector('h2').textContent=title;tourCard.querySelector('p').textContent=text;
+    const cw=tourCard.offsetWidth,ch=tourCard.offsetHeight,W=window.innerWidth,Hh=window.innerHeight;let x,y;
+    if(r.right+16+cw<=W){x=r.right+16;y=r.top;}else if(r.left-16-cw>=0){x=r.left-16-cw;y=r.top;}else{x=r.left;y=r.bottom+16;if(y+ch>Hh)y=r.top-16-ch;}
+    x=clamp(x,16,W-cw-16);y=clamp(y,16,Hh-ch-16);tourCard.style.left=x+'px';tourCard.style.top=y+'px';
+    tourCard.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.t;if(t==='next'){if(tourI===TOUR.length-1)endTour();else{tourI++;showTour();}}else if(t==='back'){tourI--;showTour();}else endTour();}));
+    tourCard.querySelector('[data-t="next"]').focus();};
+  setTimeout(place,reduced?0:260);
+}
+document.addEventListener('keydown',e=>{if(tourI<0)return;if(e.key==='Escape')endTour();else if(e.key==='ArrowRight'&&tourI<TOUR.length-1){tourI++;showTour();}else if(e.key==='ArrowLeft'&&tourI>0){tourI--;showTour();}});
+window.addEventListener('resize',()=>{if(tourI>=0)showTour();});
+$('btnTour').addEventListener('click',startTour);
+
 /* ---------- boot ---------- */
 async function getJSON(p){const r=await fetch(p,{cache:'no-cache'});if(!r.ok)throw new Error(p+': HTTP '+r.status);return r.json();}
 async function boot(){
@@ -1072,6 +1122,7 @@ async function boot(){
     try{REC=await getJSON('data/record.json');}catch(e){REC=null;}
     RINGS=COAST.map(enc=>{const pts=[];let x=0,y=0;for(let i=0;i<enc.length;i+=2){x+=enc[i];y+=enc[i+1];pts.push([x/100,y/100]);}return pts;});
     buildHot();buildWinds();buildThreads();renderAll();layout();initWind();syncT();
+    let seen=false;try{seen=localStorage.getItem('hazeTourSeen')==='1';}catch(e){}if(!seen)setTimeout(startTour,900);
   }catch(e){showError('The latest forecast could not be loaded ('+e.message+'). Reload the page to try again.');$('statusText').textContent='No forecast loaded';$('headline').textContent='The latest forecast could not be loaded.';}
 }
 let rz=0;window.addEventListener('resize',()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{layout();renderDays();});});
