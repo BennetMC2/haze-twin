@@ -7,7 +7,9 @@
 //   ANTHROPIC_API_KEY  (secret)  your Claude API key
 //   ALLOWED_ORIGIN               https://bennetmc2.github.io
 //   DAILY_LIMIT                  e.g. 500 questions a day in total
-//   MODEL                        optional, default claude-haiku-5-5
+//   OPENAI_API_KEY     (secret)  premium answers via OpenAI (used first if set)
+//   OPENAI_MODEL                 optional, default gpt-4o-mini
+//   MODEL                        optional Claude model, default claude-haiku-5-5
 //   PREMIUM_CODES      (secret)  comma-separated codes that unlock Claude answers; everyone else gets Workers AI
 //
 // Free option: leave ANTHROPIC_API_KEY unset and add a Workers AI binding named AI
@@ -56,7 +58,8 @@ export default {
 
     const userMsg = "Forecast data:\n" + context + "\n\nQuestion: " + q;
     const codes = String(env.PREMIUM_CODES || "").split(",").map((c) => c.trim()).filter(Boolean);
-    const premium = !!env.ANTHROPIC_API_KEY && codes.includes(String(body.code || "").trim());
+    const hasPremiumModel = !!(env.OPENAI_API_KEY || env.ANTHROPIC_API_KEY);
+    const premium = hasPremiumModel && codes.includes(String(body.code || "").trim());
     if (!premium && env.AI) {
       try {
         const out = await env.AI.run(env.CF_MODEL || "@cf/meta/llama-3.1-8b-instruct", {
@@ -67,6 +70,22 @@ export default {
       } catch (e) { return json({ error: "model error" }, 502, h); }
     }
     if (!premium) return json({ error: "no model configured" }, 500, h);
+
+    if (env.OPENAI_API_KEY) {
+      const r = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: { "content-type": "application/json", "authorization": "Bearer " + env.OPENAI_API_KEY },
+        body: JSON.stringify({
+          model: env.OPENAI_MODEL || "gpt-4o-mini",
+          max_tokens: 400,
+          messages: [{ role: "system", content: SYSTEM }, { role: "user", content: userMsg }],
+        }),
+      });
+      if (!r.ok) return json({ error: "model error " + r.status }, 502, h);
+      const out = await r.json();
+      const answer = String(((out.choices || [])[0] || {}).message?.content || "").trim();
+      return json({ answer, tier: "premium" }, 200, h);
+    }
 
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
