@@ -4,403 +4,393 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Haze Twin</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Singapore haze odds for the next six days from a digital twin of Southeast Asia's fires, smoke and winds.">
+<meta name="description" content="How bad Singapore's haze is, how it is likely to change over the next 15 days, and where the smoke is coming from.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
 <style>
-/* Layout: the twin map fills the screen; translucent instrument panels float over it — answer and storylines left, futures right, timeline below */
 :root{
   color-scheme: dark;
-  --void:#05080C; --panel:rgba(7,13,19,.84); --panel-solid:#09121A; --raise:#0E1A23; --raise-2:#13222D;
-  --edge:#1B2B37; --edge-hi:#2D4656; --grid:#0D1A22;
-  --ink:#E3ECF0; --ink-2:#AEBFC9; --ink-3:#7F939F;
-  --cyan:#5CE1E6; --fire:#FF7A1A; --smoke:#CBBBA6;
-  --sA:#F4C247; --sB:#5CE1E6; --sC:#FF6F91; --sD:#7CE38B;
+  --bg:#0E1820; --panel:#14222C; --raise:#1A2B37; --line:#223542; --line-hi:#33495A;
+  --ink:#E8EEF1; --ink-2:#A9B9C3; --ink-3:#7F929F;
+  --sky:#86CBE6; --fire:#FF8A2A; --smoke:#CBBBA6;
+  --sA:#E9C44C; --sB:#78C6E8; --sC:#F07A9A; --sD:#7CD69A;
   --good:#4FB286; --mod:#6E9FD8; --unh:#E8C547; --vunh:#E9813A; --haz:#D24B45;
-  --display:'Chakra Petch','Rajdhani','Segoe UI',sans-serif;
-  --body:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;
-  --mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+  --sans:'Barlow',system-ui,'Segoe UI',sans-serif;
+  --num:'Barlow Semi Condensed','Barlow',system-ui,sans-serif;
 }
-html,body{height:100%}
-body{margin:0}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
 [hidden]{display:none!important}
-img{max-width:100%}
-body{background:var(--void);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.45;overflow:hidden}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45;overflow:hidden;font-variant-numeric:tabular-nums}
 button{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
-.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
-.app{position:relative;height:100%;box-sizing:border-box;overflow-x:clip;display:grid;
-  grid-template-columns:minmax(300px,350px) minmax(0,1fr) minmax(340px,410px);
-  grid-template-rows:auto minmax(0,1fr) auto;
-  grid-template-areas:"top top top" "left map right" "left time right";
-  gap:12px;padding-block:12px;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-#stage{position:absolute;inset:0;z-index:0;overflow:hidden}
-#map{display:block;width:100%;height:100%;touch-action:none}
-.panel{position:relative;z-index:2;background:var(--panel);border:1px solid var(--edge);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
-.panel::before,.panel::after{content:"";position:absolute;width:10px;height:10px;border:solid var(--cyan);opacity:.7;pointer-events:none}
-.panel::before{top:-1px;left:-1px;border-width:1px 0 0 1px}
-.panel::after{bottom:-1px;right:-1px;border-width:0 1px 1px 0}
+a{color:var(--sky)}
+:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+.num{font-family:var(--num);font-variant-numeric:tabular-nums}
+
+.app{height:100%;display:grid;grid-template-columns:minmax(330px,390px) minmax(0,1fr) minmax(330px,380px);grid-template-rows:auto minmax(0,1fr) auto;
+  grid-template-areas:"top top top" "left map right" "left time right";gap:12px;padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px))}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px}
 
 /* top bar */
-.top{grid-area:top;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px;padding:8px 10px 8px 16px}
-.brand{display:flex;align-items:baseline;gap:12px}
-.logo{font-family:var(--display);font-weight:600;font-size:21px;letter-spacing:.16em}
-.sub{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--ink-3)}
-.status{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;font-family:var(--mono);font-size:12px;color:var(--ink-2)}
-.status .dot{width:8px;height:8px;border-radius:50%;background:var(--sD);box-shadow:0 0 10px var(--sD)}
-.status .dot.run{background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
-.chip{border:1px solid var(--edge-hi);border-radius:999px;padding:2px 10px;color:var(--ink-3);font-size:11px}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-.btn{min-height:40px;padding:0 16px;border-radius:4px;border:1px solid var(--edge-hi);background:transparent;color:var(--ink);cursor:pointer;font-family:var(--mono);font-size:12px;letter-spacing:.06em}
-.btn:hover{border-color:var(--cyan)}
-.btn.primary{background:var(--fire);border-color:var(--fire);color:#160A02;font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.14em;min-width:118px}
-.btn.primary:hover{background:#FF9447;border-color:#FF9447}
-.btn.primary[aria-busy="true"]{background:transparent;color:var(--fire)}
+.top{grid-area:top;display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;padding:2px 0}
+.brand{font-weight:700;font-size:20px;letter-spacing:.01em}
+.brand span{font-weight:500;color:var(--ink-3);margin-left:8px;font-size:15px}
+.status{flex:1 1 auto;display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;color:var(--ink-2);font-size:14px}
+.live{display:inline-flex;align-items:center;gap:6px}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--sD)}
+.live.run i{background:var(--sky)}
+.live.sample i{background:var(--unh)}
+.actions{display:flex;gap:8px}
+.btn{min-height:38px;padding:0 14px;border-radius:5px;border:1px solid var(--line-hi);background:transparent;cursor:pointer;font-weight:500;font-size:14px}
+.btn:hover{border-color:var(--sky)}
+.btn.primary{background:var(--sky);border-color:var(--sky);color:#0B1A22;font-weight:600}
+.btn.primary:hover{background:#A5DAEE}
+.btn.primary[aria-busy="true"]{background:transparent;color:var(--sky)}
 
-/* side panels */
-.left,.right{min-height:0;overflow-y:auto;display:flex;flex-direction:column;scrollbar-width:thin;scrollbar-color:var(--edge-hi) transparent}
+/* columns */
+.col{min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;scrollbar-color:var(--line-hi) transparent}
 .left{grid-area:left}.right{grid-area:right}
-.sect{padding:14px 16px;border-bottom:1px solid var(--edge);display:flex;flex-direction:column;gap:10px}
-.sect:last-child{border-bottom:0}
-.row{display:flex;align-items:baseline;gap:10px}.between{justify-content:space-between}
-h2{margin:0;font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink)}
-.prov{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase}
-.eyebrow{margin:0;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--cyan);text-transform:uppercase}
-.answer{margin:0;font-family:var(--body);font-weight:600;font-size:21px;line-height:1.28;text-wrap:balance}
-.answer2{margin:0;color:var(--ink-2);font-size:14px}
-.nowval{display:flex;align-items:center;gap:12px}
-.big{font-family:var(--mono);font-size:44px;font-weight:500;line-height:1;font-variant-numeric:tabular-nums}
-.pill{font-weight:600;font-size:13px;border-radius:3px;padding:3px 8px;color:#0A0A0A}
-.regions{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
-.reg{min-height:44px;border:1px solid var(--edge);background:transparent;border-radius:3px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:2px}
-.reg span:first-child{font-size:10.5px;color:var(--ink-3);letter-spacing:.04em}
-.reg span:last-child{font-family:var(--mono);font-size:14px}
-.reg[aria-pressed="true"]{border-color:var(--cyan);background:rgba(92,225,230,.08)}
-.reg:hover{border-color:var(--edge-hi)}
+.card{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
+.note{margin:0;font-size:13px;color:var(--ink-3)}
+.sub{margin:0;color:var(--ink-2);font-size:14.5px}
+.head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
 
-.story{border:1px solid var(--edge);border-radius:3px;background:rgba(14,26,35,.55);display:flex;flex-direction:column}
-.story + .story{margin-top:8px}
-.story.on{border-color:var(--sc);background:rgba(19,34,45,.9)}
-.storybtn{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:7px;padding:10px 12px 8px;min-height:44px}
-.storybtn:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
-.sline{display:flex;align-items:center;gap:10px}
-.swatch{width:16px;height:3px;border-radius:2px;background:var(--sc);flex:none;box-shadow:0 0 8px var(--sc)}
-.sname{flex:1 1 auto;font-weight:600;font-size:14px;line-height:1.25}
-.sodds{font-family:var(--mono);font-size:21px;font-variant-numeric:tabular-nums}
-.sdelta{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);min-width:26px;text-align:right}
-.sdelta.up{color:var(--ink)}.sdelta.down{color:var(--ink)}
-.sbar{display:block;height:3px;background:var(--grid);overflow:hidden}
-.sfill{display:block;height:3px;background:var(--sc);transition:width .2s linear}
-.sout{font-size:13px;color:var(--ink-2);line-height:1.4}
-.watch{padding:0 12px 10px}
-.watch summary{cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--cyan);text-transform:uppercase;list-style:none;display:inline-flex;align-items:center;gap:6px;min-height:24px}
-.watch summary::-webkit-details-marker{display:none}
-.watch summary::before{content:"+";font-size:13px}
-.watch[open] summary::before{content:"–"}
-.watch p{margin:6px 0 0;font-size:13px;color:var(--ink-2)}
-.hint{margin:0;font-size:12px;color:var(--ink-3)}
+/* now */
+.now{display:flex;align-items:center;gap:16px}
+.psi{font-family:var(--num);font-weight:600;font-size:64px;line-height:.9;letter-spacing:-.01em}
+.nowtxt{display:flex;flex-direction:column;gap:3px}
+.band{display:inline-block;align-self:flex-start;font-weight:600;font-size:14px;border-radius:4px;padding:2px 8px;color:#0B1218}
+.regions{display:flex;flex-wrap:wrap;gap:6px}
+.reg{min-height:32px;padding:0 10px;border:1px solid var(--line);background:transparent;border-radius:16px;cursor:pointer;font-size:13px;color:var(--ink-2);display:inline-flex;align-items:center;gap:6px}
+.reg b{font-family:var(--num);font-weight:600;color:var(--ink)}
+.reg[aria-pressed="true"]{border-color:var(--sky);color:var(--ink)}
+.headline{margin:0;font-size:26px;line-height:1.18;font-weight:600;text-wrap:balance;letter-spacing:-.005em}
+.lede{margin:0;font-size:15.5px;color:var(--ink-2);line-height:1.5}
+.lede b{color:var(--ink);font-weight:600}
 
-/* right panel */
-#fan{display:block;width:100%;height:250px;cursor:crosshair;touch-action:none}
-.fanlegend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11.5px;color:var(--ink-3)}
-.fanlegend span{display:inline-flex;align-items:center;gap:6px}
-.lg{display:inline-block;width:16px;height:0;border-top:2px solid var(--ink)}
-.lg.dash{border-top:1px dashed var(--ink-2)}
-.lg.meas{border-top:2px solid var(--cyan)}
-.why{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-.why li{display:grid;grid-template-columns:14px minmax(0,1fr);gap:8px;font-size:13px;color:var(--ink-2);line-height:1.4}
-.why li i{width:8px;height:8px;border-radius:50%;margin-top:5px;background:var(--sc);box-shadow:0 0 8px var(--sc)}
-.why li b{color:var(--ink);font-weight:600}
-.why .tag{display:inline-block;margin-left:6px;font-family:var(--mono);font-size:10px;letter-spacing:.08em;border:1px solid var(--fire);color:var(--fire);padding:0 5px;border-radius:2px;vertical-align:1px}
-#whyCard.flash{animation:flash 1.2s ease-out}
-@keyframes flash{0%{background:rgba(92,225,230,.16)}100%{background:transparent}}
-.dayrow{display:grid;grid-template-columns:48px minmax(0,1fr) 58px;align-items:center;gap:10px;padding:3px 0}
-.dayrow .dl{font-family:var(--mono);font-size:12px;color:var(--ink-2)}
-.dayrow .bar{display:flex;gap:2px;height:11px}
-.dayrow .bar i{display:block;height:11px}
-.dayrow .dm{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);text-align:right}
-.dayrow.cur .dl{color:var(--cyan)}
-.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:var(--ink-3)}
-.legend span{display:inline-flex;align-items:center;gap:5px}
-.legend i{width:9px;height:9px;display:inline-block}
+/* 15-day range list */
+.scale,.drow{display:grid;grid-template-columns:62px minmax(0,1fr) 40px;align-items:center;gap:10px}
+.scale{font-size:11.5px;color:var(--ink-3);height:16px}
+.scale .ax{position:relative;height:16px}
+.scale .ax span{position:absolute;transform:translateX(-50%)}
+.drow{min-height:30px;border:0;background:transparent;width:100%;padding:0 4px;margin:0 -4px;border-radius:4px;cursor:pointer;text-align:left}
+.drow:hover{background:var(--raise)}
+.drow.cur{background:var(--raise);box-shadow:inset 2px 0 0 var(--sky)}
+.drow .dl{font-size:14px;color:var(--ink-2)}
+.drow .dl b{color:var(--ink);font-weight:600;margin-right:4px}
+.drow .dv{font-family:var(--num);font-weight:600;font-size:16px;text-align:right}
+.track{position:relative;height:16px}
+.track .zone{position:absolute;top:7px;height:2px;opacity:.35}
+.track .wide{position:absolute;top:6px;height:4px;background:#5D7180;border-radius:2px}
+.track .mid{position:absolute;top:2px;height:12px;border-radius:6px}
+.track .dot{position:absolute;top:4px;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:var(--ink);border:2px solid var(--bg)}
+.track .cap{position:absolute;right:-2px;top:0;font-size:11px;color:var(--ink-3)}
+.divider{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-3);margin:6px 0 2px}
+.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+.ext{opacity:.72}
+.keyrow{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--ink-3)}
+.keyrow span{display:inline-flex;align-items:center;gap:6px}
+.k-mid{width:18px;height:8px;border-radius:4px;background:var(--vunh)}
+.k-wide{width:18px;height:4px;border-radius:2px;background:#5D7180}
+.k-dot{width:8px;height:8px;border-radius:50%;background:var(--ink)}
 
-/* map overlays */
-.mapcell{grid-area:map;position:relative;z-index:1;pointer-events:none;min-height:0;min-width:0}
-.mapcell > *{pointer-events:auto}
-.maphud{position:absolute;display:flex;gap:8px}
-.maphud.tl{top:0;left:0;flex-direction:column;gap:4px;max-width:min(460px,70%)}
-.maphud.tr{top:0;right:0;flex-wrap:wrap;justify-content:flex-end;max-width:50%}
-.maphud.bl{bottom:0;left:0;max-width:calc(100% - 190px);flex-wrap:wrap;gap:4px 14px;font-size:11.5px;color:var(--ink-2);background:rgba(5,8,12,.72);padding:6px 10px;border:1px solid var(--edge)}
-.maphud.br{bottom:0;right:0;font-size:11px;color:var(--ink-3);background:rgba(5,8,12,.72);padding:6px 10px;border:1px solid var(--edge)}
-.hudlabel{font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:.2em;color:var(--cyan)}
-.showing{background:rgba(5,8,12,.78);border:1px solid var(--edge);padding:6px 10px;display:flex;flex-direction:column;gap:2px}
-.showing b{font-weight:600}
-.showing .mono{font-size:11.5px;color:var(--ink-2)}
-.layer{min-height:34px;padding:0 10px;border-radius:3px;border:1px solid var(--edge-hi);background:rgba(5,8,12,.78);color:var(--ink-3);cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.05em}
-.layer[aria-pressed="true"]{color:var(--ink);border-color:var(--cyan)}
-.maphud.bl span{display:inline-flex;align-items:center;gap:6px}
-.key-dot{width:8px;height:8px;border-radius:50%;background:var(--fire);box-shadow:0 0 8px var(--fire)}
-.key-line{width:16px;height:2px;background:var(--ink-2)}
-.key-smoke{width:16px;height:9px;border-radius:5px;background:#4E4A44}
-.runbox{position:absolute;left:50%;bottom:56px;transform:translateX(-50%);white-space:nowrap;pointer-events:none !important;background:rgba(5,8,12,.86);border:1px solid var(--cyan);padding:12px 18px;font-family:var(--mono);font-size:14px;color:var(--cyan);text-align:center;box-shadow:0 0 30px rgba(92,225,230,.25)}
-.runbox small{display:block;color:var(--ink-3);font-size:11px;margin-top:2px}
+/* scenarios */
+.dots{display:grid;grid-template-columns:repeat(20,minmax(0,1fr));gap:3px}
+.dots i{aspect-ratio:1;border-radius:2px;background:var(--line);transition:opacity .15s}
+.dots.dim i:not(.on){opacity:.22}
+.scen{display:flex;flex-direction:column;gap:6px}
+.sc{border:1px solid var(--line);border-radius:5px;background:transparent}
+.sc.on{border-color:var(--c);background:var(--raise)}
+.scbtn{all:unset;box-sizing:border-box;width:100%;cursor:pointer;display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:4px 10px;padding:9px 12px;align-items:baseline}
+.scbtn:focus-visible{outline:2px solid var(--sky);outline-offset:-2px}
+.scbtn .sw{width:10px;height:10px;border-radius:2px;background:var(--c);align-self:center}
+.scbtn .nm{font-weight:600;font-size:15px}
+.scbtn .od{font-family:var(--num);font-weight:600;font-size:15px;white-space:nowrap}
+.scbtn .od small{font-family:var(--sans);font-weight:400;font-size:12.5px;color:var(--ink-3)}
+.scbtn .oc{grid-column:2 / 4;font-size:13.5px;color:var(--ink-2)}
+.sc details{padding:0 12px 9px 34px;font-size:13.5px;color:var(--ink-2)}
+.sc summary{cursor:pointer;color:var(--sky);font-size:13px;list-style:none;min-height:22px}
+.sc summary::-webkit-details-marker{display:none}
+.sc details p{margin:4px 0 0}
 
-/* timeline */
-.time{grid-area:time;padding:10px 14px 8px;display:flex;flex-direction:column;gap:6px;min-width:0}
-.timerow{display:flex;align-items:center;gap:14px}
-.play{min-width:72px}
-.track{position:relative;flex:1 1 auto;min-width:0;padding-top:46px}
-.markers{position:absolute;left:8px;right:8px;top:0;height:46px}
-.mk{position:absolute;transform:translateX(-50%);top:var(--row,0px);display:flex;flex-direction:column;align-items:center;gap:1px;background:none;border:0;cursor:pointer;padding:0 2px;font-family:var(--mono);font-size:10px;color:var(--ink-2);white-space:nowrap}
-.mk::after{content:"";width:2px;height:calc(7px + 26px - var(--row,0px));background:var(--sc);box-shadow:0 0 6px var(--sc)}
-.mk:hover{color:var(--ink)}
-#scrub{width:100%;margin:0;height:24px;accent-color:var(--cyan);cursor:pointer}
-.ticks{display:flex;justify-content:space-between;padding:0 2px;font-family:var(--mono);font-size:10.5px;color:var(--ink-3)}
-.ticks span.cur{color:var(--cyan)}
-.when{text-align:right;font-size:12px;color:var(--cyan);letter-spacing:.04em}
-.ticker{overflow:hidden;border-top:1px solid var(--edge);padding-top:6px;mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
-.tickerin{display:inline-flex;gap:28px;white-space:nowrap;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);animation:tick 70s linear infinite}
-.ticker:hover .tickerin{animation-play-state:paused}
-.tickerin span b{color:var(--ink-3);font-weight:400;margin-right:6px}
-.tickerin span.t{color:var(--cyan)}
-.tickerin span.n{color:var(--fire)}
-@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+/* why */
+.srcs{display:flex;flex-direction:column;gap:6px}
+.src{display:grid;grid-template-columns:minmax(0,1fr) 110px 38px;gap:10px;align-items:center;font-size:14px}
+.src .bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.src .bar i{display:block;height:100%;background:var(--fire);border-radius:4px}
+.src .pc{font-family:var(--num);font-weight:600;text-align:right}
+.facts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.facts li{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;font-size:14px;color:var(--ink-2)}
+.facts li b{color:var(--ink);font-weight:600}
+.facts li span:first-child{color:var(--ink-3);font-size:13px;padding-top:1px}
+.changes{display:flex;flex-direction:column;gap:6px;font-size:13.5px;color:var(--ink-2)}
+.changes .chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12.5px;border:1px solid var(--c,var(--line-hi));border-radius:12px;padding:1px 9px;color:var(--ink)}
+#changeCard.flash{animation:flash 1.2s ease-out}
+@keyframes flash{0%{background:rgba(134,203,230,.14)}100%{background:var(--panel)}}
+
+/* chart */
+#fan{display:block;width:100%;height:210px;cursor:crosshair;touch-action:none}
+.fankey{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--ink-3)}
+.fankey span{display:inline-flex;align-items:center;gap:6px}
+.fk-meas{width:16px;height:2px;background:var(--sky)}
+.fk-mid{width:16px;height:2px;background:var(--ink)}
+.fk-50{width:16px;height:9px;background:rgba(232,238,241,.28)}
+.fk-90{width:16px;height:9px;background:rgba(232,238,241,.11)}
+
+/* news */
+.sigline{margin:0;font-size:14px;color:var(--ink-2)}
+.sigs{display:flex;flex-wrap:wrap;gap:6px}
+.sig{font-size:12.5px;padding:1px 9px;border:1px solid var(--line-hi);border-radius:12px;color:var(--ink-2)}
+.sig.up{border-color:var(--vunh);color:var(--ink)}
+.sig.down{border-color:var(--sD);color:var(--ink)}
+.news{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.news li{display:flex;flex-direction:column;gap:1px;font-size:14px;line-height:1.35}
+.news a{color:var(--ink);text-decoration:none}
+.news a:hover{color:var(--sky);text-decoration:underline}
+.news span{font-size:12px;color:var(--ink-3)}
+
+/* season */
+.srow{display:grid;grid-template-columns:64px minmax(0,1fr) 40px;gap:10px;align-items:center;font-size:13.5px}
+.srow .bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.srow .bar i{display:block;height:100%;background:var(--sD);border-radius:4px}
+.srow .pc{font-family:var(--num);font-weight:600;text-align:right}
+.more summary{cursor:pointer;color:var(--sky);font-size:13.5px;min-height:24px;list-style:none}
+.more summary::-webkit-details-marker{display:none}
+.more p{margin:6px 0 0;font-size:13.5px;color:var(--ink-2)}
+.feeds{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--ink-2)}
+.feeds li{display:grid;grid-template-columns:10px minmax(0,1fr);gap:8px}
+.feeds i{width:7px;height:7px;border-radius:50%;margin-top:6px;background:var(--sD)}
+.feeds i.bad{background:var(--vunh)}.feeds i.part{background:var(--unh)}
+
+/* map */
+.mapcell{grid-area:map;position:relative;min-height:0;min-width:0;overflow:hidden;border-radius:6px;border:1px solid var(--line);background:#09131A}
+#map{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#map.drag{cursor:grabbing}
+.ov{position:absolute;z-index:2}
+.showing{top:12px;left:12px;max-width:min(440px,calc(100% - 200px));background:rgba(14,24,32,.88);border:1px solid var(--line);border-radius:6px;padding:8px 12px;display:flex;flex-direction:column;gap:1px;pointer-events:none}
+.showing b{font-size:15px;font-weight:600}
+.showing span{font-size:13.5px;color:var(--ink-2)}
+.tools{top:12px;right:12px;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.zoom{display:flex;flex-direction:column;border:1px solid var(--line-hi);border-radius:6px;overflow:hidden;background:rgba(14,24,32,.9)}
+.zoom button{width:38px;height:36px;border:0;background:transparent;cursor:pointer;font-size:19px;line-height:1}
+.zoom button + button{border-top:1px solid var(--line)}
+.zoom button:hover{background:var(--raise)}
+.zoom button.fit{font-size:12px}
+.layersbtn{min-height:36px;padding:0 12px;border:1px solid var(--line-hi);border-radius:6px;background:rgba(14,24,32,.9);cursor:pointer;font-size:14px}
+.layermenu{background:var(--panel);border:1px solid var(--line-hi);border-radius:6px;padding:8px 6px;display:flex;flex-direction:column;min-width:210px}
+.layermenu label{display:flex;align-items:center;gap:10px;padding:5px 8px;border-radius:4px;cursor:pointer;font-size:14px}
+.layermenu label:hover{background:var(--raise)}
+.layermenu input{accent-color:var(--sky);width:16px;height:16px;margin:0}
+.layermenu small{color:var(--ink-3);font-size:12px;margin-left:auto}
+.key{bottom:12px;left:12px;display:flex;flex-wrap:wrap;gap:4px 14px;max-width:calc(100% - 24px);font-size:12.5px;color:var(--ink-2);background:rgba(14,24,32,.86);border:1px solid var(--line);border-radius:6px;padding:6px 10px;pointer-events:none}
+.key span{display:inline-flex;align-items:center;gap:6px}
+.ky-fire{width:9px;height:9px;border-radius:50%;background:var(--fire);box-shadow:0 0 6px var(--fire)}
+.ky-smoke{width:16px;height:9px;border-radius:5px;background:#6E6559}
+.ky-air{width:16px;height:2px;background:var(--c,var(--sA))}
+.ky-wind{width:16px;height:1px;background:#9AB0BC}
+.ky-ap{width:8px;height:8px;transform:rotate(45deg);border:1.5px solid var(--ink-2)}
+.ky-st{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--ink)}
+.tip{z-index:3;pointer-events:none;background:var(--panel);border:1px solid var(--line-hi);border-radius:5px;padding:6px 9px;font-size:13px;max-width:240px;transform:translate(12px,-50%)}
+.tip b{display:block;font-weight:600}
+.runbox{left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(14,24,32,.94);border:1px solid var(--sky);border-radius:6px;padding:14px 20px;text-align:center;pointer-events:none}
+.runbox b{font-family:var(--num);font-size:22px;font-weight:600;display:block}
+.runbox span{font-size:13px;color:var(--ink-2)}
+.errbox{left:50%;bottom:60px;transform:translateX(-50%);max-width:80%;background:var(--panel);border:1px solid var(--vunh);border-radius:6px;padding:10px 14px;font-size:14px}
+
+/* time strip */
+.time{grid-area:time;padding:10px 12px;display:flex;align-items:stretch;gap:10px;min-width:0}
+.play{flex:none;min-width:92px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.play svg{width:12px;height:12px;fill:currentColor}
+.daystrip{flex:1 1 auto;min-width:0;display:flex;gap:4px;overflow-x:auto;scrollbar-width:thin;position:relative}
+.dchip{flex:1 0 50px;min-width:50px;border:1px solid var(--line);border-radius:5px;background:transparent;cursor:pointer;padding:5px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;overflow:hidden}
+.dchip span{font-size:12.5px;color:var(--ink-2);white-space:nowrap}
+.dchip b{font-family:var(--num);font-weight:600;font-size:15px;line-height:1}
+.dchip i{position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--c)}
+.dchip.ext{border-style:dashed}
+.dchip.ext b{color:var(--ink-2)}
+.dchip.cur{border-color:var(--sky);background:var(--raise)}
+.dchip .prog{position:absolute;left:0;top:0;bottom:3px;background:rgba(134,203,230,.12);width:0}
+.gap{flex:none;width:1px;background:var(--line-hi);margin:4px 3px}
 
 /* dialogs */
-dialog{background:var(--panel-solid);color:var(--ink);border:1px solid var(--edge-hi);padding:0;width:min(680px,calc(100vw - 32px));max-height:calc(100vh - 48px)}
-dialog::backdrop{background:rgba(2,4,6,.72)}
-.dlghead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--edge);position:sticky;top:0;background:var(--panel-solid)}
-.dlgbody{padding:16px 18px;display:flex;flex-direction:column;gap:16px}
-.dlgbody p{margin:0;color:var(--ink-2);max-width:62ch}
-.strip{display:flex;gap:3px}.strip i{flex:1 1 0;height:18px;background:var(--edge-hi)}.strip i.miss{background:var(--vunh)}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-.stat{border:1px solid var(--edge);padding:10px 12px;display:flex;flex-direction:column;gap:2px}
-.stat .v{font-family:var(--mono);font-size:22px}
-.stat .k{font-size:12px;color:var(--ink-3)}
-.miss{border-top:1px solid var(--edge);padding-top:10px}
-.miss summary{cursor:pointer;display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;list-style:none}
-.miss summary::-webkit-details-marker{display:none}
-.miss .m1{font-weight:600}.miss .m2{font-family:var(--mono);font-size:12.5px;color:var(--ink-2)}
-.miss .m3{font-family:var(--mono);font-size:12px;color:var(--vunh)}
-.miss p{margin-top:8px}
-.srcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
-.srcs h3{margin:0 0 6px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan)}
-.srcs ul{margin:0;padding-left:18px;color:var(--ink-2);display:flex;flex-direction:column;gap:3px}
+dialog{background:var(--panel);color:var(--ink);border:1px solid var(--line-hi);border-radius:8px;padding:0;width:min(680px,calc(100vw - 32px));max-height:calc(100vh - 48px)}
+dialog::backdrop{background:rgba(4,8,12,.7)}
+.dlghead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel)}
+.dlgbody{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+.dlgbody p{margin:0;color:var(--ink-2);max-width:64ch}
+.dlgbody h3{margin:4px 0 0;font-size:15px}
 .steps{margin:0;padding-left:20px;color:var(--ink-2);display:flex;flex-direction:column;gap:8px;max-width:64ch}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.stat{border:1px solid var(--line);border-radius:5px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.stat .v{font-family:var(--num);font-weight:600;font-size:24px}
+.stat .k{font-size:13px;color:var(--ink-3)}
+.miss{border-top:1px solid var(--line);padding-top:8px;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:14px}
+.miss .m3{color:var(--vunh)}
 .chart-wrap{overflow-x:auto}
+.srclist{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.srclist ul{margin:4px 0 0;padding-left:18px;color:var(--ink-2);display:flex;flex-direction:column;gap:3px;font-size:14px}
 
-/* narrow screens: map on top, panels stacked below, page scrolls */
+/* narrow screens: one column, page scrolls */
 @media (max-width:1100px){
   body{overflow:auto}
   .app{height:auto;display:flex;flex-direction:column}
-  .left{display:contents}
-  .left .sect{position:relative;z-index:2;background:var(--panel);border:1px solid var(--edge)}
-  .top{order:0}.s-answer{order:1}.s-now{order:2}.mapcell{order:3;height:62vh;min-height:400px}.time{order:4}.s-stories{order:5}.right{order:6}
-  .right{overflow:visible}
-  .maphud.tr{max-width:100%;top:74px;left:0;right:auto;justify-content:flex-start}
-  .maphud.br{display:none}
-  .when{font-size:11px}
+  .col{overflow:visible}
+  .left{order:1}.mapcell{order:2;height:64vh;min-height:420px}.time{order:3}.right{order:4}
+  .showing{max-width:calc(100% - 80px)}
 }
 @media (max-width:560px){
-  .mk{font-size:0;min-width:24px;gap:0}
-  .regions{grid-template-columns:repeat(5,minmax(0,1fr))}
-  .maphud.tl{max-width:100%}
-  .status .sep{display:none}
+  .headline{font-size:23px}
+  .psi{font-size:54px}
+  .key{display:none}
 }
 @media (prefers-reduced-motion: reduce){
-  .tickerin{animation:none}
-  .ticker{overflow-x:auto}
-  #whyCard.flash{animation:none}
+  #changeCard.flash{animation:none}
 }
-
-.regions{grid-template-columns:repeat(6,minmax(0,1fr))}
-.chip.live{color:var(--sD);border-color:rgba(124,227,139,.5)}
-.ticks{position:relative;display:block;height:14px}
-.ticks span{position:absolute;top:0;transform:translateX(-50%)}
-.ticks span:first-child{transform:none}
-.deltas{display:flex;flex-wrap:wrap;gap:6px}
-.dchip{font-family:var(--mono);font-size:11px;border:1px solid var(--sc);color:var(--ink);padding:2px 7px;border-radius:2px}
-.dchip:empty{display:none}
-.errbox{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:80%;background:rgba(5,8,12,.92);border:1px solid var(--vunh);color:var(--ink);padding:12px 16px;font-size:13px}
-.miss{display:flex;flex-wrap:wrap;gap:4px 12px}
-
-.answer3{margin:0;font-size:13px;color:var(--cyan)}
-.extzone{position:absolute;top:46px;height:24px;right:8px;background:repeating-linear-gradient(135deg,rgba(127,147,159,.10) 0 4px,transparent 4px 8px);border-left:1px dashed var(--edge-hi);pointer-events:none}
-.extzone span{position:absolute;top:-14px;left:4px;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--ink-3);white-space:nowrap}
-.cby{display:grid;grid-template-columns:repeat(15,minmax(0,1fr));gap:3px;align-items:end;height:74px}
-.cby div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;height:100%}
-.cby i{display:block;width:100%;background:var(--sB);min-height:1px}
-.cby i.ext{background:rgba(92,225,230,.45)}
-.cby b{font-family:var(--mono);font-weight:400;font-size:9px;color:var(--ink-2)}
-.cbyx{display:grid;grid-template-columns:repeat(15,minmax(0,1fr));gap:3px;font-family:var(--mono);font-size:9px;color:var(--ink-3);text-align:center}
-.xchip{font-family:var(--mono);font-size:10px;letter-spacing:.06em;border:1px solid var(--edge-hi);color:var(--ink-3);padding:1px 6px;border-radius:2px;text-transform:uppercase}
-.season-rows{display:flex;flex-direction:column;gap:6px}
-.srow{display:grid;grid-template-columns:76px minmax(0,1fr) 40px;gap:10px;align-items:center;font-size:12.5px}
-.srow .lab{font-family:var(--mono);color:var(--ink-2)}
-.srow .bar{height:8px;background:var(--grid);position:relative;overflow:hidden}
-.srow .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--sD)}
-.srow .pc{font-family:var(--mono);text-align:right}
-.more{font-size:12.5px;color:var(--ink-2)}
-.more summary{cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--cyan);text-transform:uppercase;min-height:24px;display:inline-flex;align-items:center}
-.more p{margin:6px 0 0;max-width:60ch}
-.news{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
-.news li{display:flex;flex-direction:column;gap:2px;font-size:13px;line-height:1.35}
-.news a{color:var(--ink);text-decoration:none}
-.news a:hover{color:var(--cyan);text-decoration:underline}
-.news span{font-family:var(--mono);font-size:10.5px;color:var(--ink-3)}
-.lg.cams{border-top:2px dotted var(--fire)}
-.key-air{width:9px;height:9px;transform:rotate(45deg);border:1.5px solid var(--ink-2);display:inline-block}
-
-.sigs{display:flex;flex-wrap:wrap;gap:6px}
-.sig{font-family:var(--mono);font-size:11px;padding:2px 7px;border:1px solid var(--edge-hi);border-radius:2px;color:var(--ink-2)}
-.sig.up{border-color:var(--vunh);color:var(--ink)}
-.sig.down{border-color:var(--sD);color:var(--ink)}
-.tagline{font-family:var(--mono);font-size:10px;color:var(--ink-3)}
-.key-st{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--ink);display:inline-block}
 </style>
 </head>
 <body>
 <div class="app" id="app">
-  <div id="stage"><canvas id="map" aria-hidden="true"></canvas></div>
 
-  <header class="top panel">
-    <div class="brand"><span class="logo">HAZE TWIN</span><span class="sub">SINGAPORE · SE ASIA</span></div>
+  <header class="top">
+    <div class="brand">Haze Twin<span>Singapore haze forecast</span></div>
     <div class="status" role="status" aria-live="polite">
-      <span class="dot" id="dot"></span><span id="statusText">Loading the latest run…</span>
-      <span class="sep" id="membersText"></span>
-      <span class="chip" id="dataChip">Loading</span>
+      <span class="live" id="liveDot"><i></i><span id="statusText">Loading the latest forecast…</span></span>
+      <span id="nextText"></span>
     </div>
     <div class="actions">
-      <button class="btn" id="btnRecord" type="button">Record</button>
+      <button class="btn" id="btnRecord" type="button">Track record</button>
       <button class="btn" id="btnHow" type="button">How it works</button>
-      <button class="btn primary" id="btnRerun" type="button" aria-busy="false">RERUN</button>
+      <button class="btn primary" id="btnRerun" type="button" aria-busy="false" title="Run 100,000 futures again on this device with NEA's latest reading">Rerun</button>
     </div>
   </header>
 
-  <aside class="left panel" aria-label="Summary and storylines">
-    <div class="sect s-answer">
-      <p class="eyebrow" id="eyebrow">Singapore</p>
-      <h1 class="answer" id="answer">Loading…</h1>
-      <p class="answer2" id="answer2"></p>
-      <p class="answer3" id="answer3"></p>
-    </div>
-    <div class="sect s-now">
-      <div class="row between"><h2>24-hr PSI now</h2><span class="prov" id="nowProv">Measured · NEA</span></div>
-      <div class="nowval"><span class="big" id="psiNow">–</span><span class="pill" id="psiBand"></span></div>
-      <div class="regions" role="group" aria-label="PSI region" id="regions"></div>
-    </div>
-    <div class="sect s-stories">
-      <div class="row between"><h2>Storylines</h2><span class="prov" id="vsLabel"></span></div>
-      <div id="storyList"></div>
-      <p class="hint">Select a storyline to show its futures on the map and chart.</p>
-    </div>
+  <aside class="col left" aria-label="Summary">
+    <section class="panel card">
+      <div class="now">
+        <span class="psi" id="psiNow">–</span>
+        <div class="nowtxt">
+          <span class="band" id="psiBand"></span>
+          <span class="note" id="nowProv">24-hour PSI</span>
+        </div>
+      </div>
+      <div class="regions" role="group" aria-label="Area of Singapore" id="regions"></div>
+      <h1 class="headline" id="headline">Loading…</h1>
+      <p class="lede" id="lede"></p>
+      <p class="note">For what to do, follow <a href="https://www.haze.gov.sg/" target="_blank" rel="noopener">NEA's health advice</a>.</p>
+    </section>
+
+    <section class="panel card" aria-labelledby="daysTitle">
+      <div class="head"><h2 id="daysTitle">Next 15 days</h2><span class="note">24-hour PSI</span></div>
+      <div class="scale" aria-hidden="true"><span></span><div class="ax" id="ax"></div><span></span></div>
+      <div id="dayList"></div>
+      <div class="keyrow"><span><i class="k-mid"></i>Likely range</span><span><i class="k-wide"></i>Possible range</span><span><i class="k-dot"></i>Middle forecast</span></div>
+      <p class="note">Likely range: half of the simulated futures fall inside it. Possible range: 9 in 10 do.</p>
+    </section>
   </aside>
 
-  <section class="mapcell" id="mapcell" aria-label="Twin view">
-    <div class="maphud tl">
-      <span class="hudlabel">TWIN VIEW</span>
-      <div class="showing" aria-live="polite"><span id="showing1"></span><span class="mono" id="showing2"></span></div>
+  <section class="mapcell" id="mapcell" aria-label="Map of fires, smoke and the air reaching Singapore">
+    <canvas id="map" aria-hidden="true"></canvas>
+    <div class="ov showing" aria-live="polite"><b id="showing1"></b><span id="showing2"></span></div>
+    <div class="ov tools">
+      <div class="zoom" role="group" aria-label="Zoom">
+        <button type="button" id="zIn" aria-label="Zoom in">+</button>
+        <button type="button" id="zOut" aria-label="Zoom out">−</button>
+        <button type="button" id="zFit" class="fit" aria-label="Show the whole region">Fit</button>
+      </div>
+      <button type="button" class="layersbtn" id="layersBtn" aria-expanded="false" aria-controls="layerMenu">Layers</button>
+      <div class="layermenu" id="layerMenu" hidden></div>
     </div>
-    <div class="maphud tr" role="group" aria-label="Map layers" id="layers"></div>
-    <div class="maphud bl">
-      <span><i class="key-line" style="background:var(--sA)"></i>Air arriving in Singapore, traced back</span>
-      <span><i class="key-smoke"></i>Smoke</span>
-      <span><i class="key-dot"></i>Fire hotspot, last 24 h</span>
-      <span><i class="key-line" style="background:#8EA2AE;height:1px"></i>Wind</span>
-      <span><i class="key-air"></i>Airport visibility</span>
-      <span><i class="key-st"></i>PM2.5 station</span>
-    </div>
-    <div class="maphud br mono" id="readout">Point at the map</div>
-    <div class="runbox" id="runbox" hidden>Running futures <span id="runCount">0</span> / 100,000<small id="runSub">on your device, with the latest NEA reading</small></div>
-    <div class="errbox" id="errbox" hidden></div>
+    <div class="ov key" id="key"></div>
+    <div class="ov tip" id="tip" hidden></div>
+    <div class="ov runbox" id="runbox" hidden><b id="runCount">0</b><span id="runSub">futures run on this device</span></div>
+    <div class="ov errbox" id="errbox" hidden></div>
   </section>
 
-  <aside class="right panel" aria-label="Forecast detail">
-    <div class="sect">
-      <div class="row between"><h2>Futures</h2><span class="prov">24-hr PSI · <span id="fanRegion"></span></span></div>
-      <canvas id="fan" role="img" aria-label="Chart of simulated 24-hour PSI futures"></canvas>
-      <div class="fanlegend"><span><i class="lg meas"></i>Measured</span><span><i class="lg"></i>Middle (P50)</span><span><i class="lg dash"></i>90% range</span><span><i class="lg cams"></i>CAMS model</span><span>Thin lines: one future each</span></div>
-      <p class="hint" id="blendNote"></p>
-    </div>
-    <div class="sect" id="whyCard">
-      <div class="row between"><h2>Why the odds moved</h2><span class="prov" id="whyLabel"></span></div>
-      <div class="deltas" id="whyDeltas"></div>
-      <ul class="why" id="whyList"></ul>
-    </div>
-    <div class="sect" id="seasonCard">
-      <div class="row between"><h2>Season outlook</h2><span class="xchip">Experimental</span></div>
-      <p class="answer2" id="seasonLine"></p>
-      <div class="season-rows" id="seasonRows"></div>
-      <details class="more"><summary>How this is worked out</summary><div id="seasonMore"></div></details>
-    </div>
-    <div class="sect">
-      <div class="row between"><h2 id="cbyTitle">Next 15 days</h2><span class="prov">Share of futures</span></div>
-      <p class="hint" id="cbyHint"></p>
-      <div class="cby" id="cby" role="img"></div>
-      <div class="cbyx" id="cbyx"></div>
-    </div>
-    <div class="sect">
-      <div class="row between"><h2>Next 6 days</h2><span class="prov">Share of futures</span></div>
-      <div id="days"></div>
-      <div class="legend" id="bandLegend"></div>
-    </div>
-    <div class="sect" id="newsCard">
-      <div class="row between"><h2>In the news</h2><span class="prov">Last 3 days · GDELT</span></div>
-      <p class="answer2" id="sigLine"></p>
+  <section class="time panel" aria-label="Choose a day to show on the map">
+    <button class="btn play" id="btnPlay" type="button"><svg viewBox="0 0 12 12" aria-hidden="true"><path id="playIcon" d="M2 1l9 5-9 5z"/></svg><span id="playText">Play</span></button>
+    <div class="daystrip" id="daystrip"></div>
+  </section>
+
+  <aside class="col right" aria-label="Detail">
+    <section class="panel card" aria-labelledby="scTitle">
+      <div class="head"><h2 id="scTitle">What could happen</h2><span class="note" id="scSpan"></span></div>
+      <div class="dots" id="dots" role="img"></div>
+      <p class="note">Each square is 1 in 100 simulated futures. Select an outcome to see it on the map.</p>
+      <div class="scen" id="scen"></div>
+    </section>
+
+    <section class="panel card" aria-labelledby="srcTitle">
+      <div class="head"><h2 id="srcTitle">Where the smoke comes from</h2><span class="note">Next 3 days</span></div>
+      <p class="sub" id="srcLine"></p>
+      <div class="srcs" id="srcs"></div>
+      <ul class="facts" id="facts"></ul>
+    </section>
+
+    <section class="panel card" id="changeCard" aria-labelledby="chTitle">
+      <div class="head"><h2 id="chTitle">Since the last update</h2><span class="note" id="chWhen"></span></div>
+      <div class="changes" id="changes"></div>
+    </section>
+
+    <section class="panel card" aria-labelledby="fanTitle">
+      <div class="head"><h2 id="fanTitle">PSI, past 2 days and next 15</h2></div>
+      <canvas id="fan" role="img" aria-label="Chart of 24-hour PSI"></canvas>
+      <div class="fankey"><span><i class="fk-meas"></i>Measured</span><span><i class="fk-mid"></i>Middle forecast</span><span><i class="fk-50"></i>Likely</span><span><i class="fk-90"></i>Possible</span></div>
+    </section>
+
+    <section class="panel card" id="newsCard" aria-labelledby="newsTitle">
+      <div class="head"><h2 id="newsTitle">In the news</h2><span class="note">Last 3 days</span></div>
+      <p class="sigline" id="sigLine"></p>
       <div class="sigs" id="sigChips"></div>
       <ul class="news" id="newsList"></ul>
-    </div>
-  </aside>
+    </section>
 
-  <section class="time panel" aria-label="Timeline">
-    <div class="row between"><h2>Timeline</h2><div class="when mono" id="whenLabel"></div></div>
-    <div class="timerow">
-      <button class="btn play" id="btnPlay" type="button">PLAY</button>
-      <div class="track">
-        <div class="markers" id="markers"></div>
-        <div class="extzone" id="extzone"><span>EXTENDED · LOWER CONFIDENCE</span></div>
-        <input type="range" id="scrub" min="0" max="15" step="0.0125" value="0" aria-label="Forecast time, from now to 15 days ahead">
-        <div class="ticks" id="ticks"></div>
-      </div>
-    </div>
-    <div class="ticker" aria-label="Intake log"><div class="tickerin" id="ticker"></div></div>
-  </section>
+    <section class="panel card" id="seasonCard" aria-labelledby="seTitle">
+      <div class="head"><h2 id="seTitle">When the haze season ends</h2><span class="note">Experimental</span></div>
+      <p class="sub" id="seasonLine"></p>
+      <div id="seasonRows" style="display:flex;flex-direction:column;gap:6px"></div>
+      <details class="more"><summary>How this is worked out</summary><div id="seasonMore"></div></details>
+    </section>
+
+    <section class="panel card" aria-labelledby="hoodTitle">
+      <h2 id="hoodTitle">Model details</h2>
+      <details class="more"><summary>Show details</summary><div id="hood"></div></details>
+    </section>
+  </aside>
 </div>
 
 <dialog id="dlgRecord" aria-labelledby="recTitle">
-  <div class="dlghead"><h2 id="recTitle">Forecast record</h2><button class="btn" type="button" data-close>Close</button></div>
+  <div class="dlghead"><h2 id="recTitle">Track record</h2><button class="btn" type="button" data-close>Close</button></div>
   <div class="dlgbody" id="recBody"></div>
 </dialog>
 
 <dialog id="dlgHow" aria-labelledby="howTitle">
-  <div class="dlghead"><h2 id="howTitle">How the twin works</h2><button class="btn" type="button" data-close>Close</button></div>
+  <div class="dlghead"><h2 id="howTitle">How it works</h2><button class="btn" type="button" data-close>Close</button></div>
   <div class="dlgbody">
+    <p>Haze Twin is a computer copy of the region's fires, smoke and winds. It plays out 100,000 possible next two weeks and counts how they turn out.</p>
     <ol class="steps">
-      <li>Every six hours the twin takes in Singapore's PSI and PM2.5 from NEA, fire hotspots from NASA's VIIRS satellites, and the NOAA GEFS weather ensemble (<span class="nMembers">31</span> forecasts).</li>
-      <li>For each weather forecast it releases particles at Singapore and traces them back up to four days, through that forecast's winds and rain. Where the air passed over fires, it picks up smoke.</li>
-      <li>On top of each forecast it samples what is uncertain: how much smoke the fires give off, how long they keep burning, how much rain puts them out, new fires, and background pollution. 100,000 futures in all.</li>
-      <li>Futures are weighted by how well they match what NEA measured over the last day, so the twin starts from the real air.</li>
-      <li>Peat fires only dim under steady rain (more than about 6 mm a day), and part of the haze is regional smoke that lingers whatever the wind does.</li>
-      <li>The further ahead, the more the futures lean on how similar days in past seasons (2015, 2019, 2023 and this year) actually played out, using NEA's PSI history since 2014.</li>
-      <li>News reports from the last three days are sorted into signals (fires spreading, emergencies, firefighting, rain, easing). The balance nudges fire growth in the futures by at most 2% a day, and the page shows by how much.</li>
-      <li>Futures are grouped into storylines by outcome. The odds are the share of futures in each. Rerun repeats the sampling on your device with NEA's latest reading.</li>
-      <li>Every forecast is kept as issued. Two days later it is scored against what NEA measured, misses included.</li>
+      <li>Every six hours it takes in Singapore's PSI from NEA, fire hotspots seen by NASA satellites, and <span class="nMembers">31</span> weather forecasts from NOAA.</li>
+      <li>For each weather forecast it traces the air arriving in Singapore back up to four days. Where that air passed over fires, it picks up smoke.</li>
+      <li>It then varies what nobody knows for sure: how much smoke the fires give off, how long they keep burning, how much rain dims them, and new fires.</li>
+      <li>Futures that fit what NEA measured over the last day count for more, so the forecast starts from the real air.</li>
+      <li>Further ahead, it leans more on how similar days in past haze seasons (since 2014) actually played out.</li>
+      <li>News from the last three days nudges fire growth slightly, by at most 2% a day.</li>
+      <li>The odds on the page are the share of futures with each outcome. Rerun repeats this on your device with NEA's latest reading.</li>
+      <li>Every forecast is kept. Two days later it is scored against what NEA measured, misses included.</li>
     </ol>
-    <h3 class="srch">Three horizons</h3>
+    <h3>How far ahead</h3>
     <ul class="steps">
-      <li><b>Days 1–6:</b> the full twin. Storylines and daily odds come from here.</li>
-      <li><b>Days 7–15:</b> the same twin on the longer weather forecasts. Wind forecasts lose skill after about a week, so the odds widen and the page shows chance by date rather than a middle line.</li>
-      <li><b>Season outlook:</b> when rain sets in over the Kalimantan and Sumatra fire areas. Taken from the weather forecasts where they reach it; beyond that, from normal onset dates shifted later by El Niño and a positive Indian Ocean Dipole. Experimental.</li>
+      <li><b>Next 6 days:</b> the full model. The outcomes and odds come from here.</li>
+      <li><b>Days 7 to 15:</b> the same model on longer weather forecasts, which lose skill after about a week, so the ranges get wider.</li>
+      <li><b>End of season:</b> when steady rain sets in over the fire areas, from the weather forecasts and, beyond them, from normal dates adjusted for El Niño. Experimental.</li>
     </ul>
-    <div class="srcs">
-      <div><h3>Measured</h3><ul><li>NEA 24-hr PSI, 24-hr and 1-hr PM2.5 (data.gov.sg)</li><li>NASA FIRMS hotspots, VIIRS on NOAA-20 and NOAA-21</li><li>Airport visibility near the fires (METAR)</li><li>Regional PM2.5 stations (OpenAQ)</li><li>Recent rain over the fire areas (Open-Meteo)</li><li>NEA PSI history since 2014 (data.gov.sg)</li><li>Satellite true-colour imagery (NASA GIBS, NOAA-20)</li><li>El Niño (NOAA RONI) and Indian Ocean Dipole (NOAA DMI)</li></ul></div>
-      <div><h3>Simulated</h3><ul><li>Winds and rain from <span class="nMembers">31</span> weather forecasts: NOAA GEFS to 16 days and ECMWF IFS to 10 days when available</li><li>Back-traced air paths to Singapore</li><li>Fire smoke, storylines and odds</li><li>CAMS smoke model, shown for comparison</li></ul></div>
+    <div class="srclist">
+      <div><h3>Measured</h3><ul><li>NEA PSI and PM2.5 (data.gov.sg)</li><li>NASA FIRMS fire hotspots (VIIRS)</li><li>Airport visibility near the fires</li><li>Regional PM2.5 stations (OpenAQ)</li><li>Recent rain over the fire areas (Open-Meteo)</li><li>NEA PSI history since 2014</li><li>Satellite imagery (NASA GIBS)</li><li>El Niño and Indian Ocean Dipole (NOAA)</li></ul></div>
+      <div><h3>Simulated</h3><ul><li>Winds and rain from <span class="nMembers">31</span> NOAA GEFS forecasts</li><li>Air paths traced back from Singapore</li><li>Smoke, outcomes and odds</li><li>CAMS smoke model, for comparison</li></ul></div>
     </div>
-    <p>News headlines come from GDELT and link to the original reports.</p>
-    <p>Limits: smoke amounts are scaled to match NEA, not measured at the fires. The PSI conversion uses NEA's PM2.5 breakpoints. This is an independent public-good project; for health advice, follow NEA.</p>
+    <p>Limits: smoke amounts are scaled to match NEA, not measured at the fires. This is an independent public-good project. For health advice, follow NEA.</p>
   </div>
 </dialog>
 
@@ -417,94 +407,157 @@ function gauss(r){let u=0,v=0;while(u===0)u=r();while(v===0)v=r();return Math.sq
 const css=getComputedStyle(document.documentElement);
 const tok=(n)=>css.getPropertyValue(n).trim();
 function rgba(hex,a){const h=hex.replace('#','');const n=parseInt(h.length===3?h.split('').map(c=>c+c).join(''):h,16);return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')';}
+const esc=(s)=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const HE=window.HazeEngine;
-const BANDS=HE.BANDS;const BAND_KEYS=['--good','--mod','--unh','--vunh','--haz'];const BAND_RANGE=['0–50','51–100','101–200','201–300','300+'];
-const bandOf=HE.bandOf;
+const BANDS=HE.BANDS;const BAND_KEYS=['--good','--mod','--unh','--vunh','--haz'];const bandOf=HE.bandOf;
 const REG=[['national','Singapore'],['north','North'],['south','South'],['east','East'],['west','West'],['central','Central']];
 const SG=[103.82,1.35];
 const COL={};
-function readColors(){['--void','--grid','--ink','--ink-2','--ink-3','--cyan','--fire','--smoke','--sA','--sB','--sC','--sD','--good','--mod','--unh','--vunh','--haz'].forEach(k=>COL[k]=tok(k)||'#888888');COL.b=BAND_KEYS.map(k=>COL[k]);}
-readColors();
+['--bg','--line','--ink','--ink-2','--ink-3','--sky','--fire','--sA','--sB','--sC','--sD','--good','--mod','--unh','--vunh','--haz'].forEach(k=>COL[k]=tok(k)||'#888888');COL.b=BAND_KEYS.map(k=>COL[k]);
+const SANS=()=>tok('--sans');
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const sgt=(d)=>new Date(d.getTime()+8*3600e3);
+function clock(d){const s=sgt(d);let h=s.getUTCHours();const m=s.getUTCMinutes();const ap=h<12?'am':'pm';h=h%12||12;return h+(m?':'+String(m).padStart(2,'0'):'')+ap;}
+function dayName(d){const s=sgt(d);return DOW[s.getUTCDay()]+' '+s.getUTCDate()+' '+MON[s.getUTCMonth()];}
+const PLAIN={early:'Clears within a few days',later:'Clears later in the week',stays:'Stays unhealthy',worse:'Gets worse',clean:'Stays clear',brief:'A day or two of haze',returns:'Haze comes back',heavy:'Heavy haze'};
 
 /* ---------- state ---------- */
-const state={region:'national',sel:null,t:0,playing:false,running:false,runFrac:1,layers:{futures:true,smoke:true,wind:true,hot:true,air:true,st:true,sat:true},official:null,rerunAt:null};
+const state={region:'national',sel:null,t:0,playing:false,playEnd:0,running:false,runFrac:1,
+  layers:{futures:true,smoke:true,wind:true,hot:true,air:true,st:false,sat:true},official:null,rerunAt:null};
 let INP=null,FC=null,REC=null,COAST=null;
-const fmtSGT=(d,withDay)=>{const s=new Date(d.getTime()+8*3600e3);const hh=String(s.getUTCHours()).padStart(2,'0')+':'+String(s.getUTCMinutes()).padStart(2,'0');return withDay?['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][s.getUTCDay()]+' '+s.getUTCDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][s.getUTCMonth()]+' '+hh:hh;};
 const t0=()=>new Date(INP.t0);
 const R=()=>FC.regions[state.region];
+const cls=()=>R().classes;
 const classColor=(c)=>COL[c.color]||COL['--ink'];
-const topClass=()=>{const cs=R().classes;let m=0;cs.forEach((c,i)=>{if(c.odds>cs[m].odds)m=i;});return m;};
-const dispClass=()=>state.sel!==null?state.sel:topClass();
+const plainName=(c)=>{if(c.id==='worse'&&R().mode==='clear')return 'Heavy haze';if(c.id==='stays')return 'Stays unhealthy through '+coreEndDow();return PLAIN[c.id]||c.name;};
+const topClass=()=>{const cs=cls();let m=0;cs.forEach((c,i)=>{if(c.odds>cs[m].odds)m=i;});return m;};
 const maxT=()=>FC.arrivals_h[FC.arrivals_h.length-1]/24;
+const coreDays=()=>FC.days.filter(x=>x.tier==='core');
+const coreEndDow=()=>{const c=coreDays();return c.length?c[c.length-1].dow:'';};
+function coreEndT(){const d=coreDays();return d.length?d[d.length-1].h/24+0.25:6;}
+function arrIndex(h){const A=FC.arrivals_h;let best=0;for(let i=0;i<A.length;i++)if(Math.abs(A[i]-h)<Math.abs(A[best]-h))best=i;return best;}
+const odds100=(x)=>Math.round(x);
 
-/* ---------- map ---------- */
-const app=$('app'),stage=$('stage'),cv=$('map'),ctx=cv.getContext('2d'),mapcell=$('mapcell');
-const V={w:0,h:0,dpr:1,k:40,ox:0,oy:0,cell:{x:0,y:0,w:0,h:0}};
+/* ---------- map view ---------- */
+const mapcell=$('mapcell'),cv=$('map'),ctx=cv.getContext('2d');
+const V={w:1,h:1,dpr:1,k0:40,k:40,ox:0,oy:0};
+const HOME={lonA:97.0,lonB:119.6,latA:-6.4,latB:5.8};
+const VIEW={z:1,cx:(HOME.lonA+HOME.lonB)/2,cy:(HOME.latA+HOME.latB)/2};
 const P=(lon,lat)=>[V.ox+lon*V.k,V.oy-lat*V.k];
 const staticCv=document.createElement('canvas'),sctx=staticCv.getContext('2d');
 const trailCv=document.createElement('canvas'),tctx=trailCv.getContext('2d');
 const threadCv=document.createElement('canvas'),thctx=threadCv.getContext('2d');
-const coastCv=document.createElement('canvas'),cctx=coastCv.getContext('2d');
-const satCv=document.createElement('canvas'),satctx=satCv.getContext('2d');let satOK=false;
-let narrow=false,RINGS=[];
-const PLACES=[['RIAU',101.2,0.25],['JAMBI',102.6,-1.9],['S. SUMATRA',103.5,-3.9],['C. KALIMANTAN',112.6,-1.25],['S. KALIMANTAN',114.4,-4.0],['W. KALIMANTAN',110.0,0.55],['SARAWAK',112.4,2.6],['PENINSULAR MALAYSIA',100.9,4.4],['JAVA SEA',109.6,-5.2],['SOUTH CHINA SEA',107.6,5.2]];
+const satCv=document.createElement('canvas'),satctx=satCv.getContext('2d');
+let RINGS=[];
+const PLACES=[['Riau',101.2,0.25],['Jambi',102.6,-1.9],['South Sumatra',103.5,-3.9],['Central Kalimantan',112.6,-1.25],['South Kalimantan',114.9,-3.4],['West Kalimantan',110.0,0.55],['Sarawak',112.4,2.6],['Peninsular Malaysia',101.6,4.3],['Java Sea',109.6,-5.2],['South China Sea',108.2,5.0]];
+function applyView(){V.k=V.k0*VIEW.z;V.ox=V.w/2-VIEW.cx*V.k;V.oy=V.h/2+VIEW.cy*V.k;}
 function layout(){
-  narrow=window.matchMedia('(max-width:1100px)').matches;
-  if(narrow){const a=app.getBoundingClientRect(),r=mapcell.getBoundingClientRect();stage.style.inset='auto';stage.style.top=(r.top-a.top)+'px';stage.style.left=(r.left-a.left)+'px';stage.style.width=r.width+'px';stage.style.height=r.height+'px';}
-  else{stage.style.inset='0';stage.style.top='';stage.style.left='';stage.style.width='';stage.style.height='';}
-  const sr=stage.getBoundingClientRect();V.dpr=Math.min(2,window.devicePixelRatio||1);V.w=Math.max(1,sr.width);V.h=Math.max(1,sr.height);
-  [cv,staticCv,trailCv,threadCv,coastCv,satCv].forEach(c=>{c.width=Math.round(V.w*V.dpr);c.height=Math.round(V.h*V.dpr);});
-  const mr=mapcell.getBoundingClientRect();
-  const pad=narrow?{l:8,r:8,t:118,b:56}:{l:10,r:10,t:62,b:40};
-  V.cell={x:mr.left-sr.left,y:mr.top-sr.top,w:mr.width,h:mr.height};
-  const cw=Math.max(80,mr.width-pad.l-pad.r),ch=Math.max(80,mr.height-pad.t-pad.b);
-  const lonA=97.4,lonB=119.4,latA=-6.2,latB=5.6;
-  V.k=Math.min(cw/(lonB-lonA),ch/(latB-latA));
-  const cx=V.cell.x+pad.l+cw/2,cy=V.cell.y+pad.t+ch/2;
-  V.ox=cx-((lonA+lonB)/2)*V.k;V.oy=cy+((latA+latB)/2)*V.k;
-  drawStatic();loadSat();if(FC){needWarm=true;initWind();drawThreads();drawFan();renderMarkers();}
+  const r=mapcell.getBoundingClientRect();V.dpr=Math.min(2,window.devicePixelRatio||1);V.w=Math.max(1,r.width);V.h=Math.max(1,r.height);
+  [cv,staticCv,trailCv,threadCv,satCv].forEach(c=>{c.width=Math.round(V.w*V.dpr);c.height=Math.round(V.h*V.dpr);});
+  const pad=V.w<700?{l:8,r:56,t:96,b:16}:{l:16,r:64,t:70,b:44};
+  V.k0=Math.min((V.w-pad.l-pad.r)/(HOME.lonB-HOME.lonA),(V.h-pad.t-pad.b)/(HOME.latB-HOME.latA));
+  // centre the home view in the padded area
+  VIEW.homeCx=(HOME.lonA+HOME.lonB)/2-((pad.l-pad.r)/2)/V.k0;VIEW.homeCy=(HOME.latA+HOME.latB)/2+((pad.t-pad.b)/2)/V.k0;
+  if(!VIEW.moved){VIEW.cx=VIEW.homeCx;VIEW.cy=VIEW.homeCy;}
+  applyView();viewChanged(true);
+  if(FC){drawFan();}
+}
+let viewQueued=false,satTimer=0;
+function viewChanged(now){
+  if(now){redrawView();return;}
+  if(viewQueued)return;viewQueued=true;requestAnimationFrame(()=>{viewQueued=false;redrawView();});
+}
+function redrawView(){
+  applyView();drawStatic();drawSat();if(FC){drawThreads();}
+  tctx.setTransform(1,0,0,1,0,0);tctx.clearRect(0,0,trailCv.width,trailCv.height);
+  clearTimeout(satTimer);satTimer=setTimeout(loadSat,220);
 }
 function drawStatic(){
-  let c=sctx;c.setTransform(V.dpr,0,0,V.dpr,0,0);
-  c.fillStyle=COL['--void'];c.fillRect(0,0,V.w,V.h);
-  const sg=P(SG[0],SG[1]);const g=c.createRadialGradient(sg[0],sg[1],0,sg[0],sg[1],Math.max(V.w,V.h)*0.7);
-  g.addColorStop(0,'rgba(20,48,60,0.35)');g.addColorStop(1,'rgba(5,8,12,0)');c.fillStyle=g;c.fillRect(0,0,V.w,V.h);
-  c.strokeStyle=COL['--grid'];c.lineWidth=1;c.beginPath();
+  const c=sctx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,staticCv.width,staticCv.height);c.setTransform(V.dpr,0,0,V.dpr,0,0);
+  c.fillStyle='#09131A';c.fillRect(0,0,V.w,V.h);
+  c.strokeStyle='rgba(127,146,159,0.08)';c.lineWidth=1;c.beginPath();
   for(let lon=84;lon<=132;lon+=2){const x=Math.round(P(lon,0)[0])+0.5;c.moveTo(x,0);c.lineTo(x,V.h);}
   for(let lat=-16;lat<=16;lat+=2){const y=Math.round(P(0,lat)[1])+0.5;c.moveTo(0,y);c.lineTo(V.w,y);}
   c.stroke();
   c.beginPath();RINGS.forEach(r=>{r.forEach((p,i)=>{const s=P(p[0],p[1]);if(i===0)c.moveTo(s[0],s[1]);else c.lineTo(s[0],s[1]);});c.closePath();});
-  c.fillStyle='#0A1720';c.fill();
-  const k2=cctx;k2.setTransform(1,0,0,1,0,0);k2.clearRect(0,0,coastCv.width,coastCv.height);k2.setTransform(V.dpr,0,0,V.dpr,0,0);
-  k2.beginPath();RINGS.forEach(r=>{r.forEach((p,i)=>{const s=P(p[0],p[1]);if(i===0)k2.moveTo(s[0],s[1]);else k2.lineTo(s[0],s[1]);});k2.closePath();});
-  k2.strokeStyle='rgba(92,225,230,0.10)';k2.lineWidth=4;k2.stroke();
-  k2.strokeStyle='rgba(92,225,230,0.42)';k2.lineWidth=0.8;k2.stroke();
-  c=k2;
-  c.font='500 10px '+tok('--mono');c.fillStyle=COL['--ink-3'];
-  const cb=V.cell.y+V.cell.h-6;
-  for(let lon=100;lon<=120;lon+=4){const x=P(lon,0)[0];if(x>V.cell.x+150&&x<V.cell.x+V.cell.w-150){c.textAlign='center';c.fillText(lon+'°E',x,cb-28);}}
-  c.textAlign='left';
-  for(let lat=-4;lat<=4;lat+=2){const y=P(0,lat)[1];if(y>V.cell.y+70&&y<V.cell.y+V.cell.h-50)c.fillText(lat===0?'0°':Math.abs(lat)+'°'+(lat>0?'N':'S'),V.cell.x+4,y-3);}
-  c.font='500 '+Math.max(9,Math.min(11,V.k*0.24))+'px '+tok('--mono');c.fillStyle='rgba(174,191,201,0.62)';c.textAlign='center';
-  PLACES.forEach(p=>{const s=P(p[1],p[2]);c.fillText(p[0],s[0],s[1]);});
+  c.fillStyle='#14232D';c.fill();
+}
+function drawCoastAndLabels(c){
+  c.beginPath();RINGS.forEach(r=>{r.forEach((p,i)=>{const s=P(p[0],p[1]);if(i===0)c.moveTo(s[0],s[1]);else c.lineTo(s[0],s[1]);});c.closePath();});
+  c.strokeStyle='rgba(169,185,195,0.45)';c.lineWidth=0.8;c.stroke();
+}
+let coastCv=document.createElement('canvas'),cctx=coastCv.getContext('2d');
+function drawStaticTop(){
+  coastCv.width=staticCv.width;coastCv.height=staticCv.height;const c=cctx;c.setTransform(V.dpr,0,0,V.dpr,0,0);
+  drawCoastAndLabels(c);
+  c.font='500 12px '+SANS();c.textAlign='center';
+  PLACES.forEach(p=>{const s=P(p[1],p[2]);c.lineWidth=3;c.strokeStyle='rgba(9,19,26,0.8)';c.strokeText(p[0],s[0],s[1]);c.fillStyle='rgba(200,212,219,0.72)';c.fillText(p[0],s[0],s[1]);});
   c.textAlign='left';
 }
+const _ds=drawStatic;drawStatic=function(){_ds();drawStaticTop();};
 
-/* ---------- satellite imagery (NASA GIBS, yesterday's NOAA-20 true colour) ---------- */
-let satKey='';
+/* ---------- satellite imagery (NASA GIBS, NOAA-20 true colour) ---------- */
+const TILES=new Map();let satZ=2;
+function satZoom(){return clamp(Math.ceil(Math.log2(Math.max(1,V.k*V.dpr*180/512))),2,8);}
+function satDate(){return new Date(Date.now()-36*3600e3).toISOString().slice(0,10);}
 function loadSat(){
-  const z=clamp(Math.ceil(Math.log2(Math.max(1,V.k*V.dpr*180/512))),2,6);const size=180/Math.pow(2,z);
-  const d=new Date(Date.now()-36*3600e3);const date=d.toISOString().slice(0,10);
-  const key=z+'|'+date+'|'+V.w+'x'+V.h+'|'+V.k.toFixed(2);if(key===satKey)return;satKey=key;
-  satctx.setTransform(1,0,0,1,0,0);satctx.clearRect(0,0,satCv.width,satCv.height);satctx.setTransform(V.dpr,0,0,V.dpr,0,0);satOK=false;
+  if(!state.layers.sat)return;
+  const z=satZoom();satZ=z;const size=180/Math.pow(2,z);const date=satDate();
   const lon0=(0-V.ox)/V.k,lon1=(V.w-V.ox)/V.k,lat1=V.oy/V.k,lat0=(V.oy-V.h)/V.k;
   const c0=Math.floor((Math.max(88,lon0)+180)/size),c1=Math.floor((Math.min(128,lon1)+180)/size);
   const r0=Math.floor((90-Math.min(14,lat1))/size),r1=Math.floor((90-Math.max(-14,lat0))/size);
+  if((c1-c0+1)*(r1-r0+1)>80)return;
   for(let row=r0;row<=r1;row++)for(let col=c0;col<=c1;col++){
-    const img=new Image();const myKey=satKey;
-    img.onload=()=>{if(myKey!==satKey)return;const lonW=col*size-180,latN=90-row*size;const a=P(lonW,latN),b=P(lonW+size,latN-size);satctx.drawImage(img,a[0],a[1],b[0]-a[0],b[1]-a[1]);satOK=true;};
+    const key=z+'/'+row+'/'+col;if(TILES.has(key))continue;
+    const img=new Image();const t={img:img,ok:false,z:z,row:row,col:col,size:size};TILES.set(key,t);
+    img.onload=()=>{t.ok=true;drawSat();};
     img.src='https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/VIIRS_NOAA20_CorrectedReflectance_TrueColor/default/'+date+'/250m/'+z+'/'+row+'/'+col+'.jpg';
   }
+}
+function drawSat(){
+  const c=satctx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,satCv.width,satCv.height);c.setTransform(V.dpr,0,0,V.dpr,0,0);
+  const want=satZoom();const list=[...TILES.values()].filter(t=>t.ok&&t.z<=want).sort((a,b)=>a.z-b.z);
+  for(const t of list){const lonW=t.col*t.size-180,latN=90-t.row*t.size;const a=P(lonW,latN),b=P(lonW+t.size,latN-t.size);
+    if(b[0]<0||a[0]>V.w||b[1]<0||a[1]>V.h)continue;c.drawImage(t.img,a[0],a[1],b[0]-a[0]+0.5,b[1]-a[1]+0.5);}
+}
+
+/* ---------- pan and zoom ---------- */
+function zoomAt(f,sx,sy){
+  const lon=(sx-V.ox)/V.k,lat=(V.oy-sy)/V.k;const z=clamp(VIEW.z*f,1,12);if(z===VIEW.z)return;VIEW.z=z;
+  const k=V.k0*z;VIEW.cx=lon-(sx-V.w/2)/k;VIEW.cy=lat+(sy-V.h/2)/k;clampView();VIEW.moved=true;viewChanged();
+}
+function clampView(){VIEW.cx=clamp(VIEW.cx,92,124);VIEW.cy=clamp(VIEW.cy,-10,10);}
+function fitView(){VIEW.z=1;VIEW.cx=VIEW.homeCx;VIEW.cy=VIEW.homeCy;VIEW.moved=false;viewChanged();}
+const ptrs=new Map();let pinch=null,dragged=false;
+cv.addEventListener('wheel',ev=>{ev.preventDefault();const r=cv.getBoundingClientRect();zoomAt(Math.exp(-clamp(ev.deltaY,-120,120)*0.0022),ev.clientX-r.left,ev.clientY-r.top);},{passive:false});
+cv.addEventListener('pointerdown',ev=>{cv.setPointerCapture(ev.pointerId);ptrs.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});dragged=false;cv.classList.add('drag');
+  if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y)};}});
+cv.addEventListener('pointermove',ev=>{
+  const r=cv.getBoundingClientRect();
+  if(!ptrs.has(ev.pointerId)){hover(ev.clientX-r.left,ev.clientY-r.top);return;}
+  const p=ptrs.get(ev.pointerId);const dx=ev.clientX-p.x,dy=ev.clientY-p.y;p.x=ev.clientX;p.y=ev.clientY;
+  if(ptrs.size===2&&pinch){const [a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);zoomAt(d/Math.max(1,pinch.d),(a.x+b.x)/2-r.left,(a.y+b.y)/2-r.top);pinch.d=d;return;}
+  if(Math.abs(dx)+Math.abs(dy)>0){dragged=true;VIEW.cx-=dx/V.k;VIEW.cy+=dy/V.k;clampView();VIEW.moved=true;viewChanged();$('tip').hidden=true;}
+});
+const endPtr=(ev)=>{ptrs.delete(ev.pointerId);if(ptrs.size<2)pinch=null;if(!ptrs.size)cv.classList.remove('drag');};
+cv.addEventListener('pointerup',endPtr);cv.addEventListener('pointercancel',endPtr);
+cv.addEventListener('pointerleave',()=>{$('tip').hidden=true;});
+cv.addEventListener('dblclick',ev=>{const r=cv.getBoundingClientRect();zoomAt(2,ev.clientX-r.left,ev.clientY-r.top);});
+$('zIn').addEventListener('click',()=>zoomAt(1.6,V.w/2,V.h/2));
+$('zOut').addEventListener('click',()=>zoomAt(1/1.6,V.w/2,V.h/2));
+$('zFit').addEventListener('click',fitView);
+cv.tabIndex=0;cv.setAttribute('aria-label','Map. Use arrow keys to move and plus or minus to zoom.');cv.removeAttribute('aria-hidden');
+cv.addEventListener('keydown',ev=>{const s=60/V.k;let used=true;
+  if(ev.key==='ArrowLeft')VIEW.cx-=s;else if(ev.key==='ArrowRight')VIEW.cx+=s;else if(ev.key==='ArrowUp')VIEW.cy+=s;else if(ev.key==='ArrowDown')VIEW.cy-=s;
+  else if(ev.key==='+'||ev.key==='=')zoomAt(1.4,V.w/2,V.h/2);else if(ev.key==='-')zoomAt(1/1.4,V.w/2,V.h/2);else if(ev.key==='0')fitView();else used=false;
+  if(used){ev.preventDefault();clampView();VIEW.moved=true;viewChanged();}});
+function hover(x,y){
+  const tip=$('tip');if(!INP){tip.hidden=true;return;}const ex=INP.extras||{};let best=null,bd=12;
+  if(state.layers.air)(ex.airports||[]).forEach(a=>{const s=P(a.lon,a.lat);const d=Math.hypot(s[0]-x,s[1]-y);if(d<bd){bd=d;best={t:a.name+' airport',d:(a.vis_km!=null?'Visibility '+a.vis_km+' km':'No visibility report')+(a.haze?', smoke haze reported':'')};}});
+  if(state.layers.st)(ex.stations||[]).forEach(st=>{const s=P(st.lon,st.lat);const d=Math.hypot(s[0]-x,s[1]-y);if(d<bd){bd=d;best={t:'Air quality station',d:'PM2.5 '+Math.round(st.pm25)+' µg/m³, latest hour'};}});
+  const sg=P(SG[0],SG[1]);if(Math.hypot(sg[0]-x,sg[1]-y)<bd&&FC){best={t:'Singapore',d:'24-hour PSI '+Math.round(R().now)};}
+  if(!best){tip.hidden=true;return;}
+  tip.innerHTML='<b>'+esc(best.t)+'</b>'+esc(best.d);tip.style.left=x+'px';tip.style.top=y+'px';tip.hidden=false;
 }
 
 /* ---------- winds from the ensemble ---------- */
@@ -534,11 +587,9 @@ function windAt(lon,lat,h,F){
 }
 const curWind=()=>state.sel!==null?windByClass[state.sel]:windAll;
 
-/* ---------- fire intensity over time follows the storyline's middle path ---------- */
 function intensityAt(tDays){
-  const reg=R();const path=state.sel!==null&&reg.classes[state.sel].median.length?reg.classes[state.sel].median:reg.pct.p50;
-  const h=tDays*24;const A=FC.arrivals_h;let i=0;while(i<A.length-1&&A[i+1]<=h)i++;
-  const v=path[Math.min(i,path.length-1)];return clamp(v/Math.max(60,reg.now||100),0.15,1.6);
+  const reg=R();const path=state.sel!==null&&cls()[state.sel].median.length?cls()[state.sel].median:reg.pct.p50;
+  const i=arrIndex(tDays*24);const v=path[Math.min(i,path.length-1)];return clamp(v/Math.max(60,reg.now||100),0.15,1.6);
 }
 
 /* smoke puffs */
@@ -553,46 +604,29 @@ function buildHot(){
 }
 function stepSmoke(dt,tDays,F){
   if(dt<=0||!HOT.length)return;const k=intensityAt(Math.max(0,tDays));
-  for(const h of HOT){h.acc+=dt*h.rate*k;while(h.acc>=1){h.acc-=1;if(puffs.length<2600)puffs.push({lon:h.lon+gauss(srnd)*0.06,lat:h.lat+gauss(srnd)*0.05,age:0,life:2.0+srnd()*1.3,w:0.7+srnd()*0.6});}}
+  for(const h of HOT){h.acc+=dt*h.rate*k;while(h.acc>=1){h.acc-=1;if(puffs.length<3200)puffs.push({lon:h.lon+gauss(srnd)*0.06,lat:h.lat+gauss(srnd)*0.05,age:0,life:2.0+srnd()*1.3,w:0.7+srnd()*0.6});}}
   const hh=tDays*24;
   for(let i=puffs.length-1;i>=0;i--){const p=puffs[i];const uv=windAt(p.lon,p.lat,hh,F);p.lon+=uv[0]*dt;p.lat+=uv[1]*dt;p.age+=dt;
     if(p.age>p.life||p.lon<88||p.lon>128||p.lat<-14||p.lat>14){puffs[i]=puffs[puffs.length-1];puffs.pop();}}
 }
 let needWarm=true;
-function warmSmoke(){puffs=[];srnd=rng(77);HOT.forEach((h,i)=>h.acc=((i*0.618)%1));const F=curWind();const t1=state.t;const dt=0.04;for(let t=t1-3;t<t1;t+=dt)stepSmoke(dt,t,F);gridDirty=true;}
+function warmSmoke(){puffs=[];srnd=rng(77);HOT.forEach((h,i)=>h.acc=((i*0.618)%1));const F=curWind();const t1=state.t;const dt=0.04;for(let t=t1-4;t<t1;t+=dt)stepSmoke(dt,t,F);}
 
-/* smoke outline */
-const GX={lon0:94,lat0:9,d:0.25,nx:112,ny:76};const grid=new Float32Array(GX.nx*GX.ny);let gridDirty=true,contourSegs=[];
-function buildContours(){
-  grid.fill(0);
-  for(const p of puffs){const i=Math.floor((p.lon-GX.lon0)/GX.d),j=Math.floor((GX.lat0-p.lat)/GX.d);if(i<1||j<1||i>=GX.nx-1||j>=GX.ny-1)continue;grid[j*GX.nx+i]+=p.w*(1-p.age/p.life);}
-  const tmp=new Float32Array(grid.length);
-  for(let pass=0;pass<2;pass++){for(let j=1;j<GX.ny-1;j++)for(let i=1;i<GX.nx-1;i++){let s=0;for(let b=-1;b<=1;b++)for(let a=-1;a<=1;a++)s+=grid[(j+b)*GX.nx+i+a];tmp[j*GX.nx+i]=s/9;}grid.set(tmp);}
-  const T=0.55;contourSegs=[];const ip=(v1,v2)=>{const d=v2-v1;return d===0?0.5:(T-v1)/d;};
-  const LUT={1:['L','B'],2:['B','R'],3:['L','R'],4:['T','R'],5:['L','T','B','R'],6:['T','B'],7:['L','T'],8:['L','T'],9:['T','B'],10:['T','R','L','B'],11:['T','R'],12:['L','R'],13:['B','R'],14:['L','B']};
-  for(let j=0;j<GX.ny-1;j++)for(let i=0;i<GX.nx-1;i++){
-    const a=grid[j*GX.nx+i],b=grid[j*GX.nx+i+1],c=grid[(j+1)*GX.nx+i+1],d=grid[(j+1)*GX.nx+i];
-    const idx=(a>T?8:0)|(b>T?4:0)|(c>T?2:0)|(d>T?1:0);if(idx===0||idx===15)continue;
-    const E={T:[i+ip(a,b),j],R:[i+1,j+ip(b,c)],B:[i+ip(d,c),j+1],L:[i,j+ip(a,d)]};const L=LUT[idx];
-    for(let k=0;k<L.length;k+=2)contourSegs.push(E[L[k]],E[L[k+1]]);
-  }
-  gridDirty=false;
-}
-
-/* wind particles */
+/* wind particles, spawned inside the visible part of the domain */
 let wp=[];const wr=rng(9);
-function initWind(){wp=[];for(let i=0;i<950;i++)wp.push(newWP());tctx.setTransform(1,0,0,1,0,0);tctx.clearRect(0,0,trailCv.width,trailCv.height);}
-function newWP(){return {lon:94+wr()*30,lat:-9+wr()*18,age:Math.floor(wr()*80),life:60+Math.floor(wr()*60)};}
+function visBox(){const lon0=Math.max(92,(0-V.ox)/V.k),lon1=Math.min(124,(V.w-V.ox)/V.k),lat1=Math.min(10,V.oy/V.k),lat0=Math.max(-10,(V.oy-V.h)/V.k);return [lon0,lon1,lat0,lat1];}
+function newWP(){const b=visBox();return {lon:b[0]+wr()*(b[1]-b[0]),lat:b[2]+wr()*(b[3]-b[2]),age:Math.floor(wr()*80),life:60+Math.floor(wr()*60)};}
+function initWind(){wp=[];for(let i=0;i<900;i++)wp.push(newWP());tctx.setTransform(1,0,0,1,0,0);tctx.clearRect(0,0,trailCv.width,trailCv.height);}
 function stepWind(F){
   tctx.setTransform(1,0,0,1,0,0);tctx.globalCompositeOperation='destination-out';tctx.fillStyle='rgba(0,0,0,0.075)';tctx.fillRect(0,0,trailCv.width,trailCv.height);
   tctx.globalCompositeOperation='source-over';tctx.setTransform(V.dpr,0,0,V.dpr,0,0);
-  tctx.strokeStyle='rgba(150,172,184,0.5)';tctx.lineWidth=0.8;tctx.beginPath();const hh=state.t*24;
-  for(let i=0;i<wp.length;i++){const p=wp[i];const a=P(p.lon,p.lat);const uv=windAt(p.lon,p.lat,hh,F);p.lon+=uv[0]*0.0036;p.lat+=uv[1]*0.0036;p.age++;const b=P(p.lon,p.lat);
-    if(p.age>p.life||p.lon<92||p.lon>124||p.lat<-10||p.lat>10){wp[i]=newWP();continue;}tctx.moveTo(a[0],a[1]);tctx.lineTo(b[0],b[1]);}
+  tctx.strokeStyle='rgba(170,190,202,0.55)';tctx.lineWidth=0.8;tctx.beginPath();const hh=state.t*24;const sp=0.0036/Math.sqrt(VIEW.z);
+  for(let i=0;i<wp.length;i++){const p=wp[i];const a=P(p.lon,p.lat);const uv=windAt(p.lon,p.lat,hh,F);p.lon+=uv[0]*sp;p.lat+=uv[1]*sp;p.age++;const b=P(p.lon,p.lat);
+    if(p.age>p.life||p.lon<92||p.lon>124||p.lat<-10||p.lat>10||b[0]<-20||b[0]>V.w+20||b[1]<-20||b[1]>V.h+20){wp[i]=newWP();continue;}tctx.moveTo(a[0],a[1]);tctx.lineTo(b[0],b[1]);}
   tctx.stroke();
 }
 
-/* back-traced air paths: members' paths for arrivals near the timeline time */
+/* air paths traced back from Singapore */
 let THREADS=[];
 function buildThreads(){
   const p=INP.paths;const mc=R().memberClass;const out=[];const r=rng(5);
@@ -601,166 +635,166 @@ function buildThreads(){
   THREADS=out;
 }
 function threadVisible(tr){return Math.abs(tr.h-state.t*24)<=30;}
+let threadsDirty=true;
+function threadColor(tr){return state.sel===null?COL['--sA']:classColor(cls()[state.sel]);}
 function drawThreads(){
   const c=thctx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,threadCv.width,threadCv.height);c.setTransform(V.dpr,0,0,V.dpr,0,0);
-  if(!FC)return;const cls=R().classes;c.lineCap='round';c.lineJoin='round';
+  if(!FC)return;c.lineCap='round';c.lineJoin='round';
   const n=Math.ceil(THREADS.length*state.runFrac);
   for(let k=0;k<n;k++){const tr=THREADS[k];if(!threadVisible(tr))continue;
-    let col,a,lw=1;
-    if(state.sel===null){col=classColor(cls[tr.c]);a=0.32;}else{col=classColor(cls[state.sel]);a=0.05+0.5*tr.frac[state.sel];lw=tr.frac[state.sel]>0.5?1.4:1;}
-    c.strokeStyle=rgba(col,a);c.lineWidth=lw;c.beginPath();tr.pts.forEach((p,i)=>{const s=P(p[0],p[1]);if(i===0)c.moveTo(s[0],s[1]);else c.lineTo(s[0],s[1]);});c.stroke();}
+    let a=0.3,lw=1;if(state.sel!==null){a=0.04+0.5*tr.frac[state.sel];lw=tr.frac[state.sel]>0.5?1.4:1;}
+    c.strokeStyle=rgba(threadColor(tr),a);c.lineWidth=lw;c.beginPath();tr.pts.forEach((p,i)=>{const s=P(p[0],p[1]);if(i===0)c.moveTo(s[0],s[1]);else c.lineTo(s[0],s[1]);});c.stroke();}
   threadsDirty=false;
 }
-let threadsDirty=true,lastThreadT=-1;
 function threadPoint(tr,u){const n=tr.pts.length-1;const f=u*n;const i=Math.min(n-1,Math.floor(f));const a=tr.pts[i],b=tr.pts[i+1],w=f-i;return [a[0]+(b[0]-a[0])*w,a[1]+(b[1]-a[1])*w];}
 
-/* ---------- fan chart ---------- */
-const fan=$('fan'),fctx=fan.getContext('2d');let fanDirty=true;const FL={l:30,r:82,t:12,b:22};
-function regionPsi(pm,h){const k=1+(R().factor-1)*Math.exp(-h/48);return HE.psiOf(pm*k);}
-function fanGeom(){const w=fan.clientWidth,h=fan.clientHeight;const x0=-2,x1=Math.ceil(maxT());return {w:w,h:h,x0:x0,x1:x1,x:(t)=>FL.l+(t-x0)/(x1-x0)*(w-FL.l-FL.r),y:(v)=>FL.t+(1-Math.min(v,330)/330)*(h-FL.t-FL.b)};}
+/* ---------- chart ---------- */
+const fan=$('fan'),fctx=fan.getContext('2d');let fanDirty=true;const FL={l:30,r:8,t:10,b:22};
+function fanGeom(){const w=fan.clientWidth,h=fan.clientHeight;const x0=-2,x1=Math.ceil(maxT());const vmax=Math.max(320,Math.min(500,Math.ceil(Math.max(...R().pct.p95)/50)*50+20));
+  return {w:w,h:h,x0:x0,x1:x1,vmax:vmax,x:(t)=>FL.l+(t-x0)/(x1-x0)*(w-FL.l-FL.r),y:(v)=>FL.t+(1-Math.min(v,vmax)/vmax)*(h-FL.t-FL.b)};}
 function drawFan(){
   if(!FC)return;const dpr=Math.min(2,window.devicePixelRatio||1);const G=fanGeom();if(G.w<10)return;
   if(fan.width!==Math.round(G.w*dpr)||fan.height!==Math.round(G.h*dpr)){fan.width=Math.round(G.w*dpr);fan.height=Math.round(G.h*dpr);}
   const c=fctx;c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,G.w,G.h);
-  const edges=[0,50,100,200,300,330];
-  for(let k=0;k<5;k++){c.fillStyle=rgba(COL.b[k],0.07);c.fillRect(FL.l,G.y(edges[k+1]),G.w-FL.l-FL.r,G.y(edges[k])-G.y(edges[k+1]));}
-  c.font='10px '+tok('--mono');c.textAlign='right';c.fillStyle=COL['--ink-3'];c.strokeStyle='rgba(127,147,159,0.18)';c.lineWidth=1;
-  [50,100,200,300].forEach(v=>{const y=Math.round(G.y(v))+0.5;c.beginPath();c.moveTo(FL.l,y);c.lineTo(G.w-FL.r,y);c.stroke();c.fillText(String(v),FL.l-5,y+3);});
-  c.textAlign='left';[['Good',25],['Moderate',75],['Unhealthy',150],['V. unhealthy',250],['Hazardous',315]].forEach((b,k)=>{c.fillStyle=COL.b[k];c.fillText(b[0],G.w-FL.r+5,G.y(b[1])+3);});
-  const coreEnd=coreEndT();const xe=G.x(coreEnd);
-  c.fillStyle='rgba(127,147,159,0.07)';c.fillRect(xe,FL.t,G.w-FL.r-xe,G.h-FL.t-FL.b);
-  c.strokeStyle='rgba(127,147,159,0.35)';c.setLineDash([2,3]);c.beginPath();c.moveTo(Math.round(xe)+0.5,FL.t);c.lineTo(Math.round(xe)+0.5,G.h-FL.b);c.stroke();c.setLineDash([]);
-  c.fillStyle=COL['--ink-3'];c.font='9.5px '+tok('--mono');c.textAlign='left';c.fillText('EXTENDED',xe+4,FL.t+10);c.font='10px '+tok('--mono');
-  c.fillStyle=COL['--ink-3'];c.textAlign='center';
-  const step=(G.x1-G.x0)>10?2:1;
-  for(let d=G.x0;d<=G.x1;d+=step){const lab=d===0?'Now':fmtSGT(new Date(t0().getTime()+d*864e5),true).split(' ').slice(0,d>6?2:1).join(' ').replace(/^(\w+) (\d+)$/,(m,a,b)=>d>6?b:a);c.fillText(lab,G.x(d),G.h-6);}
-  const reg=R();const A=FC.arrivals_h;const n=Math.ceil(FC.samples.length*state.runFrac);
-  for(let ci=0;ci<4;ci++){const on=state.sel===ci,dim=state.sel!==null&&!on;
-    c.strokeStyle=rgba(classColor(reg.classes[ci]),dim?0.03:on?0.24:0.11);c.lineWidth=0.8;c.beginPath();
-    const ic=A.findIndex(a=>a/24>coreEnd);const iCut=ic<0?A.length:ic;
-    for(let k=0;k<n;k++){if(reg.sampleClass[k]!==ci)continue;const s=FC.samples[k];for(let i=0;i<iCut;i++){const x=G.x(A[i]/24),y=G.y(regionPsi(s[i],A[i]));if(i===0)c.moveTo(x,y);else c.lineTo(x,y);}}
-    c.stroke();
-    c.strokeStyle=rgba(classColor(reg.classes[ci]),dim?0.015:on?0.1:0.04);c.beginPath();
-    for(let k=0;k<n;k++){if(reg.sampleClass[k]!==ci)continue;const s=FC.samples[k];for(let i=Math.max(0,iCut-1);i<A.length;i++){const x=G.x(A[i]/24),y=G.y(regionPsi(s[i],A[i]));if(i===iCut-1)c.moveTo(x,y);else c.lineTo(x,y);}}
-    c.stroke();}
-  // CAMS (second opinion): 24-hour mean of hourly PM2.5, converted to PSI
-  const cams=INP.extras&&INP.extras.cams&&INP.extras.cams.pm25;
-  if(cams&&cams.length>24&&state.region==='national'){
-    const pts=[];for(let i=23;i<cams.length;i+=3){let m=0;for(let j=i-23;j<=i;j++)m+=cams[j][1];m/=24;const h=(new Date(cams[i][0])-t0())/3600e3;if(h<-48)continue;pts.push([h/24,HE.psiOf(m)]);}
-    c.strokeStyle=COL['--fire'];c.lineWidth=1.5;c.setLineDash([2,3]);c.beginPath();pts.forEach((p,i)=>{const x=G.x(p[0]),y=G.y(p[1]);if(i===0)c.moveTo(x,y);else c.lineTo(x,y);});c.stroke();c.setLineDash([]);
-  }
-  const xn=Math.round(G.x(0))+0.5;c.strokeStyle=rgba(COL['--cyan'],0.6);c.setLineDash([3,3]);c.beginPath();c.moveTo(xn,FL.t);c.lineTo(xn,G.h-FL.b);c.stroke();c.setLineDash([]);
-  // measured
+  const edges=[0,50,100,200,300,G.vmax];
+  for(let k=0;k<5;k++){c.fillStyle=rgba(COL.b[k],0.08);c.fillRect(FL.l,G.y(edges[k+1]),G.w-FL.l-FL.r,G.y(edges[k])-G.y(edges[k+1]));}
+  c.font='12px '+SANS();c.textAlign='right';c.fillStyle=COL['--ink-3'];c.strokeStyle='rgba(127,146,159,0.16)';c.lineWidth=1;
+  [100,200,300].forEach(v=>{const y=Math.round(G.y(v))+0.5;c.beginPath();c.moveTo(FL.l,y);c.lineTo(G.w-FL.r,y);c.stroke();c.fillText(String(v),FL.l-5,y+4);});
+  const xe=G.x(coreEndT());
+  c.fillStyle='rgba(127,146,159,0.06)';c.fillRect(xe,FL.t,G.w-FL.r-xe,G.h-FL.t-FL.b);
+  c.fillStyle=COL['--ink-3'];c.textAlign='left';c.fillText('Less certain',xe+5,FL.t+12);
+  c.textAlign='center';
+  const pxd=(G.w-FL.l-FL.r)/(G.x1-G.x0);const stp=Math.max(1,Math.ceil(30/pxd));
+  for(let d=0;d<=G.x1;d+=stp){const lab=d===0?'Now':d<7?DOW[sgt(new Date(t0().getTime()+d*864e5)).getUTCDay()]:String(sgt(new Date(t0().getTime()+d*864e5)).getUTCDate());c.fillText(lab,G.x(d),G.h-5);}
+  const reg=R();const A=FC.arrivals_h;const pc=reg.pct;
+  const band=(lo,hi,a)=>{c.fillStyle=rgba(COL['--ink'],a);c.beginPath();A.forEach((h,i)=>{const x=G.x(h/24),y=G.y(pc[hi][i]);if(i===0)c.moveTo(x,y);else c.lineTo(x,y);});for(let i=A.length-1;i>=0;i--)c.lineTo(G.x(A[i]/24),G.y(pc[lo][i]));c.closePath();c.fill();};
+  if(!state.running&&pc.p25){band('p5','p95',0.10);band('p25','p75',0.18);}
+  if(state.sel!==null&&!state.running){const cl=cls()[state.sel];if(cl.median.length){c.strokeStyle=classColor(cl);c.lineWidth=2;c.setLineDash([5,3]);c.beginPath();cl.median.forEach((v,i)=>{const x=G.x(A[i]/24),y=G.y(v);if(i===0)c.moveTo(x,y);else c.lineTo(x,y);});c.stroke();c.setLineDash([]);}}
+  if(!state.running){c.strokeStyle=COL['--ink'];c.lineWidth=2;c.beginPath();pc.p50.forEach((v,i)=>{const x=G.x(A[i]/24),y=G.y(v);if(i===0)c.moveTo(x,y);else c.lineTo(x,y);});c.stroke();}
   const hist=(INP.obs.psi_hist||[]).filter(x=>x[0]>=-48&&x[1][state.region]!=null);
-  c.strokeStyle=COL['--cyan'];c.lineWidth=2;c.beginPath();hist.forEach((p,i)=>{const x=G.x(p[0]/24),y=G.y(p[1][state.region]);if(i===0)c.moveTo(x,y);else c.lineTo(x,y);});c.stroke();
-  if(!state.running){
-    const pc=reg.pct;c.lineWidth=1;c.setLineDash([4,3]);c.strokeStyle=COL['--ink-2'];
-    ['p5','p95'].forEach(j=>{c.beginPath();pc[j].forEach((v,i)=>{const x=G.x(A[i]/24),y=G.y(v);if(i===0)c.moveTo(x,y);else c.lineTo(x,y);});c.stroke();});
-    c.setLineDash([]);c.lineWidth=2;c.strokeStyle=COL['--ink'];c.beginPath();let started=false;pc.p50.forEach((v,i)=>{if(A[i]/24>coreEnd)return;const x=G.x(A[i]/24),y=G.y(v);if(!started){c.moveTo(x,y);started=true;}else c.lineTo(x,y);});c.stroke();
-  }
-  const xc=G.x(state.t);c.strokeStyle=COL['--cyan'];c.lineWidth=1;c.beginPath();c.moveTo(xc,FL.t);c.lineTo(xc,G.h-FL.b);c.stroke();
-  if(!state.running){const i=arrIndex(state.t*24);const v=reg.pct.p50[i];const y=G.y(v);c.fillStyle=COL['--ink'];c.beginPath();c.arc(xc,y,3.5,0,Math.PI*2);c.fill();
-    const lbl='P50 '+v;c.font='500 11px '+tok('--mono');const tw=c.measureText(lbl).width+10;let bx=xc+6;if(bx+tw>G.w-FL.r)bx=xc-6-tw;c.fillStyle='rgba(5,8,12,0.9)';c.fillRect(bx,FL.t,tw,17);c.fillStyle=COL['--cyan'];c.textAlign='left';c.fillText(lbl,bx+5,FL.t+12);}
-  const last=reg.pct.p50.length-1;
-  fan.setAttribute('aria-label','Simulated 24-hour PSI for '+regionName()+'. Middle path '+reg.pct.p50[Math.min(4,last)]+' tomorrow and '+reg.pct.p50[last]+' at the end; 90% range at the end '+reg.pct.p5[last]+' to '+reg.pct.p95[last]+'.');
+  c.strokeStyle=COL['--sky'];c.lineWidth=2;c.beginPath();hist.forEach((p,i)=>{const x=G.x(p[0]/24),y=G.y(p[1][state.region]);if(i===0)c.moveTo(x,y);else c.lineTo(x,y);});c.stroke();
+  const xc=G.x(state.t);c.strokeStyle=rgba(COL['--sky'],0.7);c.lineWidth=1;c.beginPath();c.moveTo(xc,FL.t);c.lineTo(xc,G.h-FL.b);c.stroke();
+  if(!state.running){const i=arrIndex(state.t*24);const v=state.t<0.01?Math.round(reg.now):pc.p50[i];const y=G.y(v);c.fillStyle=COL['--ink'];c.beginPath();c.arc(xc,y,4,0,Math.PI*2);c.fill();
+    const lbl=String(v);c.font='600 13px '+SANS();const tw=c.measureText(lbl).width+10;let bx=xc+7;if(bx+tw>G.w-FL.r)bx=xc-7-tw;c.fillStyle='rgba(14,24,32,0.92)';c.fillRect(bx,y-20,tw,18);c.fillStyle=COL['--ink'];c.textAlign='left';c.fillText(lbl,bx+5,y-6);}
+  const last=pc.p50.length-1;
+  fan.setAttribute('aria-label','24-hour PSI for '+regionName()+'. Middle forecast '+pc.p50[Math.min(4,last)]+' tomorrow and '+pc.p50[last]+' in 15 days; possible range then '+pc.p5[last]+' to '+pc.p95[last]+'.');
   fanDirty=false;
 }
-function coreEndT(){const d=FC.days.filter(x=>x.tier==='core');return d.length?d[d.length-1].h/24+0.25:6;}
-function arrIndex(h){const A=FC.arrivals_h;let best=0;for(let i=0;i<A.length;i++)if(Math.abs(A[i]-h)<Math.abs(A[best]-h))best=i;return best;}
 let dragFan=false;
 function fanToT(ev){const r=fan.getBoundingClientRect();const G=fanGeom();const t=G.x0+((ev.clientX-r.left)-FL.l)/(G.w-FL.l-FL.r)*(G.x1-G.x0);setT(t);needWarm=true;}
-fan.addEventListener('pointerdown',ev=>{if(!FC)return;dragFan=true;fan.setPointerCapture(ev.pointerId);fanToT(ev);});
+fan.addEventListener('pointerdown',ev=>{if(!FC)return;dragFan=true;fan.setPointerCapture(ev.pointerId);stopPlay();fanToT(ev);});
 fan.addEventListener('pointermove',ev=>{if(dragFan)fanToT(ev);});
 fan.addEventListener('pointerup',()=>{dragFan=false;});
 
-/* ---------- panels ---------- */
-const regionName=()=>REG.find(r=>r[0]===state.region)[1]+(state.region==='national'?'':' region');
+/* ---------- words ---------- */
+const regionName=()=>state.region==='national'?'Singapore':REG.find(r=>r[0]===state.region)[1]+' Singapore';
+const bandWord=(v)=>BANDS[bandOf(v)].name.toLowerCase();
+function typicalCore(){const reg=R();const d=reg.days.slice(0,coreDays().length).map(x=>x.p50).sort((a,b)=>a-b);return d[Math.floor(d.length/2)]||reg.now;}
+function renderAnswer(){
+  const reg=R();const now=reg.now;const b=now!=null?bandOf(now):null;const cs=cls();const top=cs[topClass()];const end=coreEndDow();
+  $('psiNow').textContent=now!=null?Math.round(now):'–';
+  const pill=$('psiBand');pill.textContent=b!=null?BANDS[b].name:'';pill.style.background=b!=null?COL.b[b]:'transparent';
+  $('nowProv').textContent='24-hour PSI'+(state.region==='national'?'':', '+REG.find(r=>r[0]===state.region)[1])+', NEA at '+clock(new Date(INP.obs.time||INP.t0))+' today';
+  let h='',parts=[];
+  const by=(id)=>cs.find(c=>c.id===id)||{odds:0,outcome:''};
+  if(reg.mode==='haze'){
+    if(top.id==='stays')h='Likely to stay '+bandWord(typicalCore())+' through '+end+'.';
+    else if(top.id==='worse')h='Likely to get worse this week.';
+    else h='Likely to ease to 100 or below by '+end+'.';
+    const w=by('worse'),clear=reg.clear;
+    if(top.id!=='worse'&&w.odds>=1)parts.push('<b>'+odds100(w.odds)+' in 100</b> chance it gets worse: '+esc(w.outcome.replace(/^Peaks/,'peaking at PSI').replace(/(\d)–(\d)/g,'$1 to $2').replace(/\.$/,''))+'.');
+    if(top.id!=='stays'&&by('stays').odds>=1)parts.push('<b>'+odds100(by('stays').odds)+' in 100</b> chance it stays above 100 all week.');
+    parts.push('<b>'+(clear<1?'Less than 1':odds100(clear))+' in 100</b> chance it is down to 100 or below by '+end+'.');
+  }else{
+    const clean=by('clean');const above=100-clean.odds;
+    h=above>=50?'Haze likely to return this week.':'Likely to stay '+bandWord(typicalCore())+' this week.';
+    parts.push('<b>'+odds100(above)+' in 100</b> chance PSI goes above 100 by '+end+'.');
+    const w=by('worse');if(w.odds>=1)parts.push('<b>'+odds100(w.odds)+' in 100</b> chance of very unhealthy levels (above 200).');
+  }
+  const se=FC.season;if(se&&reg.mode==='haze')parts.push('The haze season is most likely over around '+esc(se.median)+'.');
+  $('headline').textContent=h;$('lede').innerHTML=parts.join(' ');
+  REG.forEach(([k])=>{const el=$('reg-'+k);if(el)el.setAttribute('aria-pressed',String(k===state.region));});
+}
 function renderRegions(){
   const box=$('regions');box.innerHTML='';
   REG.forEach(([key,name])=>{const b=document.createElement('button');b.type='button';b.className='reg';b.id='reg-'+key;b.setAttribute('aria-pressed',String(key===state.region));
-    const v=FC.regions[key]?FC.regions[key].now:null;b.innerHTML='<span></span><span></span>';b.children[0].textContent=key==='national'?'All':name;b.children[1].textContent=v!=null?Math.round(v):'–';
+    const v=FC.regions[key]?FC.regions[key].now:null;b.innerHTML='<span></span><b></b>';b.children[0].textContent=key==='national'?'Highest':name;b.children[1].textContent=v!=null?Math.round(v):'–';
+    b.title=key==='national'?'Highest of the five areas, as NEA reports it':name+' Singapore';
     b.addEventListener('click',()=>{if(state.running)return;state.region=key;state.sel=null;onRegion();});box.appendChild(b);});
 }
 function onRegion(){buildWinds();buildThreads();renderAll();drawThreads();drawFan();needWarm=true;}
-let storyEls=[];
-function buildStories(){
-  const box=$('storyList');box.innerHTML='';storyEls=[];
-  for(let ci=0;ci<4;ci++){
-    const d=document.createElement('div');d.className='story';
-    d.innerHTML='<button type="button" class="storybtn" aria-pressed="false"><span class="sline"><span class="swatch"></span><span class="sname"></span><span class="sodds"></span><span class="sdelta"></span></span><span class="sbar"><span class="sfill"></span></span><span class="sout"></span></button><details class="watch"><summary>What to watch</summary><p></p></details>';
-    d.querySelector('.storybtn').id='story'+ci;
-    d.querySelector('.storybtn').addEventListener('click',()=>{state.sel=state.sel===ci?null:ci;needWarm=true;threadsDirty=true;renderStories();drawFan();renderShowing();});
-    box.appendChild(d);storyEls.push(d);
-  }
-}
-function renderStories(){
-  const reg=R();const prevReg=state.official&&state.rerunAt?state.official.regions[state.region]:null;
-  const why=(FC.why||{})[state.region];
-  storyEls.forEach((d,ci)=>{const c=reg.classes[ci];const on=state.sel===ci;
-    d.style.setProperty('--sc','var('+c.color+')');d.classList.toggle('on',on);d.querySelector('.storybtn').setAttribute('aria-pressed',String(on));
-    d.querySelector('.sname').textContent=c.name;
-    const odds=state.running&&prevReg?lerp(prevReg.classes[ci].odds,c.odds,state.runFrac):c.odds;
-    d.querySelector('.sodds').textContent=Math.round(odds)+'%';d.querySelector('.sfill').style.width=Math.round(odds)+'%';
-    let dl=null;if(why&&why.deltas&&why.deltas[ci])dl=why.deltas[ci].d;
-    const de=d.querySelector('.sdelta');de.textContent=state.running?'…':dl===null?'':(dl>0?'+'+dl:dl<0?'−'+Math.abs(dl):'0');de.className='sdelta'+(dl>0?' up':dl<0?' down':'');
-    d.querySelector('.sout').textContent=c.outcome||'No futures in this storyline.';d.querySelector('.watch p').textContent=c.watch||'';d.querySelector('.watch').hidden=!c.watch;});
-  $('vsLabel').textContent=FC.prevLabel||state.rerunAt?'vs '+(state.rerunAt?'scheduled run':fmtSGT(new Date(FC.prevLabel),true)):'';
-}
-function renderAnswer(){
-  const reg=R();const now=reg.now;const b=now!=null?BANDS[bandOf(now)]:null;const top=reg.classes[topClass()];
-  $('eyebrow').textContent='Singapore · '+(state.region==='national'?'highest of 5 regions':REG.find(r=>r[0]===state.region)[1]+' region');
-  const endDay=reg.clearDayLabel||FC.days[Math.min(5,FC.days.length-1)].dow;
-  if(reg.mode==='haze')$('answer').textContent=(b?b.name:'')+' now. '+Math.round(reg.clear)+'% chance it is 100 or below by '+endDay+'.';
-  else{const clean=reg.classes.find(c=>c.id==='clean');$('answer').textContent=(b?b.name:'')+' now. '+Math.round(100-(clean?clean.odds:0))+'% chance of PSI above 100 this week.';}
-  $('answer2').textContent='Most likely: '+top.name.toLowerCase()+'. '+(top.outcome||'');
-  const se=FC.season;$('answer3').textContent=se?(reg.mode==='haze'?'Season: most likely over around '+se.median+'.':'Rainy season expected around '+se.median+'.'):'';
-  $('psiNow').textContent=now!=null?Math.round(now):'–';const pill=$('psiBand');pill.textContent=b?b.name:'';pill.style.background=b?COL.b[bandOf(now)]:'transparent';
-  $('nowProv').textContent='Measured · NEA · '+fmtSGT(new Date(INP.obs.time||INP.t0));
-  $('fanRegion').textContent=state.region==='national'?'Singapore':REG.find(r=>r[0]===state.region)[1];
-  REG.forEach(([k])=>{const el=$('reg-'+k);if(el)el.setAttribute('aria-pressed',String(k===state.region));});
-}
-function renderWhy(){
-  const w=(FC.why||{})[state.region];const ul=$('whyList');ul.innerHTML='';const dbox=$('whyDeltas');dbox.innerHTML='';
-  $('whyLabel').textContent=state.rerunAt?'Rerun '+fmtSGT(state.rerunAt)+' vs scheduled':FC.prevLabel?fmtSGT(new Date(FC.issued),true)+' vs '+fmtSGT(new Date(FC.prevLabel),true):'';
-  if(!w||(!w.deltas.length&&!w.drivers.length)){const li=document.createElement('li');li.innerHTML='<i style="--sc:var(--ink-3)"></i><span></span>';li.querySelector('span').textContent='This is the first run on record, so there is nothing to compare yet.';ul.appendChild(li);return;}
-  w.deltas.forEach(d=>{const s=document.createElement('span');s.className='dchip';s.style.setProperty('--sc','var('+d.color+')');s.textContent=d.name+' '+(d.d>0?'+'+d.d:d.d<0?'−'+Math.abs(d.d):'±0');dbox.appendChild(s);});
-  const drivers=w.drivers.length?w.drivers:['No big change in fires, rain, winds or readings. The odds moved within normal sampling noise.'];
-  drivers.forEach(t=>{const li=document.createElement('li');li.innerHTML='<i style="--sc:var(--cyan)"></i><span></span>';li.querySelector('span').textContent=t;ul.appendChild(li);});
-}
+
+/* 15-day list */
+const AXMAX=400;const ax=(v)=>clamp(v,0,AXMAX)/AXMAX*100;
+function bandGradient(){const st=[];const e=[0,50,100,200,300,AXMAX];for(let k=0;k<5;k++){st.push(COL.b[k]+' '+ax(e[k])+'%',COL.b[k]+' '+ax(e[k+1])+'%');}return 'linear-gradient(90deg,'+st.join(',')+')';}
 function renderDays(){
-  const box=$('days');box.innerHTML='';const reg=R();const cur=dayIndexAt(state.t);
-  reg.days.slice(0,6).forEach((d,i)=>{const row=document.createElement('div');row.className='dayrow'+(cur===i?' cur':'');
-    const lab=FC.days[i].label;row.innerHTML='<span class="dl"></span><span class="bar" role="img"></span><span class="dm"></span>';row.children[0].textContent=lab;row.children[2].textContent='P50 '+d.p50;
-    row.children[1].setAttribute('aria-label',lab+': '+d.bands.map((v,k)=>BANDS[k].name+' '+Math.round(v)+'%').join(', '));
-    d.bands.forEach((v,k)=>{if(v<0.5)return;const s=document.createElement('i');s.style.flex=v+' 1 0';s.style.background=COL.b[k];s.title=BANDS[k].name+' '+Math.round(v)+'%';row.children[1].appendChild(s);});
-    box.appendChild(row);});
-  const lg=$('bandLegend');lg.innerHTML='';BANDS.forEach((b,k)=>{const s=document.createElement('span');s.innerHTML='<i></i>';s.querySelector('i').style.background=COL.b[k];s.append(b.name+' '+BAND_RANGE[k]);lg.appendChild(s);});
+  const axel=$('ax');axel.innerHTML='';[0,100,200,300,400].forEach(v=>{const s=document.createElement('span');s.textContent=v;s.style.left=ax(v)+'%';if(v===0)s.style.transform='none';if(v===400)s.style.transform='translateX(-100%)';axel.appendChild(s);});
+  const box=$('dayList');box.innerHTML='';const reg=R();const grad=bandGradient();const nCore=coreDays().length;
+  reg.days.forEach((d,i)=>{
+    if(i===nCore){const dv=document.createElement('div');dv.className='divider';dv.textContent='Less certain from here';box.appendChild(dv);}
+    const fd=FC.days[i];const row=document.createElement('button');row.type='button';row.className='drow'+(i>=nCore?' ext':'');row.dataset.t=fd.h/24;
+    const p25=d.p25!=null?d.p25:d.p5,p75=d.p75!=null?d.p75:d.p95;
+    row.setAttribute('aria-label',fd.label+': middle forecast '+d.p50+', '+bandWord(d.p50)+'. Likely '+p25+' to '+p75+', possible '+d.p5+' to '+d.p95+'.');
+    const zones=[0,50,100,200,300,AXMAX].slice(0,-1).map((e,k,arr)=>'<i class="zone" style="left:'+ax(e)+'%;width:'+(ax([0,50,100,200,300,AXMAX][k+1])-ax(e))+'%;background:'+COL.b[k]+'"></i>').join('');
+    row.innerHTML='<span class="dl"><b>'+esc(fd.dow)+'</b>'+esc(fd.label.split(' ')[1])+'</span><span class="track">'+zones+
+      '<i class="wide" style="left:'+ax(d.p5)+'%;width:'+Math.max(0.5,ax(d.p95)-ax(d.p5))+'%"></i>'+
+      '<i class="mid" style="left:'+ax(p25)+'%;width:'+Math.max(1.5,ax(p75)-ax(p25))+'%;background:'+grad+';background-size:'+(100/Math.max(0.015,(ax(p75)-ax(p25))/100))+'% 100%;background-position:'+(ax(p25)/Math.max(0.0001,100-(ax(p75)-ax(p25)))*100)+'% 0"></i>'+
+      '<i class="dot" style="left:'+ax(d.p50)+'%"></i>'+(d.p95>AXMAX?'<span class="cap" aria-hidden="true">›</span>':'')+'</span><span class="dv">'+d.p50+'</span>';
+    row.addEventListener('click',()=>{stopPlay();setT(fd.h/24);needWarm=true;});
+    box.appendChild(row);
+  });
 }
-function renderCby(){
-  const reg=R();const box=$('cby'),ax=$('cbyx');box.innerHTML='';ax.innerHTML='';const cb=reg.clearBy||[];
-  $('cbyTitle').textContent='Next '+cb.length+' days';
-  $('cbyHint').textContent=reg.mode==='haze'?'Chance PSI has dropped to 100 or below by each day':'Chance PSI has gone above 100 by each day';
-  box.style.gridTemplateColumns=ax.style.gridTemplateColumns='repeat('+cb.length+',minmax(0,1fr))';
-  box.setAttribute('aria-label',cb.map((v,i)=>FC.days[i].label+' '+Math.round(v)+'%').join(', '));
-  cb.forEach((v,i)=>{const d=document.createElement('div');const b=document.createElement('b');b.textContent=Math.round(v);const bar=document.createElement('i');bar.style.height=Math.max(1,v*0.56)+'px';if(FC.days[i].tier!=='core')bar.className='ext';d.append(b,bar);box.appendChild(d);
-    const l=document.createElement('span');l.textContent=i%2===0?FC.days[i].label.split(' ')[1]:'';ax.appendChild(l);});
+
+/* outcomes */
+function renderScenarios(){
+  const reg=R();const cs=cls();const order=[0,1,2,3];
+  // largest-remainder rounding to 100 squares
+  const raw=cs.map(c=>c.odds);const fl=raw.map(Math.floor);let left=100-fl.reduce((a,b)=>a+b,0);
+  raw.map((v,i)=>[v-fl[i],i]).sort((a,b)=>b[0]-a[0]).forEach(([,i])=>{if(left>0){fl[i]++;left--;}});
+  const dots=$('dots');dots.innerHTML='';dots.classList.toggle('dim',state.sel!==null);
+  const lab=[];
+  [3,2,1,0].forEach(ci=>{for(let k=0;k<fl[ci];k++){const i=document.createElement('i');i.style.background=classColor(cs[ci]);if(state.sel===ci)i.classList.add('on');dots.appendChild(i);}if(fl[ci])lab.push(plainName(cs[ci])+' '+fl[ci]+' in 100');});
+  dots.setAttribute('aria-label',lab.join(', '));
+  $('scSpan').textContent='Next 6 days';
+  const box=$('scen');box.innerHTML='';
+  const prevReg=state.running&&state.official?state.official.regions[state.region]:null;
+  [...order].sort((a,b)=>cs[b].odds-cs[a].odds).forEach(ci=>{const c=cs[ci];
+    const d=document.createElement('div');d.className='sc'+(state.sel===ci?' on':'');d.style.setProperty('--c',classColor(c));
+    const od=state.running&&prevReg?lerp(prevReg.classes[ci].odds,c.odds,state.runFrac):c.odds;
+    const odTxt=od<1&&od>0?'<1':String(Math.round(od));
+    d.innerHTML='<button type="button" class="scbtn" aria-pressed="'+(state.sel===ci)+'"><span class="sw"></span><span class="nm"></span><span class="od">'+odTxt+' <small>in 100</small></span><span class="oc"></span></button>';
+    d.querySelector('.nm').textContent=plainName(c);
+    d.querySelector('.oc').textContent=c.n?(c.outcome||''):'None of the futures do this.';
+    if(c.watch&&c.n){const det=document.createElement('details');det.innerHTML='<summary>What would make this happen</summary><p></p>';det.querySelector('p').textContent=c.watch;d.appendChild(det);}
+    d.querySelector('.scbtn').addEventListener('click',()=>{state.sel=state.sel===ci?null:ci;needWarm=true;threadsDirty=true;renderScenarios();renderKey();drawFan();renderShowing();});
+    box.appendChild(d);});
 }
-function renderSeason(){
-  const se=FC.season;const card=$('seasonCard');if(!se){card.hidden=true;return;}card.hidden=false;const reg=R();
-  $('seasonLine').textContent=reg.mode==='haze'?'Most likely over around '+se.median+' (8 in 10 chance between '+se.p10+' and '+se.p90+').':'Rains most likely set in around '+se.median+'.';
-  const rows=$('seasonRows');rows.innerHTML='';
-  se.dates.forEach(d=>{const r=document.createElement('div');r.className='srow';r.innerHTML='<span class="lab"></span><span class="bar"><i></i></span><span class="pc"></span>';r.children[0].textContent='by '+d.label;r.querySelector('i').style.width=d.p+'%';r.children[2].textContent=d.p+'%';rows.appendChild(r);});
-  const cl=se.climate||{};const f=(x)=>x==null?'n/a':(x>0?'+':'')+Number(x).toFixed(2);
-  $('seasonMore').innerHTML='';
-  const ps=['"Over" means steady rain has set in over both the Kalimantan and Sumatra fire areas, plus about a week for fires and haze to die down. Haze can still lift earlier when winds change.',
-    'Rain onset, middle estimate: Kalimantan '+se.onset.Kalimantan+', Sumatra '+se.onset.Sumatra+'. '+se.seenInForecast+'% of futures already show it within the '+se.horizonDays+'-day weather forecasts.',
-    'Beyond the forecasts, onset is taken from normal dates and pushed about '+cl.shiftDays+' days later by El Niño (RONI '+f(cl.roni)+', '+(cl.roniPeriod||'')+') and the Indian Ocean Dipole (DMI '+f(cl.dmi)+', '+(cl.dmiPeriod||'')+').'];
-  ps.forEach(t=>{const p=document.createElement('p');p.textContent=t;$('seasonMore').appendChild(p);});
+
+/* where the smoke comes from */
+function islandOf(lon,lat){if(lat<-5.6&&lon>105.5)return 'Java';if(lon>=108.5)return 'Kalimantan';if(lon>=100.3&&lat>=1.25&&lon<105)return 'Malaysia';if(lon<106.3)return 'Sumatra';return 'Other';}
+function renderSources(){
+  const ss=FC.sourceShare||{};const list=(FC.sourceRegions||[]).filter(r=>r.share>=1).slice(0,5);
+  const k=Math.round((ss.Kalimantan||0)/10),s=Math.round((ss.Sumatra||0)/10);
+  $('srcLine').textContent='Of the fire smoke likely to reach Singapore, about '+k+' parts in 10 come from Kalimantan and '+s+' from Sumatra.';
+  const box=$('srcs');box.innerHTML='';const mx=Math.max(1,...list.map(r=>r.share));
+  list.forEach(r=>{const el=document.createElement('div');el.className='src';el.innerHTML='<span></span><span class="bar"><i></i></span><span class="pc"></span>';el.children[0].textContent=r.name;el.querySelector('i').style.width=(r.share/mx*100)+'%';el.children[2].textContent=Math.round(r.share)+'%';box.appendChild(el);});
+  const facts=$('facts');facts.innerHTML='';const add=(k,html)=>{const li=document.createElement('li');li.innerHTML='<span>'+k+'</span><span>'+html+'</span>';facts.appendChild(li);};
+  const cnt={};INP.hotspots.forEach(h=>{const i=islandOf(h[0],h[1]);cnt[i]=(cnt[i]||0)+1;});const fmt=(n)=>n.toLocaleString('en-US');
+  add('Fires','<b>'+fmt(INP.hotspots.length)+'</b> hotspots seen by satellite in the last day: Kalimantan '+fmt(cnt.Kalimantan||0)+', Sumatra '+fmt(cnt.Sumatra||0)+'.');
+  const rn=(INP.summary&&INP.summary.rain_mm_0_120h)||null;
+  if(rn)add('Rain','Expected over the fires in the next 5 days: Sumatra <b>'+Math.round(rn.Sumatra||0)+' mm</b>, Kalimantan <b>'+Math.round(rn.Kalimantan||0)+' mm</b>. Peat fires need days of steady rain to go out.');
+  const ap=((INP.extras||{}).airports||[]).filter(a=>a.icao!=='WSSS'&&a.haze&&a.vis_km!=null).sort((a,b)=>a.vis_km-b.vis_km).slice(0,3);
+  if(ap.length)add('Visibility','Smoke haze at airports near the fires: '+ap.map(a=>esc(a.name)+' '+a.vis_km+' km').join(', ')+'.');
 }
-function renderBlend(){
-  const b=FC.blend;const el=$('blendNote');if(!b){el.textContent='';return;}
-  const at=(d)=>{const i=FC.arrivals_h.findIndex(h=>h>=d*24);return i<0?b.weight[b.weight.length-1]:b.weight[i];};
-  el.textContent='Further out, futures lean on how '+b.analogDays+' similar days in past seasons ('+b.years.join(', ')+') played out: about '+Math.round(at(3)*100)+'% by day 3, '+Math.round(at(6)*100)+'% by day 6, '+Math.round(at(14)*100)+'% by day 14.';
+function renderChanges(){
+  const w=(FC.why||{})[state.region];const box=$('changes');box.innerHTML='';
+  $('chWhen').textContent=state.rerunAt?'Your rerun':FC.prevLabel?'vs '+clock(new Date(FC.prevLabel))+' '+dayName(new Date(FC.prevLabel)).split(' ')[0]:'';
+  if(!w||(!w.deltas.length&&!w.drivers.length)){box.textContent='This is the first forecast on record, so there is nothing to compare yet.';return;}
+  const chips=document.createElement('div');chips.className='chips';
+  w.deltas.forEach(d=>{const c=cls().find(x=>x.name===d.name)||{};const s=document.createElement('span');s.className='chip';s.style.setProperty('--c',COL[d.color]||COL['--line']);s.textContent=(c.id?plainName(c):d.name)+' '+(d.d>0?'+'+d.d:d.d<0?'−'+Math.abs(d.d):'no change');chips.appendChild(s);});
+  box.appendChild(chips);
+  const drivers=w.drivers.length?w.drivers:['No big change in fires, rain, winds or readings. The odds moved within normal variation.'];
+  drivers.forEach(t=>{const p=document.createElement('div');p.textContent=t;box.appendChild(p);});
 }
 function renderNews(){
   const list=$('newsList');list.innerHTML='';const items=(INP.extras&&INP.extras.news)||[];$('newsCard').hidden=!items.length;
@@ -768,83 +802,107 @@ function renderNews(){
   if(sg){const lab={spreading:'Fires spreading',emergency:'Emergency',suppression:'Firefighting',rain:'Rain',improving:'Easing'};
     Object.keys(lab).forEach(k=>{const e=document.createElement('span');e.className='sig '+((k==='spreading'||k==='emergency')?(sg.counts[k]?'up':''):(sg.counts[k]?'down':''));e.textContent=lab[k]+' '+(sg.counts[k]||0);chips.appendChild(e);});
     const pct=Math.round(sg.growthShift*1000)/10;
-    $('sigLine').textContent=(sg.pressure>0.15?'News leans worse':sg.pressure<-0.15?'News leans better':'News is mixed')+' ('+sg.articles+' reports). '+(pct?'Fire growth in the futures shifted '+(pct>0?'+':'')+pct+'% a day.':'No change to the futures.');}
+    $('sigLine').textContent=(sg.pressure>0.15?'Reports lean worse':sg.pressure<-0.15?'Reports lean better':'Reports are mixed')+' ('+sg.articles+' articles). '+(pct?'The forecast allows for fires growing '+Math.abs(pct)+'% a day '+(pct>0?'faster':'slower')+' because of this.':'No change to the forecast.');}
   else{$('sigLine').textContent='';}
   items.slice(0,6).forEach(n=>{const li=document.createElement('li');const a=document.createElement(n.url?'a':'span');a.textContent=n.title;if(n.url){a.href=n.url;a.target='_blank';a.rel='noopener';}
-    const m=document.createElement('span');const tg=n.tags&&n.tags.signals&&n.tags.signals.length?' · '+n.tags.signals.join(', '):'';m.textContent=(n.domain||'')+(n.time?' · '+fmtSGT(new Date(n.time),true):'')+tg;li.append(a,m);list.appendChild(li);});
+    const m=document.createElement('span');m.textContent=(n.domain||'')+(n.time?', '+dayName(new Date(n.time)).split(' ').slice(0,1)+' '+clock(new Date(n.time)):'');li.append(a,m);list.appendChild(li);});
 }
-function dayIndexAt(t){let best=-1,bd=0.3;FC.days.forEach((d,i)=>{const dd=Math.abs(d.h/24-t);if(dd<bd){bd=dd;best=i;}});return best;}
-function renderMarkers(){
-  const box=$('markers');box.innerHTML='';const reg=R();const mt=maxT();
-  const next=new Date(new Date(FC.built).getTime()+6*3600e3);const nh=(next-t0())/864e5;
-  const ms=[{c:null,t:nh,label:'Next run'}];
-  reg.classes.forEach((c,i)=>{if(c.split_h!=null&&c.n>0)ms.push({c:i,t:c.split_h/24,label:c.name.split(' ')[0]+' '+c.name.split(' ')[1]});});
-  const W=box.clientWidth||400;const rowEnd=[-1e9,-1e9,-1e9];
-  ms.filter(m=>m.t>=0&&m.t<=mt).sort((a,b)=>a.t-b.t).forEach((m,idx)=>{const b=document.createElement('button');b.type='button';b.className='mk';b.style.left=(m.t/mt*100)+'%';
-    const x=m.t/mt*W,wl=m.label.length*6.3+10;let row=rowEnd.findIndex(e=>x-wl/2>e+4);if(row<0)row=2;rowEnd[row]=x+wl/2;b.style.setProperty('--row',(row*13)+'px');
-    b.style.setProperty('--sc',m.c===null?'var(--ink-2)':'var('+reg.classes[m.c].color+')');b.textContent=m.label;
-    b.setAttribute('aria-label',m.c===null?'Next scheduled run':'Where the '+reg.classes[m.c].name+' futures split off. Show them.');
-    b.addEventListener('click',()=>{if(m.c!==null){state.sel=m.c;renderStories();threadsDirty=true;}setT(m.t);needWarm=true;drawFan();renderShowing();});box.appendChild(b);});
+function renderSeason(){
+  const se=FC.season;const card=$('seasonCard');if(!se){card.hidden=true;return;}card.hidden=false;const reg=R();
+  $('seasonLine').textContent=reg.mode==='haze'?'Most likely around '+se.median+'. 8 in 10 chance between '+se.p10+' and '+se.p90+'.':'Steady rains most likely set in around '+se.median+'.';
+  const rows=$('seasonRows');rows.innerHTML='';
+  se.dates.forEach(d=>{const r=document.createElement('div');r.className='srow';r.innerHTML='<span></span><span class="bar"><i></i></span><span class="pc"></span>';r.children[0].textContent='By '+d.label;r.querySelector('i').style.width=d.p+'%';r.children[2].textContent=d.p+'%';rows.appendChild(r);});
+  const cl=se.climate||{};const f=(x)=>x==null?'n/a':(x>0?'+':'')+Number(x).toFixed(2);
+  $('seasonMore').innerHTML='';
+  ['"Over" means steady rain has set in over both the Kalimantan and Sumatra fire areas, plus about a week for fires and haze to die down. Haze can still lift earlier when winds change.',
+   'Rain onset, middle estimate: Kalimantan '+se.onset.Kalimantan+', Sumatra '+se.onset.Sumatra+'. '+se.seenInForecast+'% of futures already show it within the '+se.horizonDays+'-day weather forecasts.',
+   'Beyond the forecasts, onset comes from normal dates pushed about '+cl.shiftDays+' days later by El Niño (RONI '+f(cl.roni)+') and the Indian Ocean Dipole (DMI '+f(cl.dmi)+').'].forEach(t=>{const p=document.createElement('p');p.textContent=t;$('seasonMore').appendChild(p);});
 }
-function renderTicks(){const box=$('ticks');box.innerHTML='';const mt=maxT();
-  const s=document.createElement('span');s.textContent='Now';s.dataset.t=0;s.style.left='0%';box.appendChild(s);
-  FC.days.forEach((d,i)=>{if(d.h/24>mt||d.h/24/mt<0.06)return;if(i>=6&&i%2===0)return;const e=document.createElement('span');e.textContent=i<6?d.dow:d.label.split(' ')[1];e.dataset.t=d.h/24;e.style.left=(d.h/24/mt*100)+'%';box.appendChild(e);});}
-function renderExt(){const z=$('extzone');const mt=maxT();const ce=coreEndT();if(ce>=mt){z.hidden=true;return;}z.hidden=false;z.style.left='calc(8px + '+(ce/mt*100)+'% - '+(16*ce/mt)+'px)';}
-function renderTicker(){
-  const items=[];items.push({k:'t',t:fmtSGT(new Date(FC.built)),s:'Twin',d:'run · '+FC.n.toLocaleString('en-US')+' futures from '+FC.members+' weather forecasts'+(FC.anchored?', matched to NEA readings':'')});
-  (INP.sources||[]).forEach(s=>items.push({k:s.status==='failed'?'n':'',t:s.time?fmtSGT(new Date(s.time)):'',s:s.name,d:s.status+(s.detail?' · '+s.detail:'')}));
-  items.push({k:'',t:'',s:'Hotspots',d:INP.hotspots.length+' in the last 24 h, VIIRS'});
-  const ex=INP.extras||{};
-  (ex.airports||[]).filter(a=>a.icao!=='WSSS').forEach(a=>items.push({k:a.haze?'n':'',t:a.time?fmtSGT(new Date(a.time)):'',s:a.name+' airport',d:(a.vis_km!=null?'visibility '+a.vis_km+' km':'no visibility')+(a.wx?' · '+a.wx:'')}));
-  (ex.news||[]).slice(0,4).forEach(n=>items.push({k:'',t:n.time?fmtSGT(new Date(n.time)):'',s:n.domain||'News',d:n.title}));
-  const ss=FC.sourceShare;if(ss)items.push({k:'',t:'',s:'Fire smoke reaching Singapore, next 3 days',d:'Kalimantan '+ss.Kalimantan+'% · Sumatra '+ss.Sumatra+'% · other '+ss.Other+'%'});
-  const html=items.map(e=>'<span class="'+e.k+'"><b>'+e.t+'</b>'+esc(e.s)+' · '+esc(e.d)+'</span>').join('');
-  $('ticker').innerHTML=html+(reduced?'':html);
+function renderHood(){
+  const h=$('hood');h.innerHTML='';const p=(t)=>{const e=document.createElement('p');e.textContent=t;h.appendChild(e);};
+  p(FC.n.toLocaleString('en-US')+' futures from '+FC.members+' NOAA GEFS weather forecasts'+(FC.anchored?', weighted to match NEA readings':'')+'. Effective sample after weighting: '+Math.round(FC.ess||0).toLocaleString('en-US')+'.');
+  const b=FC.blend;if(b){const at=(d)=>{const i=FC.arrivals_h.findIndex(x=>x>=d*24);return i<0?b.weight[b.weight.length-1]:b.weight[i];};
+    p('Further ahead the forecast leans on '+b.analogDays+' similar days in past seasons ('+b.years.join(', ')+'): about '+Math.round(at(3)*100)+'% by day 3, '+Math.round(at(6)*100)+'% by day 6 and '+Math.round(at(14)*100)+'% by day 14.');}
+  const cams=INP.extras&&INP.extras.cams&&INP.extras.cams.pm25;
+  if(cams&&cams.length>48){const tail=cams.slice(-24);const m=tail.reduce((a,x)=>a+x[1],0)/tail.length;p('The CAMS smoke model, shown for comparison, expects a 24-hour PSI near '+HE.psiOf(m)+' by '+dayName(new Date(tail[tail.length-1][0]))+'. CAMS tends to underestimate smoke from peat fires.');}
+  const ul=document.createElement('ul');ul.className='feeds';
+  (INP.sources||[]).forEach(s=>{const li=document.createElement('li');li.innerHTML='<i class="'+(s.status==='failed'?'bad':s.status==='partial'?'part':'')+'"></i><span></span>';li.children[1].textContent=s.name+': '+s.status+(s.detail?', '+s.detail:'');ul.appendChild(li);});
+  h.appendChild(ul);
 }
-const esc=(s)=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function timeLabel(t){if(t<0.01)return 'NOW · '+fmtSGT(t0(),true).toUpperCase();const d=new Date(t0().getTime()+Math.round(t*8)*3*3600e3);return fmtSGT(d,true).toUpperCase()+' · FORECAST';}
+
+/* time strip */
+function renderStrip(){
+  const box=$('daystrip');box.innerHTML='';const reg=R();const nCore=coreDays().length;
+  const mk=(t,top,val,ext,label)=>{const b=document.createElement('button');b.type='button';b.className='dchip'+(ext?' ext':'');b.dataset.t=t;
+    b.innerHTML='<span class="prog"></span><span></span><b></b><i></i>';b.children[1].textContent=top;b.children[2].textContent=val;b.style.setProperty('--c',COL.b[bandOf(val)]);b.setAttribute('aria-label',label);
+    b.addEventListener('click',()=>{stopPlay();setT(t);needWarm=true;});box.appendChild(b);};
+  mk(0,'Now',Math.round(reg.now),false,'Now, PSI '+Math.round(reg.now));
+  reg.days.forEach((d,i)=>{if(i===nCore){const g=document.createElement('span');g.className='gap';g.setAttribute('aria-hidden','true');box.appendChild(g);}
+    const fd=FC.days[i];mk(fd.h/24,i<nCore?fd.dow:fd.label.split(' ')[1]+' '+MON[sgt(new Date(fd.iso)).getUTCMonth()],d.p50,i>=nCore,fd.label+', middle forecast '+d.p50);});
+}
+function markCurrent(){
+  const t=state.t;let best=null,bd=1e9;document.querySelectorAll('.dchip').forEach(b=>{const d=Math.abs(Number(b.dataset.t)-t);if(d<bd){bd=d;best=b;}});
+  document.querySelectorAll('.dchip').forEach(b=>b.classList.toggle('cur',b===best));
+  let br=null;bd=1e9;document.querySelectorAll('.drow').forEach(r=>{const d=Math.abs(Number(r.dataset.t)-t);if(d<bd){bd=d;br=r;}});
+  document.querySelectorAll('.drow').forEach(r=>r.classList.toggle('cur',t>0.3&&r===br));
+}
 function renderShowing(){
-  if(!FC)return;const reg=R();const ci=dispClass();const c=reg.classes[ci];
-  const s1=$('showing1');s1.innerHTML='';const b=document.createElement('b');b.textContent=state.sel!==null?'Showing:':'Most likely:';s1.append(b,' '+c.name+' ('+Math.round(c.odds)+'%)');
-  if(state.t<0.01)$('showing2').textContent='Now · 24-hr PSI '+Math.round(reg.now)+' · measured';
-  else{const i=arrIndex(state.t*24);$('showing2').textContent=timeLabel(state.t).replace(' · FORECAST','')+' · all futures: P50 '+reg.pct.p50[i]+', range '+reg.pct.p5[i]+'–'+reg.pct.p95[i];}
+  if(!FC)return;const reg=R();
+  const sel=state.sel!==null?cls()[state.sel]:null;
+  if(state.t<0.01){$('showing1').textContent='Now, '+dayName(t0())+', '+clock(new Date(INP.obs.time||INP.t0));$('showing2').textContent=(sel?'Showing outcome: '+plainName(sel)+'. ':'')+'Fires from the last day, today\'s smoke and the air reaching Singapore.';}
+  else{const d=new Date(t0().getTime()+Math.round(state.t*8)*3*3600e3);const i=arrIndex(state.t*24);
+    $('showing1').textContent='Forecast for '+dayName(d)+', '+clock(d);
+    const v=sel&&sel.median.length?sel.median[i]:reg.pct.p50[i];
+    $('showing2').textContent=sel?'Outcome "'+plainName(sel)+'": PSI near '+v+'.':'PSI near '+v+' (likely '+(reg.pct.p25?reg.pct.p25[i]:reg.pct.p5[i])+' to '+(reg.pct.p75?reg.pct.p75[i]:reg.pct.p95[i])+'). Air paths and smoke follow the forecast winds.';}
 }
-function setT(t){state.t=clamp(t,0,maxT());$('scrub').value=state.t;syncT();}
-function syncT(){
-  $('whenLabel').textContent=timeLabel(state.t);
-  const di=dayIndexAt(state.t);document.querySelectorAll('#ticks span').forEach(s=>s.classList.toggle('cur',Math.abs(Number(s.dataset.t)-state.t)<0.3));
-  document.querySelectorAll('.dayrow').forEach((row,k)=>row.classList.toggle('cur',k===di));
-  renderShowing();fanDirty=true;threadsDirty=true;
+function renderKey(){
+  const k=$('key');const L=state.layers;const items=[];
+  if(L.hot)items.push('<span><i class="ky-fire"></i>Fire hotspot</span>');
+  if(L.smoke)items.push('<span><i class="ky-smoke"></i>Smoke</span>');
+  if(L.futures)items.push('<span><i class="ky-air" style="--c:'+(state.sel!==null?classColor(cls()[state.sel]):COL['--sA'])+'"></i>Air on its way to Singapore</span>');
+  if(L.wind)items.push('<span><i class="ky-wind"></i>Wind</span>');
+  if(L.air)items.push('<span><i class="ky-ap"></i>Airport visibility</span>');
+  if(L.st)items.push('<span><i class="ky-st"></i>Air quality station</span>');
+  k.innerHTML=items.join('');k.hidden=!items.length;
 }
+const LAYERS=[['futures','Air on its way to Singapore'],['smoke','Smoke'],['hot','Fire hotspots'],['wind','Wind'],['air','Airport visibility'],['st','Air quality stations'],['sat','Satellite photo','yesterday']];
 function renderLayers(){
-  const box=$('layers');box.innerHTML='';
-  [['futures','Air paths'],['smoke','Smoke'],['wind','Wind'],['hot','Hotspots'],['air','Airports'],['st','Stations'],['sat','Satellite']].forEach(l=>{const b=document.createElement('button');b.type='button';b.className='layer';b.id='layer-'+l[0];b.textContent=l[1];b.setAttribute('aria-pressed',String(state.layers[l[0]]));
-    b.addEventListener('click',()=>{state.layers[l[0]]=!state.layers[l[0]];b.setAttribute('aria-pressed',String(state.layers[l[0]]));if(l[0]==='wind')initWind();});box.appendChild(b);});
+  const m=$('layerMenu');m.innerHTML='';
+  LAYERS.forEach(l=>{const lab=document.createElement('label');lab.innerHTML='<input type="checkbox"><span></span>'+(l[2]?'<small>'+l[2]+'</small>':'');lab.children[1].textContent=l[1];const inp=lab.children[0];inp.checked=state.layers[l[0]];
+    inp.addEventListener('change',()=>{state.layers[l[0]]=inp.checked;if(l[0]==='wind')initWind();if(l[0]==='sat'&&inp.checked)loadSat();renderKey();});m.appendChild(lab);});
+}
+$('layersBtn').addEventListener('click',()=>{const m=$('layerMenu');m.hidden=!m.hidden;$('layersBtn').setAttribute('aria-expanded',String(!m.hidden));});
+document.addEventListener('click',e=>{const m=$('layerMenu');if(!m.hidden&&!m.contains(e.target)&&e.target!==$('layersBtn')){m.hidden=true;$('layersBtn').setAttribute('aria-expanded','false');}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('layerMenu').hidden){$('layerMenu').hidden=true;$('layersBtn').setAttribute('aria-expanded','false');$('layersBtn').focus();}});
+
+function nextUpdate(){
+  const b=new Date(FC.built);const hrs=[1,7,13,19];for(let d=0;d<2;d++)for(const h of hrs){const t=new Date(Date.UTC(b.getUTCFullYear(),b.getUTCMonth(),b.getUTCDate()+d,h,40));t.setUTCMinutes(t.getUTCMinutes()+30);if(t>b)return t;}return null;
 }
 function renderHeader(){
-  $('statusText').textContent='Last run '+fmtSGT(new Date(FC.built),true)+' SGT · '+FC.n.toLocaleString('en-US')+' futures';
-  $('membersText').textContent=FC.members+' weather forecasts';
-  const chip=$('dataChip');chip.textContent=INP.sample?'Sample data':'Live data';chip.classList.toggle('live',!INP.sample);
+  const b=new Date(FC.built);
+  $('statusText').textContent=(INP.sample?'Sample data. ':'')+'Updated '+dayName(b).split(' ')[0]+' '+clock(b);
+  $('liveDot').classList.toggle('sample',!!INP.sample);
+  const n=nextUpdate();$('nextText').textContent=n?'Next update about '+clock(n):'';
   document.querySelectorAll('.nMembers').forEach(e=>e.textContent=FC.members);
 }
-function renderAll(){renderHeader();renderRegions();renderAnswer();renderStories();renderWhy();renderDays();renderCby();renderSeason();renderNews();renderBlend();renderExt();renderMarkers();renderTicks();renderTicker();renderShowing();renderRecord();}
+function renderAll(){renderHeader();renderRegions();renderAnswer();renderDays();renderScenarios();renderSources();renderChanges();renderNews();renderSeason();renderHood();renderStrip();renderKey();renderShowing();renderRecord();markCurrent();}
 
 /* ---------- record ---------- */
 function renderRecord(){
   const body=$('recBody');const rec=REC&&REC[state.region];
   let h='<p>Every forecast is kept as issued. Two days later it is checked against what NEA measured at noon.</p>';
   if(!rec||!rec.n){h+='<p>No forecasts have been scored yet. The first scores appear two days after the twin starts running.</p>';body.innerHTML=h;return;}
-  h+='<div class="stats"><div class="stat"><span class="v">'+rec.hits+' / '+rec.n+'</span><span class="k">Days the reading fell inside the 90% range</span></div>'+
-    '<div class="stat"><span class="v">'+(rec.skill==null?'–':(rec.skill>0?'+':'')+rec.skill)+'</span><span class="k">Skill vs "same as today", 2 days ahead (above 0 is better)</span></div></div>';
+  h+='<div class="stats"><div class="stat"><span class="v">'+rec.hits+' of '+rec.n+'</span><span class="k">Days the reading fell inside the possible range</span></div>'+
+    '<div class="stat"><span class="v">'+(rec.skill==null?'–':(rec.skill>0?'+':'')+rec.skill)+'</span><span class="k">Better than "same as today", 2 days ahead (above 0 is better)</span></div></div>';
   h+='<div class="chart-wrap" id="recChart"></div>';
   const misses=rec.days.filter(d=>!d.hit).slice(-5).reverse();
-  if(misses.length){h+='<div><h2 style="margin-bottom:4px">Misses</h2>'+misses.map(d=>'<div class="miss"><span class="m1">'+esc(fmtSGT(new Date(d.date+':00:00Z'),true).replace(/ \d\d:\d\d$/,''))+'</span> <span class="m2">Said '+d.p5+'–'+d.p95+' · measured '+d.obs+'</span> <span class="m3">Missed by '+(d.obs<d.p5?d.p5-d.obs:d.obs-d.p95)+'</span></div>').join('')+'</div>';}
+  if(misses.length){h+='<div><h3>Misses</h3>'+misses.map(d=>'<div class="miss"><b>'+esc(dayName(new Date(d.date+':00:00Z')))+'</b><span>Said '+d.p5+' to '+d.p95+', measured '+d.obs+'</span><span class="m3">Missed by '+(d.obs<d.p5?d.p5-d.obs:d.obs-d.p95)+'</span></div>').join('')+'</div>';}
   body.innerHTML=h;
   const data=rec.days.slice(-14);const W=600,H=200,l=34,b=24,t=10;const vmax=Math.max(250,...data.map(d=>Math.max(d.p95,d.obs)))+20;
   const x=(i)=>l+14+i*((W-l-28)/Math.max(1,data.length-1));const y=(v)=>t+(1-v/vmax)*(H-t-b);
   let s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="min-width:420px;display:block" role="img" aria-label="Forecast ranges two days ahead against measured PSI">';
-  [100,200].forEach(v=>{s+='<line x1="'+l+'" x2="'+(W-6)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="#1B2B37" stroke-dasharray="3 3"/><text x="'+(l-6)+'" y="'+(y(v)+3)+'" fill="#7F939F" font-size="10" text-anchor="end">'+v+'</text>';});
-  data.forEach((d,i)=>{s+='<rect x="'+(x(i)-7)+'" y="'+y(d.p95)+'" width="14" height="'+Math.max(1,y(d.p5)-y(d.p95))+'" fill="#2D4656"/><circle cx="'+x(i)+'" cy="'+y(d.obs)+'" r="5" fill="'+(d.hit?'#E3ECF0':'#E9813A')+'" stroke="#09121A" stroke-width="2"/><text x="'+x(i)+'" y="'+(H-6)+'" fill="#7F939F" font-size="10" text-anchor="middle">'+d.date.slice(8,10)+'</text>';});
+  [100,200].forEach(v=>{s+='<line x1="'+l+'" x2="'+(W-6)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="#223542" stroke-dasharray="3 3"/><text x="'+(l-6)+'" y="'+(y(v)+3)+'" fill="#7F929F" font-size="11" text-anchor="end">'+v+'</text>';});
+  data.forEach((d,i)=>{s+='<rect x="'+(x(i)-7)+'" y="'+y(d.p95)+'" width="14" height="'+Math.max(1,y(d.p5)-y(d.p95))+'" rx="3" fill="#33495A"/><circle cx="'+x(i)+'" cy="'+y(d.obs)+'" r="5" fill="'+(d.hit?'#E8EEF1':'#E9813A')+'" stroke="#14222C" stroke-width="2"/><text x="'+x(i)+'" y="'+(H-6)+'" fill="#7F929F" font-size="11" text-anchor="middle">'+d.date.slice(8,10)+'</text>';});
   $('recChart').innerHTML=s+'</svg>';
 }
 
@@ -867,32 +925,40 @@ async function latestNEA(){
 async function rerun(){
   if(state.running||!INP)return;
   state.running=true;state.runFrac=0;state.official=state.official||FC;
-  $('btnRerun').setAttribute('aria-busy','true');$('btnRerun').textContent='RUNNING';$('runbox').hidden=false;$('dot').classList.add('run');
+  $('btnRerun').setAttribute('aria-busy','true');$('btnRerun').textContent='Running…';$('runbox').hidden=false;$('liveDot').classList.add('run');
   const live=await latestNEA();
-  $('runSub').textContent=live?'on your device, with NEA\'s '+fmtSGT(new Date(live.time))+' reading':'on your device, with the readings from the last scheduled run';
+  $('runSub').textContent=live?'futures, using NEA\'s '+clock(new Date(live.time))+' reading':'futures, using the readings from the last update';
   const obs=live?{psi_now:live.psi_now,pm24_now:live.pm24_now}:{};
   const seed=Math.floor(Math.random()*1e9);const t0r=performance.now();const minMs=reduced?0:2200;
-  const done=(res)=>{const wait=Math.max(0,minMs-(performance.now()-t0r));setTimeout(()=>finishRun(res,live),wait);};
+  const done=(res)=>{const wait=Math.max(0,minMs-(performance.now()-t0r));setTimeout(()=>finishRun(res),wait);};
   if(!worker)worker=makeWorker();
   if(worker){
     worker.onmessage=(e)=>{if(e.data.p!=null){state.runTarget=e.data.p;}else if(e.data.res){done(e.data.res);}else{failRun(e.data.err);}};
-    worker.onerror=(e)=>{worker=null;failRun(e.message||'worker failed');};
+    worker.onerror=(e)=>{worker=null;failRun(e.message||'the worker stopped');};
     worker.postMessage({inputs:INP,n:100000,seed:seed,obs:obs});
   }else{
     setTimeout(()=>{try{done(HE.run(INP,{n:30000,seed:seed,obs:obs}));}catch(err){failRun(String(err));}},50);
   }
 }
-function failRun(msg){state.running=false;state.runFrac=1;$('btnRerun').setAttribute('aria-busy','false');$('btnRerun').textContent='RERUN';$('runbox').hidden=true;$('dot').classList.remove('run');showError('Rerun failed: '+msg);}
-function finishRun(res,live){
+function endRunUI(){state.running=false;state.runFrac=1;$('btnRerun').setAttribute('aria-busy','false');$('btnRerun').textContent='Rerun';$('runbox').hidden=true;$('liveDot').classList.remove('run');}
+function failRun(msg){endRunUI();showError('Rerun stopped: '+msg+'. The forecast from the last update is still shown.');}
+function finishRun(res){
   const off=state.official;res.why={};
   for(const k of HE.NEA_REGIONS)res.why[k]=HE.why(off,res,INP.summary,INP.summary,k);
   res.built=new Date().toISOString();res.prevLabel=off.built;
-  FC=res;state.rerunAt=new Date();state.running=false;state.runFrac=1;
-  $('btnRerun').setAttribute('aria-busy','false');$('btnRerun').textContent='RERUN';$('runbox').hidden=true;$('dot').classList.remove('run');
-  buildWinds();buildThreads();renderAll();$('statusText').textContent='Rerun '+fmtSGT(state.rerunAt)+' on this device · '+FC.n.toLocaleString('en-US')+' futures';
-  const wc=$('whyCard');wc.classList.remove('flash');void wc.offsetWidth;wc.classList.add('flash');threadsDirty=true;drawFan();needWarm=true;
+  FC=res;state.rerunAt=new Date();endRunUI();
+  buildWinds();buildThreads();renderAll();$('statusText').textContent='Rerun on this device at '+clock(state.rerunAt);
+  const wc=$('changeCard');wc.classList.remove('flash');void wc.offsetWidth;wc.classList.add('flash');threadsDirty=true;drawFan();needWarm=true;
 }
 function showError(msg){const e=$('errbox');e.textContent=msg;e.hidden=false;setTimeout(()=>{e.hidden=true;},8000);}
+
+/* ---------- time ---------- */
+function setT(t){state.t=clamp(t,0,maxT());syncT();}
+function syncT(){markCurrent();renderShowing();fanDirty=true;threadsDirty=true;}
+function stopPlay(){state.playing=false;$('playText').textContent='Play';$('playIcon').setAttribute('d','M2 1l9 5-9 5z');document.querySelectorAll('.dchip .prog').forEach(p=>p.style.width='0');}
+$('btnPlay').addEventListener('click',()=>{if(!FC)return;if(state.playing){stopPlay();return;}
+  const ce=coreEndT();if(state.t>=maxT()-0.05)setT(0);state.playEnd=state.t<ce-0.1?ce:maxT();
+  warmSmoke();state.playing=true;$('playText').textContent='Pause';$('playIcon').setAttribute('d','M2 1h3v10H2zM7 1h3v10H7z');});
 
 /* ---------- main render loop ---------- */
 let tSec=0,last=performance.now();
@@ -900,87 +966,76 @@ function render(now){
   const dt=clamp((now-last)/1000,0,0.05);last=now;tSec+=reduced?0:dt;
   if(FC){
     const F=curWind();
-    if(state.playing){state.t=Math.min(maxT(),state.t+dt*0.22);$('scrub').value=state.t;syncT();if(state.t>=maxT())stopPlay();}
+    if(state.playing){state.t=Math.min(state.playEnd,state.t+dt*0.3);syncT();if(state.t>=state.playEnd)stopPlay();}
     if(needWarm&&!state.playing){warmSmoke();needWarm=false;}
-    if(!reduced)stepSmoke(dt*(state.playing?0.22:0.05),state.t,F);
-    if(state.running){state.runFrac=Math.min(state.runTarget||0,state.runFrac+dt/2.2);const n=Math.round(state.runFrac*100000);$('runCount').textContent=n.toLocaleString('en-US');$('statusText').textContent='Running '+n.toLocaleString('en-US')+' / 100,000 futures';threadsDirty=true;fanDirty=true;}
+    if(!reduced)stepSmoke(dt*(state.playing?0.3:0.05),state.t,F);
+    if(state.running){state.runFrac=Math.min(state.runTarget||0,state.runFrac+dt/2.2);$('runCount').textContent=Math.round(state.runFrac*100000).toLocaleString('en-US');threadsDirty=true;fanDirty=true;}
     if(threadsDirty)drawThreads();
     if(fanDirty)drawFan();
   }
-  const c=ctx;c.setTransform(1,0,0,1,0,0);c.drawImage(staticCv,0,0);if(state.layers.sat&&satOK){c.globalAlpha=0.5;c.drawImage(satCv,0,0);c.globalAlpha=1;}c.drawImage(coastCv,0,0);c.setTransform(V.dpr,0,0,V.dpr,0,0);
+  const c=ctx;c.setTransform(1,0,0,1,0,0);c.drawImage(staticCv,0,0);if(state.layers.sat){c.globalAlpha=0.45;c.drawImage(satCv,0,0);c.globalAlpha=1;}c.drawImage(coastCv,0,0);c.setTransform(V.dpr,0,0,V.dpr,0,0);
   if(FC){
     const F=curWind();
     if(state.layers.smoke){
-      for(const p of puffs){const s=P(p.lon,p.lat);const life=p.age/p.life;const a=0.17*p.w*Math.min(1,p.age*6)*(1-life*0.85);if(a<=0.003)continue;const r=(0.16+life*0.6)*V.k;c.globalAlpha=a;c.drawImage(puffSprite,s[0]-r,s[1]-r,r*2,r*2);}
+      for(const p of puffs){const s=P(p.lon,p.lat);const life=p.age/p.life;const a=0.17*p.w*Math.min(1,p.age*6)*(1-life*0.85);if(a<=0.003)continue;const r=(0.16+life*0.6)*V.k;if(s[0]<-r||s[0]>V.w+r||s[1]<-r||s[1]>V.h+r)continue;c.globalAlpha=a;c.drawImage(puffSprite,s[0]-r,s[1]-r,r*2,r*2);}
       c.globalAlpha=1;
-      if(gridDirty||Math.floor(tSec*4)!==state._cf){buildContours();state._cf=Math.floor(tSec*4);}
-      c.strokeStyle='rgba(214,200,180,0.5)';c.lineWidth=1;c.setLineDash([2,3]);c.beginPath();
-      for(let k=0;k<contourSegs.length;k+=2){const a=contourSegs[k],b=contourSegs[k+1];const pa=P(GX.lon0+a[0]*GX.d,GX.lat0-a[1]*GX.d),pb=P(GX.lon0+b[0]*GX.d,GX.lat0-b[1]*GX.d);c.moveTo(pa[0],pa[1]);c.lineTo(pb[0],pb[1]);}
-      c.stroke();c.setLineDash([]);
     }
     if(state.layers.wind){if(!reduced)stepWind(F);c.setTransform(1,0,0,1,0,0);c.drawImage(trailCv,0,0);c.setTransform(V.dpr,0,0,V.dpr,0,0);}
     if(state.layers.futures){
       c.setTransform(1,0,0,1,0,0);c.drawImage(threadCv,0,0);c.setTransform(V.dpr,0,0,V.dpr,0,0);
-      c.globalCompositeOperation='lighter';const cls=R().classes;const n=Math.ceil(THREADS.length*state.runFrac);
-      for(let k=0;k<n;k++){const tr=THREADS[k];if(!threadVisible(tr))continue;let a;
-        if(state.sel===null){a=0.7;c.fillStyle=rgba(classColor(cls[tr.c]),a);}else{a=tr.frac[state.sel];if(a<0.15)continue;c.fillStyle=rgba(classColor(cls[state.sel]),0.3+0.65*a);}
-        for(let j=0;j<2;j++){const u=(((tr.ph+j*0.5+tSec*tr.sp)%1)+1)%1;const pt=threadPoint(tr,u);const s=P(pt[0],pt[1]);c.beginPath();c.arc(s[0],s[1],1.4,0,Math.PI*2);c.fill();}}
+      c.globalCompositeOperation='lighter';const n=Math.ceil(THREADS.length*state.runFrac);
+      for(let k=0;k<n;k++){const tr=THREADS[k];if(!threadVisible(tr))continue;
+        if(state.sel===null){c.fillStyle=rgba(COL['--sA'],0.7);}else{const a=tr.frac[state.sel];if(a<0.15)continue;c.fillStyle=rgba(classColor(cls()[state.sel]),0.3+0.65*a);}
+        for(let j=0;j<2;j++){const u=(((tr.ph+j*0.5+tSec*tr.sp)%1)+1)%1;const pt=threadPoint(tr,u);const s=P(pt[0],pt[1]);c.beginPath();c.arc(s[0],s[1],1.5,0,Math.PI*2);c.fill();}}
       c.globalCompositeOperation='source-over';
     }
     if(state.layers.hot){
-      c.globalCompositeOperation='lighter';const k=intensityAt(state.t);
-      for(const h of HOT){const s=P(h.lon,h.lat);const pulse=1+0.18*Math.sin(tSec*3+h.ph);const fresh=1-h.age/30;const r=(0.08+0.06*h.frp)*V.k*Math.sqrt(k)*pulse;c.globalAlpha=clamp((0.3+0.7*k)*(0.5+0.5*fresh),0.1,1);c.drawImage(fireSprite,s[0]-r,s[1]-r,r*2,r*2);}
+      c.globalCompositeOperation='lighter';const k=intensityAt(state.t);const kk=V.k0*Math.pow(VIEW.z,0.35);
+      for(const h of HOT){const s=P(h.lon,h.lat);if(s[0]<-20||s[0]>V.w+20||s[1]<-20||s[1]>V.h+20)continue;const pulse=1+0.18*Math.sin(tSec*3+h.ph);const fresh=1-h.age/30;const r=(0.08+0.06*h.frp)*kk*Math.sqrt(k)*pulse;c.globalAlpha=clamp((0.3+0.7*k)*(0.5+0.5*fresh),0.1,1);c.drawImage(fireSprite,s[0]-r,s[1]-r,r*2,r*2);}
       c.globalAlpha=1;c.globalCompositeOperation='source-over';
     }
-  }
-  if(FC&&state.layers.st&&INP.extras&&INP.extras.stations){
-    for(const st of INP.extras.stations){const p=P(st.lon,st.lat);const v=st.pm25;const k=v<=55?1:v<=150?2:v<=250?3:4;c.fillStyle=COL.b[k];c.strokeStyle='rgba(5,8,12,0.9)';c.lineWidth=1.5;c.beginPath();c.arc(p[0],p[1],3.5,0,Math.PI*2);c.fill();c.stroke();}
-  }
-  if(FC&&state.layers.air&&INP.extras&&INP.extras.airports){
-    c.font='500 10px '+tok('--mono');c.textAlign='left';
-    for(const a of INP.extras.airports){const s=P(a.lon,a.lat);const col=a.haze?COL['--vunh']:COL['--ink-2'];
-      c.save();c.translate(s[0],s[1]);c.rotate(Math.PI/4);c.strokeStyle=col;c.lineWidth=1.5;c.strokeRect(-4,-4,8,8);c.restore();
-      if(a.icao==='WSSS')continue;const txt=(a.vis_km!=null?a.vis_km+' km':'–')+(a.haze?' haze':'');c.fillStyle='rgba(5,8,12,0.75)';const tw=c.measureText(txt).width;c.fillRect(s[0]+7,s[1]-6,tw+6,13);c.fillStyle=col;c.fillText(txt,s[0]+10,s[1]+4);}
+    const ex=INP.extras||{};
+    if(state.layers.st&&ex.stations){
+      for(const st of ex.stations){const p=P(st.lon,st.lat);const v=st.pm25;const k=v<=12?0:v<=55?1:v<=150?2:v<=250?3:4;c.fillStyle=COL.b[k];c.strokeStyle='rgba(9,19,26,0.9)';c.lineWidth=1.5;c.beginPath();c.arc(p[0],p[1],4,0,Math.PI*2);c.fill();c.stroke();}
+    }
+    if(state.layers.air&&ex.airports){
+      c.font='500 12px '+SANS();c.textAlign='left';
+      for(const a of ex.airports){const s=P(a.lon,a.lat);const col=a.haze?COL['--vunh']:COL['--ink-2'];
+        if(a.icao==='WSSS')continue;
+        c.save();c.translate(s[0],s[1]);c.rotate(Math.PI/4);c.strokeStyle=col;c.lineWidth=1.5;c.strokeRect(-4,-4,8,8);c.restore();const txt=(a.vis_km!=null?a.vis_km+' km':'–');c.fillStyle='rgba(9,19,26,0.8)';const tw=c.measureText(txt).width;c.fillRect(s[0]+7,s[1]-8,tw+8,16);c.fillStyle=col;c.fillText(txt,s[0]+11,s[1]+4);}
+    }
   }
   const sg=P(SG[0],SG[1]);
-  if(!reduced){const ph=(tSec%2.2)/2.2;c.strokeStyle=rgba(COL['--cyan'],0.9*(1-ph));c.lineWidth=1.5;c.beginPath();c.arc(sg[0],sg[1],5+ph*26,0,Math.PI*2);c.stroke();}
-  c.strokeStyle=COL['--cyan'];c.lineWidth=1;c.beginPath();c.moveTo(sg[0]-16,sg[1]);c.lineTo(sg[0]-7,sg[1]);c.moveTo(sg[0]+7,sg[1]);c.lineTo(sg[0]+16,sg[1]);c.moveTo(sg[0],sg[1]-16);c.lineTo(sg[0],sg[1]-7);c.moveTo(sg[0],sg[1]+7);c.lineTo(sg[0],sg[1]+16);c.stroke();
-  c.fillStyle=COL['--ink'];c.beginPath();c.arc(sg[0],sg[1],3.5,0,Math.PI*2);c.fill();
-  c.font='600 12px '+tok('--display');c.fillStyle=COL['--ink'];c.textAlign='left';c.fillText('SINGAPORE',sg[0]+20,sg[1]-6);
-  c.font='10px '+tok('--mono');c.fillStyle=COL['--ink-2'];c.fillText('1.35°N 103.82°E',sg[0]+20,sg[1]+7);
-  if(state.running){const f=state.runFrac;const x=V.cell.x+f*V.cell.w;const g=c.createLinearGradient(x-140,0,x,0);g.addColorStop(0,'rgba(92,225,230,0)');g.addColorStop(1,'rgba(92,225,230,0.22)');c.fillStyle=g;c.fillRect(x-140,V.cell.y,140,V.cell.h);c.strokeStyle=rgba(COL['--cyan'],0.8);c.beginPath();c.moveTo(x,V.cell.y);c.lineTo(x,V.cell.y+V.cell.h);c.stroke();}
+  if(!reduced){const ph=(tSec%2.2)/2.2;c.strokeStyle=rgba(COL['--sky'],0.9*(1-ph));c.lineWidth=1.5;c.beginPath();c.arc(sg[0],sg[1],5+ph*24,0,Math.PI*2);c.stroke();}
+  c.fillStyle=COL['--ink'];c.strokeStyle='#09131A';c.lineWidth=2;c.beginPath();c.arc(sg[0],sg[1],5,0,Math.PI*2);c.fill();c.stroke();
+  c.font='600 14px '+SANS();c.textAlign='left';c.lineWidth=3;c.strokeStyle='rgba(9,19,26,0.85)';c.strokeText('Singapore',sg[0]+10,sg[1]+20);c.fillStyle=COL['--ink'];c.fillText('Singapore',sg[0]+10,sg[1]+20);
+  if(state.running){const f=state.runFrac;const x=f*V.w;const g=c.createLinearGradient(x-140,0,x,0);g.addColorStop(0,'rgba(134,203,230,0)');g.addColorStop(1,'rgba(134,203,230,0.18)');c.fillStyle=g;c.fillRect(x-140,0,140,V.h);}
   requestAnimationFrame(render);
 }
 
 /* ---------- controls ---------- */
-function stopPlay(){state.playing=false;$('btnPlay').textContent='PLAY';}
-$('btnPlay').addEventListener('click',()=>{if(!FC)return;if(state.playing){stopPlay();return;}if(state.t>=maxT()-0.01)setT(0);warmSmoke();state.playing=true;$('btnPlay').textContent='PAUSE';});
-$('scrub').addEventListener('input',e=>{if(state.playing)stopPlay();state.t=Number(e.target.value);syncT();needWarm=true;});
 $('btnRerun').addEventListener('click',rerun);
 $('btnRecord').addEventListener('click',()=>$('dlgRecord').showModal());
 $('btnHow').addEventListener('click',()=>$('dlgHow').showModal());
 document.querySelectorAll('dialog [data-close]').forEach(b=>b.addEventListener('click',()=>b.closest('dialog').close()));
 document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close();}));
-cv.addEventListener('pointermove',ev=>{const r=stage.getBoundingClientRect();const x=ev.clientX-r.left,y=ev.clientY-r.top;const lon=(x-V.ox)/V.k,lat=(V.oy-y)/V.k;$('readout').textContent=Math.abs(lat).toFixed(2)+'°'+(lat>=0?'N':'S')+'  '+lon.toFixed(2)+'°E';});
 
 /* ---------- boot ---------- */
 async function getJSON(p){const r=await fetch(p,{cache:'no-cache'});if(!r.ok)throw new Error(p+': HTTP '+r.status);return r.json();}
 async function boot(){
-  layout();renderLayers();requestAnimationFrame(render);
+  renderLayers();layout();requestAnimationFrame(render);
   try{
     const [coast,inp,fc]=await Promise.all([getJSON('data/coast.json'),getJSON('data/inputs.json'),getJSON('data/forecast.json')]);
     COAST=coast;INP=inp;FC=fc;state.official=fc;
     try{REC=await getJSON('data/record.json');}catch(e){REC=null;}
     RINGS=COAST.map(enc=>{const pts=[];let x=0,y=0;for(let i=0;i<enc.length;i+=2){x+=enc[i];y+=enc[i+1];pts.push([x/100,y/100]);}return pts;});
-    $('scrub').max=maxT();
-    buildHot();buildWinds();buildThreads();buildStories();renderAll();syncT();layout();
-  }catch(e){showError('Could not load the latest run. '+e.message);$('statusText').textContent='No data loaded';$('answer').textContent='The latest run could not be loaded.';}
+    buildHot();buildWinds();buildThreads();renderAll();layout();initWind();syncT();
+  }catch(e){showError('The latest forecast could not be loaded ('+e.message+'). Reload the page to try again.');$('statusText').textContent='No forecast loaded';$('headline').textContent='The latest forecast could not be loaded.';}
 }
-let rz=0;window.addEventListener('resize',()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>layout());});
-if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{drawStatic();drawFan();});
+let rz=0;window.addEventListener('resize',()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{layout();renderDays();});});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(FC){drawStatic();drawFan();}});
 boot();
 })();
 </script>
-
 </body>
 </html>
