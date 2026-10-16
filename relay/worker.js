@@ -8,6 +8,10 @@
 //   ALLOWED_ORIGIN               https://bennetmc2.github.io
 //   DAILY_LIMIT                  e.g. 500 questions a day in total
 //   MODEL                        optional, default claude-haiku-5-5
+//
+// Free option: leave ANTHROPIC_API_KEY unset and add a Workers AI binding named AI
+// (Worker > Settings > Bindings > Workers AI). It then uses Cloudflare's own model
+// (CF_MODEL, default @cf/meta/llama-3.1-8b-instruct) within Cloudflare's free daily allowance.
 
 const SYSTEM = `You answer questions from the public about haze in Singapore, on the Haze Twin website.
 Use only the forecast data provided (JSON) plus general knowledge about haze, PSI and Southeast Asian fires.
@@ -49,6 +53,18 @@ export default {
       await env.USAGE.put(day, String(used + 1), { expirationTtl: 172800 });
     }
 
+    const userMsg = "Forecast data:\n" + context + "\n\nQuestion: " + q;
+    if (!env.ANTHROPIC_API_KEY && env.AI) {
+      try {
+        const out = await env.AI.run(env.CF_MODEL || "@cf/meta/llama-3.1-8b-instruct", {
+          messages: [{ role: "system", content: SYSTEM }, { role: "user", content: userMsg }],
+          max_tokens: 400,
+        });
+        return json({ answer: String(out.response || "").trim() }, 200, h);
+      } catch (e) { return json({ error: "model error" }, 502, h); }
+    }
+    if (!env.ANTHROPIC_API_KEY) return json({ error: "no model configured" }, 500, h);
+
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
@@ -56,7 +72,7 @@ export default {
         model: env.MODEL || "claude-haiku-5-5",
         max_tokens: 400,
         system: SYSTEM,
-        messages: [{ role: "user", content: "Forecast data:\n" + context + "\n\nQuestion: " + q }],
+        messages: [{ role: "user", content: userMsg }],
       }),
     });
     if (!r.ok) return json({ error: "model error " + r.status }, 502, h);
