@@ -1,54 +1,46 @@
-[15:07:36] NEA readings
-[15:08:03]   NEA: 192 PSI hours, 192 24-h PM2.5 hours, 192 1-h PM2.5 hours
-[15:08:03] FIRMS hotspots
-[15:08:04]   FIRMS VIIRS_NOAA21_NRT: 6433 detections
-[15:08:05]   FIRMS VIIRS_NOAA20_NRT: 5698 detections
-[15:08:06]   FIRMS VIIRS_SNPP_NRT: 5322 detections
-[15:08:06] GEFS ensemble
-[15:08:08]   GEFS listing 20261016/12: GET failed for https://nomads.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.20261016/12/atmos/pgrb2ap5/: HTTP 403: <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head>
-<title>403 Forbidden</title>
-</head><body>
-<h1>Forbidden</h1>
-<p>You don't have permission to access this resource.</p>
-</body></html>
-
-[15:08:09]   GEFS cycle 2026-10-16 06Z
-[15:08:47]   GEFS downloaded 100/1411 (37s)
-[15:09:24]   GEFS downloaded 200/1411 (75s)
-[15:10:02]   GEFS downloaded 300/1411 (112s)
-[15:10:39]   GEFS downloaded 400/1411 (150s)
-[15:11:17]   GEFS downloaded 500/1411 (188s)
-[15:11:55]   GEFS downloaded 600/1411 (226s)
-[15:12:33]   GEFS downloaded 700/1411 (263s)
-[15:13:10]   GEFS downloaded 800/1411 (301s)
-[15:13:48]   GEFS downloaded 900/1411 (338s)
-[15:14:25]   GEFS downloaded 1000/1411 (376s)
-[15:15:03]   GEFS downloaded 1100/1411 (413s)
-[15:15:40]   GEFS downloaded 1200/1411 (451s)
-[15:16:18]   GEFS downloaded 1300/1411 (488s)
-[15:16:55]   GEFS downloaded 1400/1411 (526s)
-[15:17:03]   GEFS: 1408/1411 files ok
-[15:17:03]   first errors: 2026101218_c00_f006.grb2: GET failed for https://nomads.ncep.noaa.gov/cgi-bin/filter_gefs_atmos_0p50a.pl: HTTP 404: <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html><head><ti | 2026101212_c00_f006.grb2: GET failed for https://nomads.ncep.noaa.gov/cgi-bin/filter_gefs_atmos_0p50a.pl: HTTP 404: <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html><head><ti | 2026101206_c00_f006.grb2: GET failed for https://nomads.ncep.noaa.gov/cgi-bin/filter_gefs_atmos_0p50a.pl: HTTP 404: <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html><head><ti
-[15:17:10]   climate: RONI +1.69 (JAS 2026); DMI +0.15 (May 2026)
-[15:17:10] NEA history and past-season analogs
-[15:17:10]   history: backfilled 0 recent days
-[15:17:10] extra sources
-[15:17:12]   airports: 8 with recent reports, 7 reporting haze or smoke
-[15:17:12]   CAMS: 168 hourly PM2.5 values for Singapore
-[15:17:31]   news: 58 recent articles
-[15:17:31]   dryness: Kalimantan 83.9 mm in 30 days, Sumatra 128.7 mm in 30 days
-[15:17:37]   OpenAQ: 28 recent PM2.5 readings in the region
-[15:17:37] t0 2026-10-16T15:00:00+00:00, weather times -81..375 h, 31 members
-[15:17:37] 17453 detections -> 451 fire cells
-[15:17:37] back-tracing from Singapore
-[15:17:37]   traced member 1/31
-[15:17:40]   traced member 9/31
-[15:17:43]   traced member 17/31
-[15:17:46]   traced member 25/31
-[15:17:48]   traced member 31/31
-[15:17:49] wrote /home/runner/work/haze-twin/haze-twin/site/data/inputs.json (2.47 MB) in 612.7 s
-engine: 100000 futures in 9.2s, effective sample 64804, anchored true
-national now 212, clear by Thu 22: 5.8%
-classes: Clears early 4.9% | Clears later in the week 3.5% | Stays unhealthy 46.4% | Gets worse 45.2%
-days p50: Sat 17 194, Sun 18 235, Mon 19 255, Tue 20 258, Wed 21 231, Thu 22 201, Fri 23 193, Sat 24 167, Sun 25 158, Mon 26 130, Tue 27 128, Wed 28 136, Thu 29 149, Fri 30 150, Sat 31 128
+[17:40:26] NEA readings
+[17:40:54]   NEA: 170 PSI hours, 170 24-h PM2.5 hours, 170 1-h PM2.5 hours
+[17:40:54] FIRMS hotspots
+[17:40:54]   FIRMS VIIRS_NOAA21_NRT: 6433 detections
+[17:40:55]   FIRMS VIIRS_NOAA20_NRT: 5698 detections
+[17:40:56]   FIRMS VIIRS_SNPP_NRT: 5322 detections
+[17:40:56] GEFS ensemble
+[17:40:57]   GEFS cycle 2026-10-16 06Z
+[17:41:35]   GEFS downloaded 100/1411 (37s)
+[17:42:13]   GEFS downloaded 200/1411 (76s)
+[17:42:51]   GEFS downloaded 300/1411 (113s)
+[17:43:28]   GEFS downloaded 400/1411 (151s)
+[17:44:06]   GEFS downloaded 500/1411 (188s)
+[17:44:43]   GEFS downloaded 600/1411 (226s)
+[17:45:21]   GEFS downloaded 700/1411 (263s)
+[17:45:58]   GEFS downloaded 800/1411 (301s)
+[17:46:36]   GEFS downloaded 900/1411 (338s)
+[17:47:13]   GEFS downloaded 1000/1411 (376s)
+[17:47:51]   GEFS downloaded 1100/1411 (414s)
+[17:48:28]   GEFS downloaded 1200/1411 (451s)
+[17:49:06]   GEFS downloaded 1300/1411 (489s)
+[17:49:44]   GEFS downloaded 1400/1411 (526s)
+[17:49:51]   GEFS: 1408/1411 files ok
+[17:49:51]   first errors: 2026101218_c00_f006.grb2: GET failed for https://nomads.ncep.noaa.gov/cgi-bin/filter_gefs_atmos_0p50a.pl: HTTP 404: <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html><head><ti | 2026101212_c00_f006.grb2: GET failed for https://nomads.ncep.noaa.gov/cgi-bin/filter_gefs_atmos_0p50a.pl: HTTP 404: <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html><head><ti | 2026101206_c00_f006.grb2: GET failed for https://nomads.ncep.noaa.gov/cgi-bin/filter_gefs_atmos_0p50a.pl: HTTP 404: <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html><head><ti
+[17:49:58]   climate: RONI +1.69 (JAS 2026); DMI +0.15 (May 2026)
+[17:49:58] NEA history and past-season analogs
+[17:49:58]   history: backfilled 1 recent days
+[17:49:58] extra sources
+[17:49:58]   airports: 8 with recent reports, 6 reporting haze or smoke
+[17:49:59]   CAMS: 168 hourly PM2.5 values for Singapore
+[17:53:11]   News (GDELT) failed: GET failed for https://api.gdeltproject.org/api/v2/doc/doc: HTTP 429: Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset: https://blog.gdeltproject.org/using-the
+[17:53:12]   dryness: Kalimantan 83.9 mm in 30 days, Sumatra 128.7 mm in 30 days
+[17:53:18]   OpenAQ: 28 recent PM2.5 readings in the region
+[17:53:18] t0 2026-10-16T17:00:00+00:00, weather times -83..373 h, 31 members
+[17:53:18] 17453 detections -> 451 fire cells
+[17:53:18] back-tracing from Singapore
+[17:53:18]   traced member 1/31
+[17:53:21]   traced member 9/31
+[17:53:23]   traced member 17/31
+[17:53:26]   traced member 25/31
+[17:53:28]   traced member 31/31
+[17:53:28] wrote /home/runner/work/haze-twin/haze-twin/site/data/inputs.json (2.44 MB) in 781.3 s
+engine: 100000 futures in 7s, effective sample 65023, anchored true
+national now 205, clear by Fri 23: 6.6%
+classes: Clears early 5.8% | Clears later in the week 2.8% | Stays unhealthy 45.4% | Gets worse 46%
+days p50: Sun 18 239, Mon 19 255, Tue 20 259, Wed 21 228, Thu 22 195, Fri 23 198, Sat 24 182, Sun 25 164, Mon 26 140, Tue 27 129, Wed 28 135, Thu 29 138, Fri 30 147, Sat 31 131
