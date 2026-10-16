@@ -1,129 +1,170 @@
-== GEFS pds 2019-09-15 00z listing
+== reforecast root
 <?xml version="1.0" encoding="UTF-8"?>
-<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-pds</Name><Prefix>gefs.20190915/00/</Prefix><KeyCount>2</KeyCount><MaxKeys>1000</MaxKeys><Delimiter>/</Delimiter><IsTruncated>false</IsTruncated><CommonPrefixes><Prefix>gefs.20190915/00/pgrb2a/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>gefs.20190915/00/pgrb2b/</Prefix></CommonPrefixes></ListBucketResult>
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-retrospective</Name><Prefix>GEFSv12/reforecast/2015/</Prefix><KeyCount>366</KeyCount><MaxKeys>1000</MaxKeys><Delimiter>/</Delimiter><IsTruncated>false</IsTruncated><Contents><Key>GEFSv12/reforecast/2015/</Key><LastModified>2020-05-15T13:38:39.000Z</LastModified><ETag>&quot;d41d8cd98f00b204e9800998ecf8427e&quot;</ETag><Size>0</Size><StorageClass>STANDARD</StorageClass></Contents><CommonPrefixes><Prefix>GEFSv12/reforecast/2015/2015010100/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>GEFSv12/reforecast/2015/2015010200/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>GEFSv12/reforecast/2015/2015010300/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>GEFSv12/reforecast/2015/2015010400/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>GEFSv12/reforecast/2015/2015010500/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>GEFSv12/reforecast/2015/2015010600/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>GEFSv12/reforecast/2015/2015010700/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>GEFSv12/reforecast/2015/2015010800/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>GEFSv12/reforecast/2015/2015010900/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>GEFSv12/reforecast/2015/2015011000/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>GEFSv12/reforecast/2015/2015011100/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>GEFSv12/reforecast/2015/2015011200/</Pr
 
-== GEFS pds 2019 pgrb2ap5 listing
+== reforecast day
 <?xml version="1.0" encoding="UTF-8"?>
-<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-pds</Name><Prefix>gefs.20190915/00/pgrb2ap5/gep01</Prefix><KeyCount>0</KeyCount><MaxKeys>5</MaxKeys><IsTruncated>false</IsTruncated></ListBucketResult>
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-retrospective</Name><Prefix>GEFSv12/reforecast/2015/2015092100/</Prefix><KeyCount>5</KeyCount><MaxKeys>1000</MaxKeys><Delimiter>/</Delimiter><IsTruncated>false</IsTruncated><CommonPrefixes><Prefix>GEFSv12/reforecast/2015/2015092100/c00/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>GEFSv12/reforecast/2015/2015092100/p01/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>GEFSv12/reforecast/2015/2015092100/p02/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>GEFSv12/reforecast/2015/2015092100/p03/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>GEFSv12/reforecast/2015/2015092100/p04/</Prefix></CommonPrefixes></ListBucketResult>
 
-== GEFS pds 2019 pgrb2a listing
+== reforecast c00 d1-10
 <?xml version="1.0" encoding="UTF-8"?>
-<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-pds</Name><Prefix>gefs.20190915/00/pgrb2a/gep01</Prefix><NextContinuationToken>13S9xMRVEARYB+cgnI9UTPtHnpwPr4MKY+++xFPISvDlXHFDXyFw1Gkeogy6zitpk3IFC3iswhmr7QTLBRYHwNcaK81OTQEH3</NextContinuationToken><KeyCount>5</KeyCount><MaxKeys>5</MaxKeys><IsTruncated>true</IsTruncated><Contents><Key>gefs.20190915/00/pgrb2a/gep01.t00z.pgrb2aanl</Key><LastModified>2019-09-15T04:35:24.000Z</LastModified><ETag>&quot;28c94f385fa5ed3bd32c298d926ae5be&quot;</ETag><Size>3938788</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20190915/00/pgrb2a/gep01.t00z.pgrb2aanl.idx</Key><LastModified>2024-04-30T22:28:30.000Z</LastModified><ETag>&quot;85fad50520a0461110e3939a92b1ca1f&quot;</ETag><Size>2915</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20190915/00/pgrb2a/gep01.t00z.pgrb2af00</Key><LastModified>2019-09-15T04:35:41.000Z</LastModified><ETag>&quot;7f34c14dbd95bfe08aa06d9c2181bda2&quot;</ETag><Size>4236624</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20190915/00/pgrb2a/gep01.t00z.pgrb2af00.idx</Key><LastModified>2024-04-30T22:28:30.000Z</LastModified><ETag>&quot;4c97ea2fa2884cff9966ac4465506fe4&quot;</ETag><Size>3411</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20190915/00/pgrb2a/gep01.t00z.pgrb2af06</Key><LastModified>2019-09-15T04:35:56.000Z</LastModified><ETag>&quot;4326a09f7f5ab7e5a19daa2f8a03c6dc&quot;</ETag><Size>4285808</Size><StorageClass>STANDARD</StorageClass></Contents></ListBucketResult>
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-retrospective</Name><Prefix>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/</Prefix><NextContinuationToken>1uJYcldpxhxYxr47fzYfsiba0DwlejaYzfwz6YW/KI3XG8KLYUnBdAeM9JYSFMUaOWc2mpFL3K/kmOsbYWT7+XdcwESVN5KRTf02l26ptu4N150yZWs/PNUh5wDG0o78cKrL7V70utZyXikAShBjE4NIHLuMHxgZqnRnXMwMBANg=</NextContinuationToken><KeyCount>60</KeyCount><MaxKeys>60</MaxKeys><IsTruncated>true</IsTruncated><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/acpcp_sfc_2015092100_c00.grib2</Key><LastModified>2020-09-29T18:49:40.000Z</LastModified><ETag>&quot;b7663742000487efc355408e3219db84&quot;</ETag><Size>31439434</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/acpcp_sfc_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;fc6daa36f3d07a666a27cf7dfba39b05&quot;</ETag><Size>6041</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/apcp_sfc_2015092100_c00.grib2</Key><LastModified>2020-09-29T18:55:59.000Z</LastModified><ETag>&quot;a9e52054b34f744ae590b5aecb379726&quot;</ETag><Size>24213415</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/apcp_sfc_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;29044a44b5b7ac8556813f737c6612e5&quot;</ETag><Size>5954</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/cape_sfc_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:22:00.000Z</LastModified><ETag>&quot;14c03b809e98b33bf895a68e9668ff88&quot;</ETag><Size>40371958</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/cape_sfc_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;955ec81abc4a09d8ae56ae2910b78334&quot;</ETag><Size>5367</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/cin_sfc_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:24:38.000Z</LastModified><ETag>&quot;ac93dd2008ac3acd1a2e16c95d74bb67&quot;</ETag><Size>36659257</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/cin_sfc_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;32a0a355efc47c69460c16bf48fa89c5&quot;</ETag><Size>5285</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/dlwrf_sfc_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:22:06.000Z</LastModified><ETag>&quot;860f6670138a0f9adb8eb520554df467&quot;</ETag><Size>40261411</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/dlwrf_sfc_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;67a6ae1cab9dcce131238a1227e00345&quot;</ETag><Size>6049</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/dswrf_sfc_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:30:11.000Z</LastModified><ETag>&quot;ac122989f133794a913bee941603fe6c&quot;</ETag><Size>26142312</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/dswrf_sfc_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;126a4a0451b4693ddb653ca0be9e537e&quot;</ETag><Size>6037</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/gflux_sfc_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:24:20.000Z</LastModified><ETag>&quot;b4ac42332b68d5b5048cb58f7ca062cb&quot;</ETag><Size>36784143</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/gflux_sfc_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;4390e477d338dedec6ad9e0a77dd6350&quot;</ETag><Size>6047</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/gust_sfc_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:21:15.000Z</LastModified><ETag>&quot;591b7cbc8ca4654c4fd57bfbf13925c3&quot;</ETag><Size>43477622</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/gust_sfc_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;4facbcf650b3a7f57456c4f8fa8226ac&quot;</ETag><Size>5369</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/hgt_ceiling_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:07:51.000Z</LastModified><ETag>&quot;8bc2c01b14b0c110ba1db8d887c84627&quot;</ETag><Size>85226326</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/hgt_ceiling_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:55.000Z</LastModified><ETag>&quot;a406a36c4f877a2a66a1694fbcbf3b5f&quot;</ETag><Size>5778</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/hgt_hybr_2015092100_c00.grib2</Key><LastModified>2020-05-18T15:53:58.000Z</LastModified><ETag>&quot;d78f509584d793a123d1654d7984204f&quot;</ETag><Size>166562123</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/hgt_hybr_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:56.000Z</LastModified><ETag>&quot;2e5f8c436f4c6631e4a724eec0ae4936&quot;</ETag><Size>23848</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/hgt_pres_2015092100_c00.grib2</Key><LastModified>2020-05-18T15:08:11.000Z</LastModified><ETag>&quot;d6a5c8dfd40a7d66bc7ed996dac5d09c&quot;</ETag><Size>472909183</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/hgt_pres_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:59.000Z</LastModified><ETag>&quot;de3f472b2210f425af08d80bfb639a9c&quot;</ETag><Size>37659</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/hgt_pres_abv700mb_2015092100_c00.grib2</Key><LastModified>2020-05-18T15:34:35.000Z</LastModified><ETag>&quot;c6cb8a876271526d1e6d655b95559ec6&quot;</ETag><Size>289294637</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/hgt_pres_abv700mb_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:57.000Z</LastModified><ETag>&quot;5bcd7f782b92efc42f9dff3b9bfe54a1&quot;</ETag><Size>95997</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/hgt_sfc_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:25:31.000Z</LastModified><ETag>&quot;7b6780e411a423b02cb34ff5e18be7a1&quot;</ETag><Size>36206000</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/hgt_sfc_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;5b75c397f48bd4c499966322a03c21de&quot;</ETag><Size>5284</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/hlcy_hgt_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:18:52.000Z</LastModified><ETag>&quot;709b8db0d693614d20299504f1623a75&quot;</ETag><Size>45765684</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/hlcy_hgt_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;4edb9d4cfc3ee79c8609df0879093b3e&quot;</ETag><Size>6490</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/lhtfl_sfc_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:16:09.000Z</LastModified><ETag>&quot;8c725c18af3f79714850a790a2aec9ca&quot;</ETag><Size>51524878</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/lhtfl_sfc_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;4ca6ec447207b420f9e8e76342aecdcb&quot;</ETag><Size>6058</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:1-10/ncpcp_sfc_2015092100_c00.grib2</Key><LastModified>2020-09-
 
-== GEFS pds 2023-09-20 00z listing
+== reforecast c00 d10-16
 <?xml version="1.0" encoding="UTF-8"?>
-<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-pds</Name><Prefix>gefs.20230920/00/atmos/</Prefix><KeyCount>5</KeyCount><MaxKeys>1000</MaxKeys><Delimiter>/</Delimiter><IsTruncated>false</IsTruncated><CommonPrefixes><Prefix>gefs.20230920/00/atmos/bufr/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>gefs.20230920/00/atmos/init/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>gefs.20230920/00/atmos/pgrb2ap5/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>gefs.20230920/00/atmos/pgrb2bp5/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>gefs.20230920/00/atmos/pgrb2sp25/</Prefix></CommonPrefixes></ListBucketResult>
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-retrospective</Name><Prefix>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/</Prefix><NextContinuationToken>1e9AHMTVGvauIEErjX2roFwDrWfOxDtdR1IZGA8RfN/9mv+STNJZMt+ODuMoXvDeOrk4NoP+r7Or/Ltg62wVQ8uM1NNNKcq3CgpjiXViuELxVegBUyxrr1XYk4aO5D4WymLWrzTmz8Bl+HNDOlYNSjQ==</NextContinuationToken><KeyCount>60</KeyCount><MaxKeys>60</MaxKeys><IsTruncated>true</IsTruncated><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/acpcp_sfc_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:41:12.000Z</LastModified><ETag>&quot;34a0caa49f4e727b1e802105f7563f3b&quot;</ETag><Size>3355171</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/acpcp_sfc_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;86c21723ad5a3fe80f12755875616e88&quot;</ETag><Size>1802</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/apcp_sfc_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:41:57.000Z</LastModified><ETag>&quot;dcb3a5deb0510ea132fffb5ecc7d5376&quot;</ETag><Size>2448776</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/apcp_sfc_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;3f6c54ca3cb8ea729f528ea93ca90749&quot;</ETag><Size>1776</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/cape_sfc_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:40:35.000Z</LastModified><ETag>&quot;655d735498c284661a9b76a987cf6178&quot;</ETag><Size>3758678</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/cape_sfc_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;f823263a74b85c8367ef7c4a39828776&quot;</ETag><Size>1587</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/cin_sfc_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:41:44.000Z</LastModified><ETag>&quot;4bc5ddce5352d13e1c52a6a66789862c&quot;</ETag><Size>2913112</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/cin_sfc_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;39896566c02c8652ea2da21d90940d3c&quot;</ETag><Size>1563</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/dlwrf_sfc_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:40:26.000Z</LastModified><ETag>&quot;6fc4ae35cab48b989d9a8fd6c8cf495c&quot;</ETag><Size>3863787</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/dlwrf_sfc_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;8ed91101f9b8c8b4165ed9c9d6033f89&quot;</ETag><Size>1803</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/dswrf_sfc_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:41:22.000Z</LastModified><ETag>&quot;685e36c36a379f3e2900ed9467cab6c5&quot;</ETag><Size>3201383</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/dswrf_sfc_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;ab2d9055df83a265ee50fa28a6080c4d&quot;</ETag><Size>1802</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/gflux_sfc_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:41:28.000Z</LastModified><ETag>&quot;9ac977529bb06262e34533f2b7f144dc&quot;</ETag><Size>3136747</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/gflux_sfc_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;d8c1038184bf0f842213ea3372cbf602&quot;</ETag><Size>1802</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/gust_sfc_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:39:57.000Z</LastModified><ETag>&quot;6490b6dabdd68d60e484d4ececbf0ea1&quot;</ETag><Size>4262110</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/gust_sfc_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;43175893c6fed9e75d4cf14a7ee30718&quot;</ETag><Size>1588</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/hgt_ceiling_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:37:56.000Z</LastModified><ETag>&quot;b209527a3a7d84f643d56848db1552e7&quot;</ETag><Size>7457221</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/hgt_ceiling_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;d719b5bc35b216dc04ab739f8fa548e6&quot;</ETag><Size>1710</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/hgt_hybr_2015092100_c00.grib2</Key><LastModified>2020-05-18T16:34:52.000Z</LastModified><ETag>&quot;84544a10684153eb5d0fcc5ec36a1a60&quot;</ETag><Size>15816712</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>GEFSv12/reforecast/2015/2015092100/c00/Days:10-16/hgt_hybr_2015092100_c00.grib2.idx</Key><LastModified>2021-02-18T02:05:54.000Z</LastModified><ETag>&quot;91338fd98b591d99453247df4c203c4f&quot;</ETag
 
-== GEFS pds 2023 pgrb2ap5
-<?xml version="1.0" encoding="UTF-8"?>
-<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-pds</Name><Prefix>gefs.20230920/00/atmos/pgrb2ap5/gep01</Prefix><NextContinuationToken>1CV7sg5zP2XAtK5kvjxKBHyBPtr3mpA88BUH/40Vojy31qk/zlS08dufUo7jf3FHa0yA1Kpf4faYqLzQ1Ggs4/kYyN/1IsQSVJFIJ2uSPm8pYel281+nRkQ==</NextContinuationToken><KeyCount>5</KeyCount><MaxKeys>5</MaxKeys><IsTruncated>true</IsTruncated><Contents><Key>gefs.20230920/00/atmos/pgrb2ap5/gep01.t00z.pgrb2a.0p50.f000</Key><LastModified>2023-09-20T03:47:26.000Z</LastModified><ETag>&quot;30738cf2d254bb4545b4b80d0d80a39d&quot;</ETag><Size>14381644</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20230920/00/atmos/pgrb2ap5/gep01.t00z.pgrb2a.0p50.f000.idx</Key><LastModified>2023-09-20T03:47:25.000Z</LastModified><ETag>&quot;f7aad725379045dbecb2cf003cd050fb&quot;</ETag><Size>3448</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20230920/00/atmos/pgrb2ap5/gep01.t00z.pgrb2a.0p50.f003</Key><LastModified>2023-09-20T03:48:28.000Z</LastModified><ETag>&quot;df922ab0a57d9a17b08f0c6d545ee674&quot;</ETag><Size>16062044</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20230920/00/atmos/pgrb2ap5/gep01.t00z.pgrb2a.0p50.f003.idx</Key><LastModified>2023-09-20T03:47:30.000Z</LastModified><ETag>&quot;719179d4250b1750e12822ce9dcd6ac2&quot;</ETag><Size>4953</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20230920/00/atmos/pgrb2ap5/gep01.t00z.pgrb2a.0p50.f006</Key><LastModified>2023-09-20T03:49:29.000Z</LastModified><ETag>&quot;e90e672c273d84bac5ed8cc9c9121ca7&quot;</ETag><Size>16118766</Size><StorageClass>STANDARD</StorageClass></Contents></ListBucketResult>
+== reforecast idx ugrd
+1:0:d=2015092100:UGRD:1000 mb:3 hour fcst:ENS=low-res ctl
+2:817942:d=2015092100:UGRD:975 mb:3 hour fcst:ENS=low-res ctl
+3:1631453:d=2015092100:UGRD:950 mb:3 hour fcst:ENS=low-res ctl
+4:2437393:d=2015092100:UGRD:925 mb:3 hour fcst:ENS=low-res ctl
+5:3241805:d=2015092100:UGRD:900 mb:3 hour fcst:ENS=low-res ctl
+6:4050584:d=2015092100:UGRD:850 mb:3 hour fcst:ENS=low-res ctl
+7:4852558:d=2015092100:UGRD:800 mb:3 hour fcst:ENS=low-res ctl
+8:5639790:d=2015092100:UGRD:1000 mb:6 hour fcst:ENS=low-res ctl
+9:6454118:d=2015092100:UGRD:975 mb:6 hour fcst:ENS=low-res ctl
+10:7264676:d=2015092100:UGRD:950 mb:6 hour fcst:ENS=low-res ctl
+11:8068376:d=2015092100:UGRD:925 mb:6 hour fcst:ENS=low-res ctl
+12:8870444:d=2015092100:UGRD:900 mb:6 hour fcst:ENS=low-res ctl
+13:9675464:d=2015092100:UGRD:850 mb:6 hour fcst:ENS=low-res ctl
+14:10473611:d=2015092100:UGRD:800 mb:6 hour fcst:ENS=low-res ctl
+15:11257677:d=2015092100:UGRD:1000 mb:9 hour fcst:ENS=low-res ctl
+16:12083708:d=2015092100:UGRD:975 mb:9 hour fcst:ENS=low-res ctl
+17:12901737:d=2015092100:UGRD:950 mb:9 hour fcst:ENS=low-res ctl
+18:13716902:d=2015092100:UGRD:925 mb:9 hour fcst:ENS=low-res ctl
+19:14530318:d=2015092100:UGRD:900 mb:9 hour fcst:ENS=low-res ctl
+20:15347721:d=2015092100:UGRD:850 mb:9 hour fcst:ENS=low-res ctl
+21:16157288:d=2015092100:UGRD:800 mb:9 hour fcst:ENS=low-res ctl
+22:16949509:d=2015092100:UGRD:1000 mb:12 hour fcst:ENS=low-res ctl
+23:17784532:d=2015092100:UGRD:975 mb:12 hour fcst:ENS=low-res ctl
+24:18616481:d=2015092100:UGRD:950 mb:12 hour fcst:ENS=low-res ctl
+25:19437963:d=2015092100:UGRD:925 mb:12 hour fcst:ENS=low-res ctl
+26:20256980:d=2015092100:UGRD:900 mb:12 hour fcst:ENS=low-res ctl
+27:21079677:d=2015092100:UGRD:850 mb:12 hour fcst:ENS=low-res ctl
+28:21896269:d=2015092100:UGRD:800 mb:12 hour fcst:ENS=low-res ctl
+29:22698138:d=2015092100:UGRD:1000 mb:15 hour fcst:ENS=low-res ctl
+30:23537904:d=2015092100:UGRD:975 mb:15 hour fcst:ENS=low-res ctl
+31:24373354:d=2015092100:UGRD:950 mb:15 hour fcst:ENS=low-res ctl
+32:25206415:d=2015092100:UGRD:925 mb:15 hour fcst:ENS=low-res ctl
+33:26038053:d=2015092100:UGRD:900 mb:15 hour fcst:ENS=low-res ctl
+34:26872138:d=2015092100:UGRD:850 mb:15 hour fcst:ENS=low-res ctl
+35:27697741:d=2015092100:UGRD:800 mb:15 hour fcst:ENS=low-res ctl
+36:28507998:d=2015092100:UGRD:1000 mb:18 hour fcst:ENS=low-res ctl
+37:29353482:d=2015092100:UGRD:975 mb:18 hour fcst:ENS=low-res ctl
+38:30195189:d=2015092100:UGRD:950 mb:18 hour fcst:ENS=low-res ctl
+39:31035311:d=2015092100:UGRD:925 mb
 
-== GEFS pds 2015 listing
-<?xml version="1.0" encoding="UTF-8"?>
-<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-pds</Name><Prefix>gefs.2015</Prefix><KeyCount>0</KeyCount><MaxKeys>3</MaxKeys><IsTruncated>false</IsTruncated></ListBucketResult>
+== reforecast idx apcp
+1:0:d=2015092100:APCP:surface:0-3 hour acc fcst:ENS=low-res ctl
+2:247451:d=2015092100:APCP:surface:0-6 hour acc fcst:ENS=low-res ctl
+3:591163:d=2015092100:APCP:surface:6-9 hour acc fcst:ENS=low-res ctl
+4:834999:d=2015092100:APCP:surface:6-12 hour acc fcst:ENS=low-res ctl
+5:1126603:d=2015092100:APCP:surface:12-15 hour acc fcst:ENS=low-res ctl
+6:1371797:d=2015092100:APCP:surface:12-18 hour acc fcst:ENS=low-res ctl
+7:1668461:d=2015092100:APCP:surface:18-21 hour acc fcst:ENS=low-res ctl
+8:1918656:d=2015092100:APCP:surface:18-24 hour acc fcst:ENS=low-res ctl
+9:2215414:d=2015092100:APCP:surface:24-27 hour acc fcst:ENS=low-res ctl
+10:2463927:d=2015092100:APCP:surface:24-30 hour acc fcst:ENS=low-res ctl
+11:2763732:d=2015092100:APCP:surface:30-33 hour acc fcst:ENS=low-res ctl
+12:3018104:d=2015092100:APCP:surface:30-36 hour acc fcst:ENS=low-res ctl
+13:3318440:d=2015092100:APCP:surface:36-39 hour acc fcst:ENS=low-res ctl
+14:3565486:d=2015092100:APCP:surface:36-42 hour acc fcst:ENS=low-res ctl
+15:3861222:d=2015092100:APCP:surface:42-45 hour acc fcst:ENS=low-res ctl
+16:4314329:d=2015092100:APCP:surface:42-48 hour acc fcst:ENS=low-res ctl
+17:4605587:d=2015092100:APCP:surface:48-51 hour acc fcst:ENS=low-res ctl
+18:4847349:d=2015092100:APCP:surface:48-54 hour acc fcst:ENS=low-res ctl
+19:5140082:d=2015092100:APCP:surface:54-57 hour acc fcst:ENS=low-res ctl
+20:5384047:d=2015092100:APCP:surface:54-60 hour acc fcst:ENS=low-res ctl
+21:5676257:d=2015092100:APCP:surface:60-63 hour acc fcst:ENS=low-
 
-== GEFS pds earliest
-<?xml version="1.0" encoding="UTF-8"?>
-<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-pds</Name><Prefix></Prefix><NextContinuationToken>1OdglmgFnW2sB/cPE+MPMESIF89s/lJ+os/ZstXSNGyDVO1kHQAZ+NyoQ97Sdr3mW2pZEFWFDUwayb3U/UW/sqxNHnyl8E1xI</NextContinuationToken><KeyCount>3</KeyCount><MaxKeys>3</MaxKeys><IsTruncated>true</IsTruncated><Contents><Key>gefs.20170101/00/gec00.t00z.pgrb2aanl</Key><LastModified>2018-08-31T23:28:07.000Z</LastModified><ETag>&quot;eae65256a0dc8cf46d1ba8b6177c5835&quot;</ETag><Size>3344447</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20170101/00/gec00.t00z.pgrb2aanl.idx</Key><LastModified>2024-04-30T20:28:51.000Z</LastModified><ETag>&quot;5e7e336791d548fbb2b8d3047ad00842&quot;</ETag><Size>3411</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20170101/00/gec00.t00z.pgrb2af000</Key><LastModified>2018-08-31T23:27:36.000Z</LastModified><ETag>&quot;682c85478cfc1160c126f272c1837bcd&quot;</ETag><Size>3690334</Size><StorageClass>STANDARD</StorageClass></Contents></ListBucketResult>
-
-== NEA psi date 2019-09-15
+== NEA pm25 2015-09-25
 {"code":17,"name":"REAL_TIME_API_DATA_NOT_FOUND","data":null,"errorMsg":"Data not found"}
 
-== NEA pm25 date 2019-09-15
-{"code":0,"data":{"regionMetadata":[{"name":"west","labelLocation":{"latitude":1.35735,"longitude":103.7}},{"name":"east","labelLocation":{"latitude":1.35735,"longitude":103.94}},{"name":"central","labelLocation":{"latitude":1.35735,"longitude":103.82}},{"name":"south","labelLocation":{"latitude":1.29587,"longitude":103.82}},{"name":"north","labelLocation":{"latitude":1.41803,"longitude":103.82}}],"items":[{"date":"2019-09-15","updatedTimestamp":"2024-07-18T09:51:10+08:00","timestamp":"2019-09-15T23:00:00+08:00","readings":{"pm25_one_hourly":{"west":59,"east":25,"central":24,"south":39,"north":24}}},{"date":"2019-09-15","updatedTimestamp":"2024-07-18T09:51:10+08:00","timestamp":"2019-09-15T22:00:00+08:00","readings":{"pm25_one_hourly":{"west":63,"east":23,"central":36,"south":40,"north":31}}},{"date":"2019-09-15","updatedTimestamp":"2024-07-18T09:51:09+08:00","timestamp":"2019-09-15T21:00:00+08:00","readings":{"pm25_one_hourly":{"west":51,"east":25,"central":47,"south":64,"north":44}}},{"date":"2019-09-15","updatedTimestamp":"2024-07-18T09:51:09+08:00","timestamp":"2019-09-15T20:00:00+08:00","readings":{"pm25_one_hourly":{"west":61,"east":53,"central":50,"south":71,"north":54}}},{"date":"2019-09-15","updatedTimestamp":"2024-07-18T09:51:09+08:00","timestamp":"2019-09-15T19:00:00+08:00","readings":{"pm25_one_hourly":{"west":64,"east":61,"central":47,"south":56,"north":45}}},{"date":"2019-09-15","updatedTimestamp":"2024-07-18T09:51:08+08:00","timestamp":"2019-09-15T18:00:00+08:0
-
-== NEA psi date 2015-09-25
+== NEA pm25 2016-01-05
 {"code":17,"name":"REAL_TIME_API_DATA_NOT_FOUND","data":null,"errorMsg":"Data not found"}
 
-== NEA v1 psi 2015-09-25
-{"message":"Internal Server Error"}
+== NEA psi 2023-10-05
+{"code":0,"data":{"regionMetadata":[{"name":"west","labelLocation":{"latitude":1.35735,"longitude":103.7}},{"name":"national","labelLocation":{"latitude":0,"longitude":0}},{"name":"east","labelLocation":{"latitude":1.35735,"longitude":103.94}},{"name":"central","labelLocation":{"latitude":1.35735,"longitude":103.82}},{"name":"south","labelLocation":{"latitude":1.29587,"longitude":103.82}},{"name":
 
-== FIRMS availability
-data_id,min_date,max_date
-MODIS_NRT,2026-08-01,2026-10-16
-MODIS_SP,2000-11-01,2026-07-31
-VIIRS_NOAA20_NRT,2026-07-01,2026-10-16
-VIIRS_NOAA20_SP,2018-04-01,2026-06-30
-VIIRS_NOAA21_SP,2023-03-01,2026-06-30
-VIIRS_NOAA21_NRT,2024-01-17,2026-10-16
-VIIRS_SNPP_NRT,2026-07-01,2026-10-16
-VIIRS_SNPP_SP,2012-01-20,2026-06-30
-LANDSAT_NRT,2022-06-20,2026-10-16
-GOES_NRT,2022-08-09,2026-10-16
-BA_MODIS,2000-11-01,2026-07-01
-BA_VIIRS,2012-03-01,2026-07-01
+== GEFS 2019 pgrb2a idx f024
+1:0:d=2019091500:HGT:10 mb:24 hour fcst:ENS=+1
+2:51205:d=2019091500:TMP:10 mb:24 hour fcst:ENS=+1
+3:73622:d=2019091500:RH:10 mb:24 hour fcst:ENS=+1
+4:105178:d=2019091500:UGRD:10 mb:24 hour fcst:ENS=+1
+5:132856:d=2019091500:VGRD:10 mb:24 hour fcst:ENS=+1
+6:158719:d=2019091500:HGT:50 mb:24 hour fcst:ENS=+1
+7:216670:d=2019091500:TMP:50 mb:24 hour fcst:ENS=+1
+8:242014:d=2019091500:RH:50 mb:24 hour fcst:ENS=+1
+9:267695:d=2019091500:UGRD:50 mb:24 hour fcst:ENS=+1
+10:298161:d=2019091500:VGRD:50 mb:24 hour fcst:ENS=+1
+11:326417:d=2019091500:HGT:100 mb:24 hour fcst:ENS=+1
+12:387965:d=2019091500:TMP:100 mb:24 hour fcst:ENS=+1
+13:416023:d=2019091500:RH:100 mb:24 hour fcst:ENS=+1
+14:456397:d=2019091500:UGRD:100 mb:24 hour fcst:ENS=+1
+15:514776:d=2019091500:VGRD:100 mb:24 hour fcst:ENS=+1
+16:571562:d=2019091500:HGT:200 mb:24 hour fcst:ENS=+1
+17:634669:d=2019091500:TMP:200 mb:24 hour fcst:ENS=+1
+18:664878:d=2019091500:RH:200 mb:24 hour fcst:ENS=+1
+19:720738:d=2019091500:UGRD:200 mb:24 hour fcst:ENS=+1
+20:762014:d=2019091500:VGRD:200 mb:24 hour fcst:ENS=+1
+21:803866:d=2019091500:HGT:250 mb:24 hour fcst:ENS=+1
+22:867136:d=2019091500:TMP:250 mb:24 hour fcst:ENS=+1
+23:897439:d=2019091500:RH:250 mb:24 hour fcst:ENS=+1
+24:960848:d=2019091500:UGRD:250 mb:24 hour fcst:ENS=+1
+25:1003956:d=2019091500:VGRD:250 mb:24 hour fcst:ENS=+1
+26:1049137:d=2019091500:HGT:300 mb:24 hour fcst:ENS=+1
+27:1112558:d=2019091500:UGRD:300 mb:24 hour fcst:ENS=+1
+28:1158299:d=2019091500:VGRD:300 mb:24 hour fcst:ENS=+1
+29:1205793:d=2019091500:UGRD:400 mb:24 hour fcst:ENS=+1
+30:1251713:d=2019091500:VGRD:400 mb:24 hour fcst:ENS=+1
+31:1298937:d=2019091500:HGT:500 mb:24 hour fcst:ENS=+1
+32:1368132:d=2019091500:TMP:500 mb:24 hour fcst:ENS=+1
+33:1401837:d=2019091500:RH:500 mb:24 hour fcst:ENS=+1
+34:1469853:d=2019091500:UGRD:500 mb:24 hour fcst:ENS=+1
+35:1541002:d=2019091500:VGRD:500 mb:24 hour fcst:ENS=+1
+36:1613819:d=2019091500:HGT:700 mb:24 hour fcst:ENS=+1
+37:1683368:d=2019091500:TMP:700 mb:24 hour fcst:ENS=+1
+38:1720237:d=2019091500:RH:700 mb:24 hour fcst:ENS=+1
+39:1790548:d=2019091500:UGRD:700 mb:24 hour fcst:ENS=+1
+40:1863021:d=2019091500:VGRD:700 mb:24 hour fcst:ENS=+1
+41:1937882:d=2019091500:HGT:850 mb:24 hour fcst:ENS=+1
+42:2012329:d=2019091500:TMP:850 mb:24 hour fcst:ENS=+1
+43:2053489:d=2019091500:RH:850 mb:24 hour fcst:ENS=+1
+44:2124121:d=2019091500:VVEL:850 mb:24 hour fcst:ENS=+1
+45:2207623:d=2019091500:UGRD:850 mb:24 hour fcst:ENS=+1
+46:2281730:d=2019091500:VGRD:850 mb:24 hour fcst:ENS=+1
+47:2357791:d=2019091500:HGT:925 mb:24 hour fcst:ENS=+1
+48:2434026:d=2019091500:TMP:925 mb:24 hour fcst:ENS=+1
+49:2475405:d=2019091500:RH:925 mb:24 hour fcst:ENS=+1
+50:2543260:d=2019091500:UGRD:925 mb:24 hour fcst:ENS=+1
+51:2617249:d=2019091500:VGRD:925 mb:24 hour fcst:ENS=+1
+52:2692977:d=2019091500:TMP:1000 mb:24 hour fcst:ENS=+1
+53:2733819:d=2019091500:RH:1000 mb:24 hour fcst:ENS=+1
+54:2797159:d=2019091500:UGRD:1000 mb:24 hour fcst:ENS=+1
+55:2871256:d=2019091500:VGRD:1000 mb:24 hour fcst:ENS=+1
+56:2945650:d=2019091500:HGT:1000 mb:24 hour fcst:ENS=+1
+57:3024957:d=2019091500:PRES:surface:24 hour fcst:ENS=+1
+58:3101574:d=2019091500:TSOIL:0-0.1 m below ground:24 hour fcst:ENS=+1
+59:3127853:d=2019091500:SOILW:0-0.1 m below ground:24 hour fcst:ENS=+1
+60:3153420:d=2019091500:WEASD:surface:24 hour fcst:ENS=+1
+61:3165219:d=2019091500:SNOD:surface:24 hour fcst:ENS=+1
+62:3182649:d=2019091500:ICETK:surface:24 hour fcst:ENS=+1
+63:3196716:d=2019091500:TMP:2 m above ground:24 hour fcst:ENS=+1
+64:3240385:d=2019091500:RH:2 m above ground:24 hour fcst:ENS=+1
+65:3303736:d=2019091500:TMAX:2 m above ground:18-24 hour max fcst:ENS=+1
+66:3347169:d=2019091500:TMIN:2 m above ground:18-24 hour min fcst:ENS=+1
+67:3391509:d=2019091500:UGRD:10 m above ground:24 hour fcst:ENS=+1
+68:3464377:d=2019091500:VGRD:10 m above ground:24 hour fcst:ENS=+1
+69:3537176:d=2019091500:APCP:surface:18-24 hour acc fcst:ENS=+1
+70:3590721:d=2019091500:CSNOW:surface:18-24 hour ave fcst:ENS=+1
+71:3594196:d=2019091500:CICEP:surface:18
 
-== FIRMS SP 2019-09-15
-latitude,longitude,bright_ti4,scan,track,acq_date,acq_time,satellite,instrument,confidence,version,bright_ti5,frp,daynight,type
--7.84095,114.24708,334.83,0.4,0.44,2019-09-15,532,N,VIIRS,n,2,301.26,2.78,D,0
--7.75348,110.92933,332.01,0.33,0.56,2019-09-15,532,N,VIIRS,n,2,298.16,3.49,D,0
--7.74569,113.63983,330.05,0.44,0.46,2019-09-15,532,N,VIIRS,n,2,296.27,1.98,D,0
--7.694,113.85335,345.51,0.42,0.45,2019-09-15,532,N,VIIRS,n,2,298.68,3.92,D,0
--7.60641,112.74322,334.16,0.5,0.49,2019-09-15,532,N,VIIRS,n,2,300.55,5,D,0
--7.57979,107.67694,332.93,0.55,0.68,2019-09-15,532,N,VIIRS,n,2,293.88,4.25,D,0
--7.40
-
-== Open-Meteo archive
-{"latitude":-2.003515,"longitude":113.00159,"generationtime_ms":0.18680095672607422,"utc_offset_seconds":0,"timezone":"GMT","timezone_abbreviation":"GMT","elevation":12.0,"daily_units":{"time":"iso8601","precipitation_sum":"mm"},"daily":{"time":["2019-08-01","2019-08-02","2019-08-03"],"precipitation_sum":[0.50,0.70,0.00]}}
-
-== GEFS idx sample 2019
+== GEFS 2019 pgrb2a list
 <?xml version="1.0" encoding="UTF-8"?>
-<Error><Code>NoSuchKey</Code><Message>The specified key does not exist.</Message><Key>gefs.20190915/00/pgrb2ap5/gep01.t00z.pgrb2a.0p50.f024.idx</Key><RequestId>YQYH0BWD16Z9XYDV</RequestId><HostId>bJ5g8aKh08cGtTSA9CSvowgdRCtd6ZyhYXxN6gncevPITdT7fmac1ykR9k6eJoAfjTekL267bIs=</HostId></Error>
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-pds</Name><Prefix>gefs.20190915/00/pgrb2a/gep01.t00z.pgrb2af2</Prefix><NextContinuationToken>1vp7oK8Hw1M6woBUrq3vefmFzWer6/vGb/RD9p99Y7gYoSwY3YCLtVsVdZV5g2NzfgBIHge4pjbgZwWs3zxL9NoBRilZWwN4V</NextContinuationToken><KeyCount>8</KeyCount><MaxKeys>8</MaxKeys><IsTruncated>true</IsTruncated><Contents><Key>gefs.20190915/00/pgrb2a/gep01.t00z.pgrb2af204</Key><LastModified>2019-09-15T05:10:26.000Z</LastModified><ETag>&quot;0c3b29ae57c7605847b500369e6ef8cf&quot;</ETag><Size>4163258</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20190915/00/pgrb2a/gep01.t00z.pgrb2af204.idx</Key><LastModified>2024-04-30T22:33:59.000Z</LastModified><ETag>&quot;ab2c5b190355d0bfdd1ad3716284bfc7&quot;</ETag><Size>5154</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20190915/00/pgrb2a/gep01.t00z.pgrb2af210</Key><LastModified>2019-09-15T05:10:27.000Z</LastModified><ETag>&quot;955841dda7948042543b2f13d78027ca&quot;</ETag><Size>4129590</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20190915/00/pgrb2a/gep01.t00z.pgrb2af210.idx</Key><LastModified>2024-04-30T22:33:59.000Z</LastModified><ETag>&quot;dfa7f241563450cd52bcea77f444f158&quot;</ETag><Size>5097</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20190915/00/pgrb2a/gep01.t00z.pgrb2af216</Key><LastModified>2019-09-15T05:11:00.000Z</LastModified><ETag>&quot;eef09171dcc4e10ac61aa28acb175371&quot;</ETag><Size>4153763</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20190915/00/pgrb2a/gep01.t00z.pgrb2af216.idx</Key><LastModified>2024-04-30T22:25:46.000Z</LastModified><ETag>&quot;64bf45f410a041c36f265ac1a3d8da9d&quot;</ETag><Size>5097</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20190915/00/pgrb2a/gep01.t00z.pgrb2af222</Key><LastModified>2019-09-15T05:11:18.000Z</LastModified><ETag>&quot;caf19f92b8a9f60262e47925143719d1&quot;</ETag><Size>4153961</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20190915/00/pgrb2a/gep01.t00z.pgrb2af222.idx</Key><LastModified>2024-04-30T22:25:46.000Z</LastModified><ETag>&quot;4e6a9153bef259144f4775810ddc12cf&quot;</ETag><Size>5097</Size><StorageClass>STANDARD</StorageClass></Contents></ListBucketResult>
 
-== GEFS idx sample 2023
-1:0:d=2023092000:HGT:10 mb:24 hour fcst:ENS=+1
-2:199498:d=2023092000:TMP:10 mb:24 hour fcst:ENS=+1
-3:313846:d=2023092000:RH:10 mb:24 hour fcst:ENS=+1
-4:378301:d=2023092000:UGRD:10 mb:24 hour fcst:ENS=+1
-5:517382:d=2023092000:VGRD:10 mb:24 hour fcst:ENS=+1
-6:649029:d=2023092000:HGT:50 mb:24 hour fcst:ENS=+1
-7:859889:d=2023092000:TMP:50 mb:24 hour fcst:ENS=+1
-8:973202:d=2023092000:RH:50 mb:24 hour fcst:ENS=+1
-9:1066414:d=2023092000:UGRD:50 mb:24 hour fcst:ENS=+1
-10:1305667:d=2023092000:VGRD:50 mb:24 hour fcst:ENS=+1
-11:1545828:d=2023092000:HGT:100 mb:24 hour fcst:ENS=+1
-12:1755085:d=2023092000:TMP:100 mb:24 hour fcst:ENS=+1
-13:1867896:d=2023092000:RH:100 mb:24 hour fcst:ENS=+1
-14:2017134:d=2023092000:UGRD:100 mb:24 hour fcst:ENS=+1
-15:2260663:d=2023092000:VGRD:100 mb:24 hour fcst:ENS=+1
-16:2505787:d=2023092000:HGT:200 mb:24 hour fcst:ENS=+1
-17:2715642:d=2023092000:TMP:200 mb:24 hour fcst:ENS=+1
-18:2829276:d=2023092000:RH:200 mb:24 hour fcst:ENS=+1
-19:3040776:d=2023092000:UGRD:200 mb:24 hour fcst:ENS=+1
-20:3201021:d=2023092000:VGRD:200 mb:24 hour fcst:ENS=+1
-21:3363522:d=2023092000:HGT:250 mb:24 hour fcst:ENS=+1
-22:3576305:d=2023092000:TMP:250 mb:24 hour fcst:ENS=+1
-23:3688958:d=2023092000:RH:250 mb:24 hour fcst:ENS=+1
-24:3918369:d=2023092000:UGRD:250 mb:24 hour fcst:ENS=+1
-25:4083856:d=2023092000:VGRD:250 mb:24 hour fcst:ENS=+1
-26:4255157:d=2023092000:HGT:300 mb:24 hour fcst:ENS=+1
-27:4468217:d=2023092000:UGRD:300 mb:24 hour fcst:ENS=+1
-28:4639856:d=2023092000:VGRD:300 mb:24 hour fcst:ENS=+1
-29:4818646:d=2023092000:UGRD:400 mb:24 hour fcst:ENS=+1
-30:4985627:d=2023092000:VGRD:400 mb:24 hour fcst:ENS=+1
-31:5159461:d=2023092000:HGT:500 mb:24 hour fcst:ENS=+1
-32:5397023:d=2023092000:TMP:500 mb:24 hour fcst:ENS=+1
-33:5515924:d=2023092000:RH:500 mb:24 hour fcst:ENS=+1
-34:5752969:d=2023092000:UGRD:500 mb:24 hour fcst:ENS=+1
-35:6017927:d=2023092000:VGRD:500 mb:24 hour fcst:ENS=+1
-36:6289608:d=2023092000:HGT:700 mb:24 hour fcst:ENS=+1
-37:6537026:d=2023092000:TMP:700 mb:24 hour fcst:ENS=+1
-38:6662162:d=2023092000:RH:700 mb:24 hour fcst:ENS=+1
-39:6903258:d=2023092000:UGRD:700 mb:24 hour fcst:ENS=+1
-40:7167614:d=2023092000:VGRD:700 mb:24 hour fcst:ENS=+1
-41:7436988:d=2023092000:HGT:850 mb:24 hour fcst:ENS=+1
-42:7692990:d=2023092000:TMP:850 mb:24 hour fcst:ENS=+1
-43:7832740:d=2023092000:RH:850 mb:24 hour fcst:ENS=+1
-44:8079540:d=2023092000:VVEL:850 mb:24 hour fcst:ENS=+1
-45:8390891:d=2023092000:UGRD:850 mb:24 hour fcst:ENS=+1
-46:8659687:d=2023092000:VGRD:850 mb:24 hour fcst:ENS=+1
-47:8935091:d=2023092000:HGT:925 mb:24 hour fcst:ENS=+1
-48:9200048:d=2023092000:TMP:925 mb:24 hour fcst:ENS=+1
-49:9341368:d=2023092000:RH:925 mb:24 hour fcst:ENS=+1
-50:9580005:d=2023092000:UGRD:925 mb:24 hour fcst:ENS=+1
-51:9848643:d=2023092000:VGRD:925 mb:24 hour fcst:ENS=+1
-52:10123078:d=2023092000:TMP:1000 mb:24 hour fcst:ENS=+1
-53:10261071:d=2023092000:RH:1000 mb:24 hour fcst:ENS=+1
-54:10483551:d=2023092000:UGRD:1000 mb:24 hour fcst:ENS=+1
-55:10753234:d=2023092000:VGRD:1000 mb:24 h
+== GEFS 2019 pgrb2ap5?
+<?xml version="1.0" encoding="UTF-8"?>
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-pds</Name><Prefix>gefs.20190915/</Prefix><KeyCount>4</KeyCount><MaxKeys>1000</MaxKeys><Delimiter>/</Delimiter><IsTruncated>false</IsTruncated><CommonPrefixes><Prefix>gefs.20190915/00/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>gefs.20190915/06/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>gefs.20190915/12/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>gefs.20190915/18/</Prefix></CommonPrefixes></ListBucketResult>
 
