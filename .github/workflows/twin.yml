@@ -71,6 +71,11 @@ jobs:
           cp engine/engine.js site/engine.js
           node engine/run.js --n 100000 2>&1 | tee -a run.log
           cp run.log site/data/run-log.txt
+          mkdir -p .work/fonts
+          for f in barlow/Barlow-Bold barlow/Barlow-Medium barlow/Barlow-SemiBold barlowsemicondensed/BarlowSemiCondensed-Bold; do
+            curl -sSfL -o .work/fonts/$(basename $f).ttf "https://github.com/google/fonts/raw/main/ofl/$f.ttf" || true
+          done
+          python tools/og_image.py site/data/forecast.json site/data/inputs.json site/data/og.png .work/fonts || echo "share image failed"
 
       - name: Save the forecast log
         if: ${{ !cancelled() }}

@@ -5,7 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Haze Twin</title>
 <meta name="haze-ai" content="https://haze-ask.healthid-cloudflare.workers.dev/">
-<meta name="description" content="How bad Singapore's haze is, how it is likely to change over the next 15 days, and where the smoke is coming from.">
+<meta name="description" content="When will Singapore's haze get better? Day-by-day odds for the next 15 days, where the smoke is coming from, and why. Updated every hour.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Haze Twin">
+<meta property="og:title" content="Haze Twin: when will Singapore's haze get better?">
+<meta property="og:description" content="Day-by-day odds for the next 15 days, where the smoke is coming from, and why. Updated every hour.">
+<meta property="og:url" content="https://bennetmc2.github.io/haze-twin/">
+<meta property="og:image" content="https://bennetmc2.github.io/haze-twin/data/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Haze Twin: when will Singapore's haze get better?">
+<meta name="twitter:image" content="https://bennetmc2.github.io/haze-twin/data/og.png">
+<meta name="theme-color" content="#0E1820">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230E1820'/%3E%3Ccircle cx='32' cy='28' r='13' fill='%23E9813A'/%3E%3Crect x='10' y='36' width='44' height='5' rx='2.5' fill='%23A9B9C3'/%3E%3Crect x='16' y='45' width='32' height='5' rx='2.5' fill='%237F929F'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
@@ -279,6 +292,7 @@ body:not([data-tab="better"]) #viewBetter,body:not([data-tab="odds"]) #viewOdds{
 .wday small{font-size:12px;color:var(--ink-2);text-align:center;line-height:1.2}
 .wday i{position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--c)}
 .vnote{text-align:center}
+.vnote.fine{font-size:12.5px;margin-top:-8px}
 .linkbtn{border:0;background:transparent;color:var(--sky);cursor:pointer;font-size:inherit;padding:0;text-decoration:underline;text-underline-offset:2px}
 .sech{margin:0 0 10px}
 .markets{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
@@ -304,6 +318,17 @@ body:not([data-tab="better"]) #viewBetter,body:not([data-tab="odds"]) #viewOdds{
   .week{grid-template-columns:repeat(4,minmax(0,1fr))}
   .tabs{order:3;width:100%;overflow-x:auto}
 }
+/* landing tab: today strip and hazy glow */
+.today{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--c,var(--line-hi));border-radius:8px;padding:10px 16px}
+.today .tlabel{font-size:14px;color:var(--ink-2)}
+.today .tpsi{font-family:var(--num);font-weight:700;font-size:30px;line-height:1}
+.today .tband{font-weight:600;font-size:14px;border-radius:4px;padding:2px 8px;color:#0B1218;background:var(--c,var(--line-hi))}
+.today .tmeta{font-size:13.5px;color:var(--ink-3)}
+.today .tlink{margin-left:auto;font-size:14px}
+#betterHero{position:relative;padding:22px 0 6px}
+#betterHero::before{content:"";position:absolute;inset:-60px -40px -30px -40px;z-index:-1;pointer-events:none;background:radial-gradient(closest-side at 32% 50%,color-mix(in srgb,var(--c,#E9813A) 26%,transparent),transparent)}
+.view .vwrap{position:relative;z-index:0}
+body:not([data-tab="map"]) #btnTour{display:none}
 /* tour */
 .tourhole{position:fixed;z-index:50;border-radius:8px;box-shadow:0 0 0 9999px rgba(4,8,12,.72);outline:2px solid var(--sky);pointer-events:none;transition:all .25s ease}
 .tourcard{position:fixed;z-index:51;width:min(340px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--sky);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
@@ -356,7 +381,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     <nav class="tabs" aria-label="Views">
       <button type="button" class="tab" data-tab="better">When will it get better?</button>
       <button type="button" class="tab" data-tab="odds">The odds</button>
-      <button type="button" class="tab" data-tab="map">Map and details</button>
+      <button type="button" class="tab" data-tab="map">Map</button>
     </nav>
     <div class="status" role="status" aria-live="polite">
       <span class="live" id="liveDot"><i></i><span id="statusText">Loading the latest forecast…</span></span>
@@ -366,7 +391,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
       <button class="btn" id="btnTour" type="button">Take the tour</button>
       <button class="btn" id="btnRecord" type="button">Track record</button>
       <button class="btn" id="btnHow" type="button">How it works</button>
-      <button class="btn primary" id="btnRerun" type="button" aria-busy="false" title="Run 100,000 futures again on this device with NEA's latest reading">Rerun</button>
+      <button class="btn primary" id="btnRerun" type="button" aria-busy="false" title="Run the forecast again on this device with NEA's latest reading">Update now</button>
     </div>
   </header>
 
@@ -482,18 +507,30 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 
   <main class="view" id="viewBetter" aria-labelledby="betterQ">
     <div class="vwrap">
-      <section class="hero">
+      <section class="today" id="todayStrip">
+        <span class="tlabel">Right now</span>
+        <span class="tpsi" id="tPsi">–</span>
+        <span class="tband" id="tBand"></span>
+        <span class="tmeta" id="tMeta"></span>
+        <a class="tlink" href="https://www.haze.gov.sg/" target="_blank" rel="noopener">What to do: NEA's advice</a>
+      </section>
+      <section class="hero" id="betterHero">
         <p class="kicker" id="betterQ">When will the haze get better?</p>
         <h1 class="big" id="betterA">Loading…</h1>
         <p class="lede" id="betterSub"></p>
       </section>
+      <section class="panel card">
+        <div class="head"><h2>The next 7 days</h2><span class="note">Tap a day to see why</span></div>
+        <div class="week" id="week"></div>
+        <div class="whyweek" id="whyWeek"><h3 id="whyWeekT"></h3><ul class="whylist" id="whyWeekList"></ul></div>
+      </section>
       <div class="vgrid">
         <section class="panel card">
           <h2>Chance it is better by…</h2>
-          <p class="how">"Better" means the 24-hour PSI is back to 100 or below, at least for a day.</p>
+          <p class="how">Better means the 24-hour PSI is back to 100 or below (moderate), at least for a day.</p>
           <div class="chances" id="chDays"></div>
           <h2 style="margin-top:8px">Chance the haze season is over by…</h2>
-          <p class="how">Over means steady monsoon rain has put the fires out.</p>
+          <p class="how">Haze seasons end when steady monsoon rain puts the fires out.</p>
           <div class="chances" id="chSeason"></div>
         </section>
         <div class="vcol">
@@ -504,12 +541,8 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
           </section>
         </div>
       </div>
-      <section class="panel card">
-        <div class="head"><h2>Next 7 days</h2><span class="note">Tap a day to see why</span></div>
-        <div class="week" id="week"></div>
-        <div class="whyweek" id="whyWeek"><h3 id="whyWeekT"></h3><ul class="whylist" id="whyWeekList"></ul></div>
-      </section>
-      <p class="note vnote">Worked out from 100,000 simulated futures of the region's fires, smoke and winds, updated every 6 hours. <button type="button" class="linkbtn" data-goto="odds">See all the odds</button> or <button type="button" class="linkbtn" data-goto="map">see the map</button>.</p>
+      <p class="note vnote">Worked out from 100,000 simulated futures of the region's fires, smoke and winds. <button type="button" class="linkbtn" data-goto="odds">See all the odds</button> or <button type="button" class="linkbtn" data-goto="map">see the map</button>.</p>
+      <p class="note vnote fine">Haze Twin is an independent forecast. It is not run by or linked to NEA. For official readings and health advice, go to <a href="https://www.haze.gov.sg/" target="_blank" rel="noopener">haze.gov.sg</a>.</p>
     </div>
   </main>
 
@@ -527,6 +560,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
         <div class="head"><h2>Day by day</h2><span class="note">Chance of each NEA band, 24-hour PSI</span></div>
         <div class="oddtab-wrap"><table class="oddtab" id="oddtab"></table></div>
       </section>
+      <p class="note vnote fine">Odds are estimates from a computer model and can be wrong. Haze Twin is independent and not linked to NEA. For official readings and health advice, go to <a href="https://www.haze.gov.sg/" target="_blank" rel="noopener">haze.gov.sg</a>.</p>
     </div>
   </main>
 </div>
@@ -1148,7 +1182,7 @@ async function rerun(){
     setTimeout(()=>{try{done(HE.run(INP,{n:30000,seed:seed,obs:obs}));}catch(err){failRun(String(err));}},50);
   }
 }
-function endRunUI(){state.running=false;state.runFrac=1;$('btnRerun').setAttribute('aria-busy','false');$('btnRerun').textContent='Rerun';$('runbox').hidden=true;$('liveDot').classList.remove('run');}
+function endRunUI(){state.running=false;state.runFrac=1;$('btnRerun').setAttribute('aria-busy','false');$('btnRerun').textContent='Update now';$('runbox').hidden=true;$('liveDot').classList.remove('run');}
 function failRun(msg){endRunUI();showError('Rerun stopped: '+msg+'. The forecast from the last update is still shown.');}
 function finishRun(res){
   const off=state.official;res.why={};
@@ -1371,10 +1405,12 @@ function renderBetter(){
   let ans,sub;
   if(reg.mode!=='haze'){ans='It is already '+bandWord(now)+'.';sub='PSI is '+now+' now. '+$('lede').textContent;}
   else{const i50=cb.findIndex(v=>v>=50);
-    if(i50>=0){ans='Most likely around '+fmtDate(FC.days[i50].iso)+'.';sub='That is the first day PSI is more likely than not to be back to 100 or below. Right now it is '+now+', '+bandWord(now)+'.'+(i50>=nC?' It is more than 6 days away, so treat the date as a rough guide.':'');}
+    if(i50>=0){ans='Most likely around '+fmtDate(FC.days[i50].iso)+'.';sub='That is the first day it is more likely than not to be back to moderate (100 or below).'+(i50>=nC?' It is more than 6 days away, so treat the date as a rough guide.':'');}
     else{ans=se?'Not in the next two weeks. Most likely around '+se.median+'.':'Not in the next two weeks.';
-      sub='PSI is '+now+' now, '+bandWord(now)+'. The forecast gives only a '+pctTxt(cb[cb.length-1]||0)+' chance it drops to 100 or below in the next 15 days.'+(se?' The haze usually clears for good when the monsoon rains put the fires out, most likely around '+se.median+' (80% chance between '+se.p10+' and '+se.p90+').':'');}}
+      sub='There is about a '+pctTxt(cb[cb.length-1]||0)+' chance it gets back to moderate (100 or below) at some point in the next two weeks. Haze seasons usually end when the monsoon rains arrive.';}}
   $('betterA').textContent=ans;$('betterSub').textContent=sub;
+  const bc=COL.b[bandOf(now)];$('todayStrip').style.setProperty('--c',bc);$('betterHero').style.setProperty('--c',bc);
+  $('tPsi').textContent=now;$('tBand').textContent=BANDS[bandOf(now)].name;$('tMeta').textContent='24-hour PSI from NEA, '+clock(new Date(INP.obs.time||INP.t0))+(state.region==='national'?'':' ('+REG.find(r=>r[0]===state.region)[1]+')');
   const box=$('chDays');box.innerHTML='';
   const picks=[...new Set([0,1,2,nC-1,Math.min(9,cb.length-1),cb.length-1])].filter(i=>i>=0&&i<cb.length).sort((a,b)=>a-b);
   picks.forEach(i=>{const lab=i===0?'Tomorrow':fmtDate(FC.days[i].iso);box.appendChild(chRow(lab,cb[i],i>=nC,COL['--good']));});

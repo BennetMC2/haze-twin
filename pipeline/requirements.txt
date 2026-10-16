@@ -2,3 +2,4 @@ numpy>=1.26
 requests>=2.31
 eccodes>=2.37
 ecmwf-opendata>=0.3.20
+pillow>=10
