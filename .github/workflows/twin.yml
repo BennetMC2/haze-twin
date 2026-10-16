@@ -1,0 +1,99 @@
+name: Run the twin
+
+on:
+  schedule:
+    # 40 minutes after each GEFS cycle is usually complete (cycles at 00, 06, 12, 18 UTC)
+    - cron: "40 5,11,17,23 * * *"
+  workflow_dispatch:
+    inputs:
+      sample:
+        description: "Use synthetic sample data instead of live data"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: twin
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pipeline/requirements.txt
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install
+        run: pip install -r pipeline/requirements.txt
+
+      - name: Fetch data and back-trace from Singapore
+        env:
+          FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
+          DATAGOVSG_API_KEY: ${{ secrets.DATAGOVSG_API_KEY }}
+        run: |
+          if [ "${{ github.event.inputs.sample }}" = "true" ]; then
+            python pipeline/build_inputs.py --sample
+          else
+            python pipeline/build_inputs.py
+          fi
+
+      - name: Run 100,000 futures
+        run: |
+          cp engine/engine.js site/engine.js
+          node engine/run.js --n 100000
+
+      - name: Save the forecast log
+        run: |
+          git config user.name "haze-twin bot"
+          git config user.email "haze-twin-bot@users.noreply.github.com"
+          git add history
+          if ! git diff --cached --quiet; then
+            T0=$(python -c "import json;print(json.load(open('site/data/inputs.json'))['t0'])")
+            git commit -m "Run ${T0} [skip ci]"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+
+      - name: Archive this run's inputs and forecast
+        env:
+          GH_TOKEN: ${{ github.token }}
+        continue-on-error: true
+        run: |
+          DAY=$(date -u +%Y-%m-%d)
+          STAMP=$(date -u +%Y%m%dT%H%MZ)
+          gh release view "archive-${DAY}" >/dev/null 2>&1 || \
+            gh release create "archive-${DAY}" --title "Archive ${DAY}" --notes "Inputs and forecasts issued on ${DAY} (UTC). Every forecast is kept as issued." --latest=false
+          cp site/data/inputs.json "inputs-${STAMP}.json"
+          cp site/data/forecast.json "forecast-${STAMP}.json"
+          gzip -9 "inputs-${STAMP}.json"
+          gh release upload "archive-${DAY}" "inputs-${STAMP}.json.gz" "forecast-${STAMP}.json" --clobber
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

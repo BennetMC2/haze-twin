@@ -1,0 +1,7 @@
+.work/
+__pycache__/
+*.pyc
+site/data/*
+!site/data/coast.json
+node_modules/
+.DS_Store
