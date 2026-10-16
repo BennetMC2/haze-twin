@@ -377,7 +377,24 @@
       const mw = []; for (let m = 0; m < model.M; m++) mw.push([0, 0, 0, 0]);
       for (let s = 0; s < N; s++) mw[sim.memb[sim.idx[s]]][cls[s]]++;
       const sampleClass = sampleIdx.map(s => cls[s]);
-      out.regions[reg] = { now: now, mode, factor: model.regRatio[rr], clear: Math.round(clearCount / N * 1000) / 10, clearDayLabel: days[nC - 1].dow, clearBy, days: dayStats, pct, classes, memberClass: mw, sampleClass };
+      // yes/no questions for the odds board
+      const markets = (() => {
+        let p300 = 0, p200 = 0, p300all = 0, b100all = 0;
+        for (let s2 = 0; s2 < N; s2++) {
+          if (peakV[s2] > 300.5) p300++; if (peakV[s2] > 200.5) p200++;
+          let mx = 0, mn = 1e9; for (let d = 0; d < days.length; d++) { const v = dayVals[d][s2]; if (v > mx) mx = v; if (v < mn) mn = v; }
+          if (mx > 300.5) p300all++; if (mn <= 100.5) b100all++;
+        }
+        const r1 = (x) => Math.round(x / N * 1000) / 10;
+        const m = { hazardous6: r1(p300), above200_6: r1(p200), hazardous15: r1(p300all), below100_15: r1(b100all), weekends: [] };
+        for (let d = 0; d < days.length - 1; d++) {
+          if (days[d].dow !== 'Sat') continue;
+          let ok = 0, bad = 0; for (let s2 = 0; s2 < N; s2++) { const a1 = dayVals[d][s2], a2 = dayVals[d + 1][s2]; if (a1 <= 100.5 && a2 <= 100.5) ok++; if (a1 > 200.5 || a2 > 200.5) bad++; }
+          m.weekends.push({ label: days[d].label + '–' + days[d + 1].label.split(' ')[1], clear: r1(ok), bad: r1(bad), extended: d >= nC });
+        }
+        return m;
+      })();
+      out.regions[reg] = { now: now, mode, factor: model.regRatio[rr], clear: Math.round(clearCount / N * 1000) / 10, clearDayLabel: days[nC - 1].dow, clearBy, days: dayStats, pct, classes, memberClass: mw, sampleClass, markets };
     }
     const shares = [0, 0, 0]; for (let s = 0; s < N; s++) for (let k = 0; k < 3; k++) shares[k] += sim.share[sim.idx[s] * 3 + k];
     { const R = model.R, rs = new Float64Array(R); for (let s = 0; s < N; s++) { const j = sim.idx[s]; for (let q = 0; q < R; q++) rs[q] += sim.rshare[j * R + q]; }

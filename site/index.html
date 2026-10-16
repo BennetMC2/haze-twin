@@ -236,6 +236,59 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .dchip .prog{position:absolute;left:0;top:0;bottom:3px;background:rgba(134,203,230,.12);width:0}
 .gap{flex:none;width:1px;background:var(--line-hi);margin:4px 3px}
 
+/* tabs and simple views */
+.tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:3px}
+.tab{border:0;background:transparent;cursor:pointer;font-size:14.5px;font-weight:500;color:var(--ink-2);padding:6px 12px;border-radius:5px;min-height:34px}
+.tab:hover{color:var(--ink)}
+.tab[aria-current="true"]{background:var(--raise);color:var(--ink);box-shadow:inset 0 -2px 0 var(--sky)}
+.view{grid-column:1/-1;grid-row:2/4;overflow-y:auto;min-height:0;scrollbar-width:thin;scrollbar-color:var(--line-hi) transparent}
+body:not([data-tab="map"]) .left,body:not([data-tab="map"]) .mapcell,body:not([data-tab="map"]) .time,body:not([data-tab="map"]) .right{display:none}
+body:not([data-tab="better"]) #viewBetter,body:not([data-tab="odds"]) #viewOdds{display:none}
+.vwrap{max-width:1040px;margin:0 auto;padding:12px 4px 40px;display:flex;flex-direction:column;gap:16px}
+.hero{display:flex;flex-direction:column;gap:8px;padding:12px 0 4px}
+.kicker{margin:0;font-size:17px;color:var(--ink-2);font-weight:500}
+.hero .big{margin:0;font-size:44px;line-height:1.08;font-weight:700;letter-spacing:-.01em;text-wrap:balance}
+.hero .lede{max-width:62ch;font-size:17px}
+.vgrid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start}
+.vcol{display:flex;flex-direction:column;gap:16px}
+.chances{display:flex;flex-direction:column;gap:7px}
+.chrow{display:grid;grid-template-columns:118px minmax(0,1fr) 48px;gap:12px;align-items:center;font-size:15px}
+.chrow .bar{height:12px;background:var(--line);border-radius:6px;overflow:hidden}
+.chrow .bar i{display:block;height:100%;border-radius:6px;background:var(--good)}
+.chrow .pc{font-family:var(--num);font-weight:600;font-size:17px;text-align:right}
+.chrow.ext{opacity:.75}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.wday{border:1px solid var(--line);border-radius:6px;padding:10px 8px 12px;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;overflow:hidden}
+.wday span{font-size:13.5px;color:var(--ink-2)}
+.wday b{font-family:var(--num);font-weight:600;font-size:26px;line-height:1}
+.wday small{font-size:12px;color:var(--ink-2);text-align:center;line-height:1.2}
+.wday i{position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--c)}
+.vnote{text-align:center}
+.linkbtn{border:0;background:transparent;color:var(--sky);cursor:pointer;font-size:inherit;padding:0;text-decoration:underline;text-underline-offset:2px}
+.sech{margin:0 0 10px}
+.markets{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.mkt{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.mkt .mq{font-size:15.5px;font-weight:600;line-height:1.3}
+.mkt .mrow{display:flex;align-items:center;gap:12px}
+.mkt .mbar{flex:1;height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.mkt .mbar i{display:block;height:100%;border-radius:5px;background:var(--c,var(--sky))}
+.mkt .mp{font-family:var(--num);font-weight:700;font-size:28px;line-height:1;min-width:64px;text-align:right}
+.mkt .mn{font-size:13px;color:var(--ink-3)}
+.oddtab-wrap{overflow-x:auto}
+.oddtab{width:100%;border-collapse:separate;border-spacing:3px;font-size:14px;min-width:560px}
+.oddtab th{font-weight:500;color:var(--ink-2);font-size:13px;text-align:center;padding:4px}
+.oddtab th:first-child,.oddtab td:first-child{text-align:left;white-space:nowrap;color:var(--ink-2);padding-right:10px}
+.oddtab td{text-align:center;font-family:var(--num);font-weight:600;padding:7px 4px;border-radius:4px}
+.oddtab tr.ext td{opacity:.75}
+.oddtab tr.sep td{padding:8px 0 2px;font-family:var(--sans);font-weight:400;font-size:12.5px;color:var(--ink-3);text-align:left}
+@media (max-width:1100px){
+  body:not([data-tab="map"]) .app{min-height:100%}
+  .view{overflow:visible}
+  .vgrid{grid-template-columns:1fr}
+  .hero .big{font-size:34px}
+  .week{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .tabs{order:3;width:100%;overflow-x:auto}
+}
 /* tour */
 .tourhole{position:fixed;z-index:50;border-radius:8px;box-shadow:0 0 0 9999px rgba(4,8,12,.72);outline:2px solid var(--sky);pointer-events:none;transition:all .25s ease}
 .tourcard{position:fixed;z-index:51;width:min(340px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--sky);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
@@ -285,6 +338,11 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 
   <header class="top">
     <div class="brand">Haze Twin<span>How bad Singapore's haze will be over the next 15 days, and why</span></div>
+    <nav class="tabs" aria-label="Views">
+      <button type="button" class="tab" data-tab="better">When will it get better?</button>
+      <button type="button" class="tab" data-tab="odds">The odds</button>
+      <button type="button" class="tab" data-tab="map">Map and details</button>
+    </nav>
     <div class="status" role="status" aria-live="polite">
       <span class="live" id="liveDot"><i></i><span id="statusText">Loading the latest forecast…</span></span>
       <span id="nextText"></span>
@@ -406,6 +464,55 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
       <details class="more"><summary>Show details</summary><div id="hood"></div></details>
     </section>
   </aside>
+
+  <main class="view" id="viewBetter" aria-labelledby="betterQ">
+    <div class="vwrap">
+      <section class="hero">
+        <p class="kicker" id="betterQ">When will the haze get better?</p>
+        <h1 class="big" id="betterA">Loading…</h1>
+        <p class="lede" id="betterSub"></p>
+      </section>
+      <div class="vgrid">
+        <section class="panel card">
+          <h2>Chance it is better by…</h2>
+          <p class="how">"Better" means the 24-hour PSI is back to 100 or below, at least for a day.</p>
+          <div class="chances" id="chDays"></div>
+          <h2 style="margin-top:8px">Chance the haze season is over by…</h2>
+          <p class="how">Over means steady monsoon rain has put the fires out.</p>
+          <div class="chances" id="chSeason"></div>
+        </section>
+        <div class="vcol">
+          <div id="askSlotBetter"></div>
+          <section class="panel card">
+            <h2>What would make it better sooner</h2>
+            <ul class="facts" id="sooner"></ul>
+          </section>
+        </div>
+      </div>
+      <section class="panel card">
+        <div class="head"><h2>Next 7 days</h2><span class="note">Best guess for the 24-hour PSI</span></div>
+        <div class="week" id="week"></div>
+      </section>
+      <p class="note vnote">Worked out from 100,000 simulated futures of the region's fires, smoke and winds, updated every 6 hours. <button type="button" class="linkbtn" data-goto="odds">See all the odds</button> or <button type="button" class="linkbtn" data-goto="map">see the map</button>.</p>
+    </div>
+  </main>
+
+  <main class="view" id="viewOdds" aria-labelledby="oddsTitle">
+    <div class="vwrap">
+      <section class="hero">
+        <h1 class="big" id="oddsTitle">The odds</h1>
+        <p class="lede">Chances worked out from 100,000 simulated futures. They change every 6 hours as new fires, weather forecasts and readings come in.</p>
+      </section>
+      <section>
+        <h2 class="sech">Big questions</h2>
+        <div class="markets" id="markets"></div>
+      </section>
+      <section class="panel card">
+        <div class="head"><h2>Day by day</h2><span class="note">Chance of each NEA band, 24-hour PSI</span></div>
+        <div class="oddtab-wrap"><table class="oddtab" id="oddtab"></table></div>
+      </section>
+    </div>
+  </main>
 </div>
 
 <dialog id="dlgRecord" aria-labelledby="recTitle">
@@ -969,7 +1076,7 @@ function renderHeader(){
   const n=nextUpdate();$('nextText').textContent=n?'Next update about '+clock(n):'';
   document.querySelectorAll('.nMembers').forEach(e=>e.textContent=FC.members);
 }
-function renderAll(){renderHeader();renderRegions();renderAnswer();renderDays();renderScenarios();renderSources();renderChanges();renderNews();renderSeason();renderHood();renderStrip();renderKey();renderShowing();renderRecord();markCurrent();}
+function renderAll(){renderBetter();renderOdds();renderHeader();renderRegions();renderAnswer();renderDays();renderScenarios();renderSources();renderChanges();renderNews();renderSeason();renderHood();renderStrip();renderKey();renderShowing();renderRecord();markCurrent();}
 
 /* ---------- record ---------- */
 function renderRecord(){
@@ -1048,6 +1155,7 @@ $('btnPlay').addEventListener('click',()=>{if(!FC)return;if(state.playing){stopP
 let tSec=0,last=performance.now();
 function render(now){
   const dt=clamp((now-last)/1000,0,0.05);last=now;tSec+=reduced?0:dt;
+  if(document.body.dataset.tab!=='map'){requestAnimationFrame(render);return;}
   if(FC){
     const F=curWind();
     if(state.playing){state.t=Math.min(state.playEnd,state.t+dt*0.3);syncT();if(state.t>=state.playEnd)stopPlay();}
@@ -1182,6 +1290,67 @@ renderAskSug();
 // premium code: open the site once with ?premium=CODE to save it on this device (?premium=off removes it)
 try{const pc=new URLSearchParams(location.search).get('premium');if(pc){if(pc==='off')localStorage.removeItem('hazePremium');else localStorage.setItem('hazePremium',pc);history.replaceState(null,'',location.pathname);}}catch(e){}
 
+
+/* ---------- simple views: when will it get better, and the odds ---------- */
+function fmtDate(iso){const d=sgt(new Date(iso));return DOW[d.getUTCDay()]+' '+d.getUTCDate()+' '+MON[d.getUTCMonth()];}
+const pctTxt=(v)=>v<1?'<1%':v>99?'>99%':Math.round(v)+'%';
+function chRow(label,v,ext,col){const r=document.createElement('div');r.className='chrow'+(ext?' ext':'');r.innerHTML='<span></span><span class="bar"><i></i></span><span class="pc"></span>';r.children[0].textContent=label;const i=r.querySelector('i');i.style.width=Math.max(0,Math.min(100,v))+'%';if(col)i.style.background=col;r.children[2].textContent=pctTxt(v);r.setAttribute('aria-label',label+': '+pctTxt(v));return r;}
+function renderBetter(){
+  const reg=R();const cb=reg.clearBy||[];const nC=coreDays().length;const now=Math.round(reg.now);const se=FC.season;
+  let ans,sub;
+  if(reg.mode!=='haze'){ans='It is already '+bandWord(now)+'.';sub='PSI is '+now+' now. '+$('lede').textContent;}
+  else{const i50=cb.findIndex(v=>v>=50);
+    if(i50>=0){ans='Most likely around '+fmtDate(FC.days[i50].iso)+'.';sub='That is the first day PSI is more likely than not to be back to 100 or below. Right now it is '+now+', '+bandWord(now)+'.'+(i50>=nC?' It is more than 6 days away, so treat the date as a rough guide.':'');}
+    else{ans=se?'Not in the next two weeks. Most likely around '+se.median+'.':'Not in the next two weeks.';
+      sub='PSI is '+now+' now, '+bandWord(now)+'. The forecast gives only a '+pctTxt(cb[cb.length-1]||0)+' chance it drops to 100 or below in the next 15 days.'+(se?' The haze usually clears for good when the monsoon rains put the fires out, most likely around '+se.median+' (80% chance between '+se.p10+' and '+se.p90+').':'');}}
+  $('betterA').textContent=ans;$('betterSub').textContent=sub;
+  const box=$('chDays');box.innerHTML='';
+  const picks=[...new Set([0,1,2,nC-1,Math.min(9,cb.length-1),cb.length-1])].filter(i=>i>=0&&i<cb.length).sort((a,b)=>a-b);
+  picks.forEach(i=>{const lab=i===0?'Tomorrow':fmtDate(FC.days[i].iso);box.appendChild(chRow(lab,cb[i],i>=nC,COL['--good']));});
+  const sb=$('chSeason');sb.innerHTML='';if(se)se.dates.forEach(d=>sb.appendChild(chRow(d.label,d.p,true,COL['--sD'])));
+  // what would make it better sooner
+  const ul=$('sooner');ul.innerHTML='';const add=(k,t)=>{const li=document.createElement('li');li.innerHTML='<span></span><span></span>';li.children[0].textContent=k;li.children[1].textContent=t;ul.appendChild(li);};
+  const rn=(INP.summary||{}).rain_mm_0_120h||{};
+  add('Rain','Days of steady rain over the fires. About '+Math.round(rn.Sumatra||0)+' mm is expected over Sumatra and '+Math.round(rn.Kalimantan||0)+' mm over Kalimantan in the next 5 days, which is '+((rn.Sumatra||0)+(rn.Kalimantan||0)>80?'enough to start helping.':'not enough to put peat fires out.'));
+  const src=(FC.sourceRegions||[]).slice(0,2).map(r=>r.name).join(' and ');
+  add('Wind','A change in wind direction away from '+(src||'the fires')+', which send most of the smoke our way right now.');
+  const c=cls().find(x=>x.id==='later'||x.id==='early');if(c&&c.watch&&c.n&&!/No single driver/.test(c.watch))add('In the futures that clear',c.watch);
+  // next 7 days
+  const wk=$('week');wk.innerHTML='';reg.days.slice(0,7).forEach((d,i)=>{const fd=FC.days[i];const el=document.createElement('div');el.className='wday';el.style.setProperty('--c',COL.b[bandOf(d.p50)]);
+    el.innerHTML='<span></span><b></b><small></small><i></i>';el.children[0].textContent=fd.dow+' '+fd.label.split(' ')[1];el.children[1].textContent=d.p50;el.children[2].textContent=BANDS[bandOf(d.p50)].name;el.setAttribute('aria-label',fd.label+': '+d.p50+', '+BANDS[bandOf(d.p50)].name);wk.appendChild(el);});
+}
+function renderOdds(){
+  const reg=R();const m=reg.markets||{};const cb=reg.clearBy||[];const nC=coreDays().length;const end=coreEndDow();const se=FC.season;
+  const list=[];const Q=(q,v,col,note)=>{if(v==null||isNaN(v))return;list.push({q,v,col,note});};
+  Q('Will PSI go above 300 (hazardous) in the next 6 days?',m.hazardous6,COL['--haz']);
+  Q('Will PSI go above 300 at any point in the next 15 days?',m.hazardous15,COL['--haz'],'Beyond 6 days the odds are rougher.');
+  Q('Will PSI go above 200 (very unhealthy) in the next 6 days?',m.above200_6,COL['--vunh']);
+  Q('Will PSI be back to 100 or below by '+end+'?',reg.clear,COL['--good']);
+  Q('Will PSI be back to 100 or below in the next 15 days?',m.below100_15,COL['--good']);
+  (m.weekends||[]).forEach((w,k)=>{const nm=(k===0?'this weekend':'next weekend')+' ('+w.label.replace(/^Sat /,'')+' '+MON[sgt(t0()).getUTCMonth()]+')';Q('Will '+nm+' be clear (100 or below both days)?',w.clear,COL['--good'],w.extended?'More than 6 days away.':null);Q('Will '+nm+' be bad (above 200 on either day)?',w.bad,COL['--vunh'],w.extended?'More than 6 days away.':null);});
+  if(se)se.dates.slice(0,3).forEach(d=>Q('Will the haze season be over by '+d.label+'?',d.p,COL['--sD'],'Experimental.'));
+  const box=$('markets');box.innerHTML='';
+  list.forEach(x=>{const el=document.createElement('div');el.className='mkt';el.style.setProperty('--c',x.col);
+    const oneIn=x.v>0.5&&x.v<50?'About 1 in '+Math.round(100/x.v):x.v>=50&&x.v<99.5?'About '+Math.round(x.v/10)+' in 10':'';
+    el.innerHTML='<div class="mq"></div><div class="mrow"><span class="mbar"><i></i></span><span class="mp"></span></div><div class="mn"></div>';
+    el.querySelector('.mq').textContent=x.q;el.querySelector('i').style.width=Math.min(100,x.v)+'%';el.querySelector('.mp').textContent=pctTxt(x.v);el.querySelector('.mn').textContent=[oneIn,x.note].filter(Boolean).join('. ');box.appendChild(el);});
+  // day by day table
+  const t=$('oddtab');let h='<thead><tr><th scope="col">Day</th>'+BANDS.map((b,k)=>'<th scope="col">'+b.name+'<br><span style="color:var(--ink-3);font-size:11.5px">'+['0–50','51–100','101–200','201–300','300+'][k]+'</span></th>').join('')+'</tr></thead><tbody>';
+  reg.days.forEach((d,i)=>{if(i===nC)h+='<tr class="sep"><td colspan="6">Less certain from here</td></tr>';
+    h+='<tr'+(i>=nC?' class="ext"':'')+'><td>'+esc(FC.days[i].label)+'</td>'+d.bands.map((v,k)=>{const a=Math.min(0.85,v/100*1.1);return '<td style="background:'+rgba(COL.b[k],a)+';color:'+(a>0.45?'#0B1218':'var(--ink-2)')+'">'+(v<0.5?'·':pctTxt(v))+'</td>';}).join('')+'</tr>';});
+  t.innerHTML=h+'</tbody>';
+}
+function setTab(tab){
+  if(!['better','odds','map'].includes(tab))tab='better';
+  document.body.dataset.tab=tab;document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-current',String(b.dataset.tab===tab)));
+  const ask=$('cardAsk');if(ask){if(tab==='better')$('askSlotBetter').appendChild(ask);else{const r=document.querySelector('.right');r.insertBefore(ask,r.firstChild);}}
+  try{history.replaceState(null,'',tab==='better'?location.pathname+location.search:'#'+tab);}catch(e){}
+  if(tab==='map'){requestAnimationFrame(()=>{layout();needWarm=true;let seen=false;try{seen=localStorage.getItem('hazeTourSeen')==='1';}catch(e){}if(!seen&&FC&&tourI<0)setTimeout(startTour,700);});}
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.goto)));
+
 /* ---------- guided tour ---------- */
 const TOUR=[
   ['cardNow','Start here','Today\'s PSI from NEA, and one sentence on what is most likely to happen next. The odds below it are the other ways it could go.'],
@@ -1195,7 +1364,7 @@ const TOUR=[
 ];
 let tourI=-1,tourHole=null,tourCard=null,tourLast=null;
 let tourScroll=[];
-function startTour(){tourLast=document.activeElement;tourI=0;tourScroll=[...document.querySelectorAll('.col')].map(c=>c.scrollTop).concat([window.scrollY]);if(!tourHole){tourHole=document.createElement('div');tourHole.className='tourhole';tourCard=document.createElement('div');tourCard.className='tourcard';tourCard.setAttribute('role','dialog');tourCard.setAttribute('aria-modal','true');tourCard.setAttribute('aria-labelledby','tourTitle');document.body.append(tourHole,tourCard);}
+function startTour(){if(document.body.dataset.tab!=='map')setTab('map');tourLast=document.activeElement;tourI=0;tourScroll=[...document.querySelectorAll('.col')].map(c=>c.scrollTop).concat([window.scrollY]);if(!tourHole){tourHole=document.createElement('div');tourHole.className='tourhole';tourCard=document.createElement('div');tourCard.className='tourcard';tourCard.setAttribute('role','dialog');tourCard.setAttribute('aria-modal','true');tourCard.setAttribute('aria-labelledby','tourTitle');document.body.append(tourHole,tourCard);}
   tourHole.hidden=tourCard.hidden=false;showTour();}
 function endTour(){tourI=-1;document.querySelectorAll('.col').forEach((c,i)=>{c.scrollTop=tourScroll[i]||0;});window.scrollTo(0,tourScroll[tourScroll.length-1]||0);if(tourHole){tourHole.hidden=tourCard.hidden=true;}try{localStorage.setItem('hazeTourSeen','1');}catch(e){}if(tourLast&&tourLast.focus)tourLast.focus();}
 function showTour(){
@@ -1226,11 +1395,12 @@ async function boot(){
     try{REC=await getJSON('data/record.json');}catch(e){REC=null;}
     RINGS=COAST.map(enc=>{const pts=[];let x=0,y=0;for(let i=0;i<enc.length;i+=2){x+=enc[i];y+=enc[i+1];pts.push([x/100,y/100]);}return pts;});
     buildHot();buildWinds();buildThreads();renderAll();layout();initWind();syncT();
-    let seen=false;try{seen=localStorage.getItem('hazeTourSeen')==='1';}catch(e){}if(!seen)setTimeout(startTour,900);
+    let seen=false;try{seen=localStorage.getItem('hazeTourSeen')==='1';}catch(e){}if(!seen&&document.body.dataset.tab==='map')setTimeout(startTour,900);
   }catch(e){showError('The latest forecast could not be loaded ('+e.message+'). Reload the page to try again.');$('statusText').textContent='No forecast loaded';$('headline').textContent='The latest forecast could not be loaded.';}
 }
 let rz=0;window.addEventListener('resize',()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{layout();renderDays();});});
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(FC){drawStatic();drawFan();}});
+setTab((location.hash||'').replace('#','')||'better');
 boot();
 })();
 </script>
