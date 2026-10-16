@@ -47,7 +47,7 @@ def _decode(path, want):
                 sn = eccodes.codes_get(gid, "shortName")
                 if sn not in want:
                     continue
-                num = eccodes.codes_get(gid, "number") if eccodes.codes_get(gid, "dataType") == "pf" else 0
+                num = eccodes.codes_get(gid, "number") - 1
                 step = eccodes.codes_get(gid, "endStep")
                 ni, nj = eccodes.codes_get(gid, "Ni"), eccodes.codes_get(gid, "Nj")
                 la1 = eccodes.codes_get(gid, "latitudeOfFirstGridPointInDegrees")
@@ -65,7 +65,7 @@ def fetch(log=print):
     from ecmwf.opendata import Client
     client = None
     run = None
-    for src in ("aws", "ecmwf"):
+    for src in ("ecmwf", "azure", "aws"):
         try:
             c = Client(source=src, model="ifs", resol="0p25", maximum_retries=3, retry_after=15)
             run = c.latest(type="pf", stream="enfo", step=240, param="tp")
@@ -84,7 +84,7 @@ def fetch(log=print):
         return {"run": run, "steps": list(z["steps"]), "lats": z["lats"], "lons": z["lons"], "U": z["U"], "V": z["V"], "R": z["R"]}
     log(f"  ECMWF ENS {run:%Y-%m-%d %H}Z: downloading u/v 850 hPa and rain, 51 members, {len(STEPS)} steps")
     pl, sfc = DIR / "pl.grib2", DIR / "sfc.grib2"
-    base = dict(date=run.strftime("%Y%m%d"), time=run.hour, stream="enfo", type=["cf", "pf"], step=STEPS)
+    base = dict(date=run.strftime("%Y%m%d"), time=run.hour, stream="enfo", type="pf", step=STEPS)
     client.retrieve(**base, levtype="pl", levelist=[850], param=["u", "v"], target=str(pl))
     client.retrieve(**base, levtype="sfc", param=["tp"], target=str(sfc))
     uv, lats, lons = _decode(pl, {"u", "v"})
@@ -94,7 +94,7 @@ def fetch(log=print):
             os.remove(p)
         except OSError:
             pass
-    M, T = 51, len(STEPS)
+    M, T = 50, len(STEPS)
     ny, nx = len(lats), len(lons)
     U = np.full((M, T, ny, nx), np.nan, np.float32)
     V = np.full_like(U, np.nan)
