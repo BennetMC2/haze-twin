@@ -28,6 +28,7 @@
     const buf = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
     if (obj.dtype === 'float32') return new Float32Array(buf);
     if (obj.dtype === 'int8') return new Int8Array(buf);
+    if (obj.dtype === 'uint16log') { const q = new Uint16Array(buf); const out = new Float32Array(q.length); const L = Math.log1p(obj.smax / obj.s0); for (let i = 0; i < q.length; i++) out[i] = q[i] ? obj.s0 * Math.expm1(q[i] / 65535 * L) : 0; return out; }
     throw new Error('unknown dtype ' + obj.dtype);
   }
   const quantile = (sorted, p) => sorted[Math.min(sorted.length - 1, Math.max(0, Math.round(p * (sorted.length - 1))))];
@@ -41,6 +42,13 @@
       if (pm <= BP[i][0]) { const c0 = BP[i - 1][0], c1 = BP[i][0], s0 = BP[i - 1][1], s1 = BP[i][1]; return s0 + (pm - c0) * (s1 - s0) / (c1 - c0); }
     }
     return 500 + (pm - 500) * 0.5;
+  }
+  function pmOfPsi(psi) {
+    if (!(psi > 0)) return 0;
+    for (let i = 1; i < BP.length; i++) {
+      if (psi <= BP[i][1]) { const c0 = BP[i - 1][0], c1 = BP[i][0], s0 = BP[i - 1][1], s1 = BP[i][1]; return c0 + (psi - s0) * (c1 - c0) / (s1 - s0); }
+    }
+    return 500 + (psi - 500) * 2;
   }
   const BANDS = [{ max: 50, name: 'Good' }, { max: 100, name: 'Moderate' }, { max: 200, name: 'Unhealthy' }, { max: 300, name: 'Very unhealthy' }, { max: Infinity, name: 'Hazardous' }];
   function bandOf(v) { const x = Math.round(v); for (let i = 0; i < BANDS.length; i++) if (x <= BANDS[i].max) return i; return 4; }
@@ -69,7 +77,7 @@
     for (let m = 0; m < M; m++) for (let r = 0; r < R; r++) {
       let acc = 0, k = 0;
       const cumAt = [];
-      for (let t = 0; t < rT; t++) { const th = inputs.rain.t_h[t]; if (th > 0) acc += rain[(m * rT + t) * R + r]; cumAt.push([th, acc]); }
+      for (let t = 0; t < rT; t++) { const th = inputs.rain.t_h[t]; if (th > 0) acc += Math.max(0, rain[(m * rT + t) * R + r] - 1.5); cumAt.push([th, acc]); }
       for (let b = 0; b < B; b++) {
         const h = binMid[b]; if (h <= 0) { cum[(m * R + r) * B + b] = 0; continue; }
         let v = 0; for (k = 0; k < cumAt.length; k++) { if (cumAt[k][0] <= h) v = cumAt[k][1]; else break; }
@@ -110,7 +118,15 @@
     const trans = new Float64Array(M);
     for (let m = 0; m < M; m++) { let v = 0; for (const d of days.slice(1, 4)) { const off = (m * A + d.ai) * R * B; for (let k = 0; k < R * B; k++) v += S[off + k]; } trans[m] = v; }
     const tmean = trans.reduce((a, b) => a + b, 0) / M || 1; for (let m = 0; m < M; m++) trans[m] /= tmean;
-    return { inputs, M, A, R, B, S, cum, isl, islands, ratio, binMid, arrIdx, futA, days, obs, nat, regRatio, K0, anchored, t0, trans, win24 };
+    // regional fire weights (share of fire power) for the slow regional smoke reservoir
+    const fw = inputs.regions.map(r => r.frp0 || 0); const fwt = fw.reduce((a, b) => a + b, 0) || 1; for (let q = 0; q < R; q++) fw[q] /= fwt;
+    // emission bins inside the 72 hours before each arrival
+    const win72 = inputs.arrivals_h.map(a => { const w = []; binMid.forEach((h, b) => { if (h <= a && h > a - 72) w.push(b); }); return w.length ? w : [binMid.findIndex(h => h > a - 12) >= 0 ? binMid.findIndex(h => h > a - 12) : B - 1]; });
+    const nowBin = binMid.findIndex(h => h > -24 && h < 0);
+    // past-season analogs from NEA history and the news signal
+    const analogs = inputs.analogs && inputs.analogs.paths && inputs.analogs.paths.length ? inputs.analogs : null;
+    const growthShift = (inputs.signals && typeof inputs.signals.growthShift === 'number') ? inputs.signals.growthShift : 0;
+    return { inputs, M, A, R, B, S, cum, isl, islands, ratio, binMid, arrIdx, futA, days, obs, nat, regRatio, K0, anchored, t0, trans, win24, fw, win72, nowBin, analogs, growthShift };
   }
 
   /* ---------- Monte Carlo ---------- */
@@ -118,7 +134,7 @@
     opts = opts || {};
     const N = opts.n || 100000;
     const r = rng(opts.seed || 1);
-    const { M, A, R, B, S, cum, isl, ratio, binMid, arrIdx, obs } = model;
+    const { M, A, R, B, S, cum, isl, ratio, binMid, arrIdx, obs, fw } = model;
     const arr = model.inputs.arrivals_h;
     const C = new Float32Array(N * A);            // PM2.5 at each arrival (µg/m³)
     const memb = new Uint16Array(N);
@@ -138,8 +154,9 @@
       const K = model.K0 * Math.exp(gauss(r) * 0.6);
       const ef = [Math.exp(gauss(r) * 0.35), Math.exp(gauss(r) * 0.35), Math.exp(gauss(r) * 0.35)];
       const thalf = Math.exp(Math.log(4) + r() * Math.log(10));   // days for fire activity to halve without rain: 4-40 (peat fires persist until rain)
-      const rs = 0.03 + r() * 0.09;           // fraction of fire put out per mm of rain
-      const grow = gauss(r) * 0.06;           // new fires, per day
+      const rs = 0.02 + r() * 0.06;           // fraction of fire put out per mm of rain above ~6 mm/day
+      const grow = model.growthShift + gauss(r) * 0.04;   // new fires, per day (news signal shifts the middle)
+      const rho = 0.15 + r() * 0.3;           // share of today's smoke that is regional haze, not tied to today's winds
       const bg = Math.max(5, 18 + gauss(r) * 5);
       pThalf[s] = thalf; pRain[s] = rs;
       for (let q = 0; q < R; q++) {
@@ -153,11 +170,16 @@
           E[q * B + b] = x * e;
         }
       }
+      // regional activity per emission bin, relative to the last 24 h
+      let actNow = 0; for (let q = 0; q < R; q++) actNow += fw[q] * E[q * B + model.nowBin]; actNow = actNow || 1;
+      const actBin = new Float64Array(B); for (let b = 0; b < B; b++) { let v = 0; for (let q = 0; q < R; q++) v += fw[q] * E[q * B + b]; actBin[b] = v / actNow; }
+      const D0 = model.nat ? Math.max(0, model.nat - 18) : 0;
       const base = m * A * R * B;
       for (let a = 0; a < A; a++) {
         let sum = 0; const off = base + a * R * B;
         for (let k = 0; k < R * B; k++) sum += S[off + k] * E[k];
-        C[s * A + a] = bg + K * sum;
+        let act = 0; const wb = model.win72[a]; for (const b of wb) act += actBin[b]; act /= wb.length;
+        C[s * A + a] = bg + (1 - rho) * K * sum + rho * D0 * act;
       }
       // island shares (days 1-3)
       let s0 = 0, s1 = 0, s2 = 0;
@@ -188,8 +210,31 @@
       const j = idx[s];
       for (let f = 0; f < F; f++) { const w = model.win24[futA[f]]; let v = 0; for (const k of w) v += C[j * A + k]; pm24[s * F + f] = v / w.length; }
     }
+    // blend with how past haze seasons evolved, more at longer leads (twin dominates the first days)
+    let blend = null;
+    if (model.analogs && model.nat) {
+      const an = model.analogs; const cw = []; let ct = 0; for (const w of an.w) { ct += w; cw.push(ct); }
+      const psiNow = psiOf(model.nat);
+      const lam = new Float32Array(F);
+      for (let s = 0; s < N; s++) {
+        const u = r() * ct; let k = 0; while (k < cw.length - 1 && cw[k] < u) k++;
+        const path = an.paths[k]; const us = r();
+        for (let f = 0; f < F; f++) {
+          const L = model.inputs.arrivals_h[futA[f]] / 24; if (L <= 0) continue;
+          const w = L / (L + 6);
+          const l = Math.min(1, Math.max(0, (w - us) / 0.15 + 0.5));
+          if (l <= 0) continue;
+          const i = Math.min(path.length - 1, Math.floor(L)); const fr = Math.min(1, L - Math.floor(L));
+          const r0 = i === 0 ? 1 + (path[0] - 1) * L : path[i - 1] + (path[Math.min(path.length - 1, i)] - path[i - 1]) * fr;
+          const pmA = pmOfPsi(psiNow * r0);
+          pm24[s * F + f] = (1 - l) * pm24[s * F + f] + l * pmA;
+          if (s < 4000) lam[f] += l / 4000;
+        }
+      }
+      blend = { analogDays: an.paths.length, years: an.years, weight: Array.from(lam, x => Math.round(x * 100) / 100) };
+    }
     if (report) report(0.9);
-    return { N, F, pm24, idx, memb, share, pThalf, pRain, ess, model };
+    return { N, F, pm24, idx, memb, share, pThalf, pRain, ess, model, blend };
   }
 
   /* ---------- classes (outcome storylines) ---------- */
@@ -222,7 +267,7 @@
     const psiNowObs = (model.obs.psi_now || {});
     const out = { issued: model.inputs.t0, built: new Date().toISOString(), n: N, members: model.M, ess: Math.round(sim.ess),
       anchored: model.anchored, sample: !!model.inputs.sample, days: days.map(d => ({ label: d.label, dow: d.dow, iso: d.iso, h: d.h, tier: d.tier })),
-      arrivals_h: model.futA.map(ai => model.inputs.arrivals_h[ai]), regions: {} };
+      arrivals_h: model.futA.map(ai => model.inputs.arrivals_h[ai]), regions: {}, blend: sim.blend, signals: model.inputs.signals || null };
     const sampleIdx = []; { const r = rng(99); for (let k = 0; k < 240; k++) sampleIdx.push(Math.floor(r() * N)); }
     out.samples = sampleIdx.map(s => Array.from(sim.pm24.subarray(s * F, s * F + F), v => Math.round(v * 10) / 10));
     out.sampleMember = sampleIdx.map(s => sim.memb[sim.idx[s]]);
@@ -353,6 +398,8 @@
       return { name, w: w.map(x => x / tot) };
     });
     const lastH = tH[T - 1], horizonH = lastH - 120;
+    const dry = inp.dryness || {}; const di = ['Kalimantan', 'Sumatra'].map(k => (dry[k] && typeof dry[k].index === 'number') ? dry[k].index : 0.5);
+    const lagMean = 4 + 6 * (di[0] + di[1]) / 2;   // drier peat keeps smouldering longer after the rains start
     const onset = groups.map(g => {
       const out = new Float64Array(M).fill(NaN);
       for (let m = 0; m < M; m++) {
@@ -386,7 +433,7 @@
         ons[k][s] = o; e = Math.max(e, o);
       });
       if (allSeen) seen++;
-      ends[s] = e + Math.max(1, 6 + gauss(r) * 3) * 24;
+      ends[s] = e + Math.max(1, lagMean + gauss(r) * 3) * 24;
     }
     const sorted = Float64Array.from(ends).sort();
     const toDate = (h) => new Date(model.t0.getTime() + h * 3600e3);
@@ -404,6 +451,7 @@
       dates, median: label(toDate(quantile(sorted, 0.5))), p10: label(toDate(quantile(sorted, 0.1))), p90: label(toDate(quantile(sorted, 0.9))),
       onset: { Kalimantan: medOn[0], Sumatra: medOn[1] }, seenInForecast: Math.round(seen / N * 100),
       climate: { roni: clim.roni, roniPeriod: clim.roni_period, dmi: clim.dmi, dmiPeriod: clim.dmi_period, shiftDays: Math.round(shiftDays) },
+      lagDays: Math.round(lagMean), dryness: dry,
       horizonDays: Math.round(horizonH / 24)
     };
   }

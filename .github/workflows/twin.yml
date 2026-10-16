@@ -40,9 +40,18 @@ jobs:
       - name: Install
         run: pip install -r pipeline/requirements.txt
 
+      - name: Restore cached ECMWF download
+        uses: actions/cache@v4
+        with:
+          path: .work/ecmwf
+          key: ecmwf-${{ github.run_id }}
+          restore-keys: ecmwf-
+
       - name: Fetch data and back-trace from Singapore
         env:
           FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
+          OPENAQ_API_KEY: ${{ secrets.OPENAQ_API_KEY }}
+          ECMWF_ENS: "1"
           DATAGOVSG_API_KEY: ${{ secrets.DATAGOVSG_API_KEY }}
         run: |
           if [ "${{ github.event.inputs.sample }}" = "true" ]; then

@@ -253,6 +253,13 @@ dialog::backdrop{background:rgba(2,4,6,.72)}
 .news span{font-family:var(--mono);font-size:10.5px;color:var(--ink-3)}
 .lg.cams{border-top:2px dotted var(--fire)}
 .key-air{width:9px;height:9px;transform:rotate(45deg);border:1.5px solid var(--ink-2);display:inline-block}
+
+.sigs{display:flex;flex-wrap:wrap;gap:6px}
+.sig{font-family:var(--mono);font-size:11px;padding:2px 7px;border:1px solid var(--edge-hi);border-radius:2px;color:var(--ink-2)}
+.sig.up{border-color:var(--vunh);color:var(--ink)}
+.sig.down{border-color:var(--sD);color:var(--ink)}
+.tagline{font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+.key-st{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--ink);display:inline-block}
 </style>
 </head>
 <body>
@@ -304,6 +311,7 @@ dialog::backdrop{background:rgba(2,4,6,.72)}
       <span><i class="key-dot"></i>Fire hotspot, last 24 h</span>
       <span><i class="key-line" style="background:#8EA2AE;height:1px"></i>Wind</span>
       <span><i class="key-air"></i>Airport visibility</span>
+      <span><i class="key-st"></i>PM2.5 station</span>
     </div>
     <div class="maphud br mono" id="readout">Point at the map</div>
     <div class="runbox" id="runbox" hidden>Running futures <span id="runCount">0</span> / 100,000<small id="runSub">on your device, with the latest NEA reading</small></div>
@@ -315,6 +323,7 @@ dialog::backdrop{background:rgba(2,4,6,.72)}
       <div class="row between"><h2>Futures</h2><span class="prov">24-hr PSI · <span id="fanRegion"></span></span></div>
       <canvas id="fan" role="img" aria-label="Chart of simulated 24-hour PSI futures"></canvas>
       <div class="fanlegend"><span><i class="lg meas"></i>Measured</span><span><i class="lg"></i>Middle (P50)</span><span><i class="lg dash"></i>90% range</span><span><i class="lg cams"></i>CAMS model</span><span>Thin lines: one future each</span></div>
+      <p class="hint" id="blendNote"></p>
     </div>
     <div class="sect" id="whyCard">
       <div class="row between"><h2>Why the odds moved</h2><span class="prov" id="whyLabel"></span></div>
@@ -340,6 +349,8 @@ dialog::backdrop{background:rgba(2,4,6,.72)}
     </div>
     <div class="sect" id="newsCard">
       <div class="row between"><h2>In the news</h2><span class="prov">Last 3 days · GDELT</span></div>
+      <p class="answer2" id="sigLine"></p>
+      <div class="sigs" id="sigChips"></div>
       <ul class="news" id="newsList"></ul>
     </div>
   </aside>
@@ -372,6 +383,9 @@ dialog::backdrop{background:rgba(2,4,6,.72)}
       <li>For each weather forecast it releases particles at Singapore and traces them back up to four days, through that forecast's winds and rain. Where the air passed over fires, it picks up smoke.</li>
       <li>On top of each forecast it samples what is uncertain: how much smoke the fires give off, how long they keep burning, how much rain puts them out, new fires, and background pollution. 100,000 futures in all.</li>
       <li>Futures are weighted by how well they match what NEA measured over the last day, so the twin starts from the real air.</li>
+      <li>Peat fires only dim under steady rain (more than about 6 mm a day), and part of the haze is regional smoke that lingers whatever the wind does.</li>
+      <li>The further ahead, the more the futures lean on how similar days in past seasons (2015, 2019, 2023 and this year) actually played out, using NEA's PSI history since 2014.</li>
+      <li>News reports from the last three days are sorted into signals (fires spreading, emergencies, firefighting, rain, easing). The balance nudges fire growth in the futures by at most 2% a day, and the page shows by how much.</li>
       <li>Futures are grouped into storylines by outcome. The odds are the share of futures in each. Rerun repeats the sampling on your device with NEA's latest reading.</li>
       <li>Every forecast is kept as issued. Two days later it is scored against what NEA measured, misses included.</li>
     </ol>
@@ -382,8 +396,8 @@ dialog::backdrop{background:rgba(2,4,6,.72)}
       <li><b>Season outlook:</b> when rain sets in over the Kalimantan and Sumatra fire areas. Taken from the weather forecasts where they reach it; beyond that, from normal onset dates shifted later by El Niño and a positive Indian Ocean Dipole. Experimental.</li>
     </ul>
     <div class="srcs">
-      <div><h3>Measured</h3><ul><li>NEA 24-hr PSI, 24-hr and 1-hr PM2.5 (data.gov.sg)</li><li>NASA FIRMS hotspots, VIIRS on NOAA-20 and NOAA-21</li><li>Airport visibility near the fires (METAR)</li><li>Satellite true-colour imagery (NASA GIBS, NOAA-20)</li><li>El Niño (NOAA RONI) and Indian Ocean Dipole (NOAA DMI)</li></ul></div>
-      <div><h3>Simulated</h3><ul><li>Winds and rain from <span class="nMembers">31</span> NOAA GEFS forecasts, 16 days</li><li>Back-traced air paths to Singapore</li><li>Fire smoke, storylines and odds</li><li>CAMS smoke model, shown for comparison</li></ul></div>
+      <div><h3>Measured</h3><ul><li>NEA 24-hr PSI, 24-hr and 1-hr PM2.5 (data.gov.sg)</li><li>NASA FIRMS hotspots, VIIRS on NOAA-20 and NOAA-21</li><li>Airport visibility near the fires (METAR)</li><li>Regional PM2.5 stations (OpenAQ)</li><li>Recent rain over the fire areas (Open-Meteo)</li><li>NEA PSI history since 2014 (data.gov.sg)</li><li>Satellite true-colour imagery (NASA GIBS, NOAA-20)</li><li>El Niño (NOAA RONI) and Indian Ocean Dipole (NOAA DMI)</li></ul></div>
+      <div><h3>Simulated</h3><ul><li>Winds and rain from <span class="nMembers">31</span> weather forecasts: NOAA GEFS to 16 days and ECMWF IFS to 10 days when available</li><li>Back-traced air paths to Singapore</li><li>Fire smoke, storylines and odds</li><li>CAMS smoke model, shown for comparison</li></ul></div>
     </div>
     <p>News headlines come from GDELT and link to the original reports.</p>
     <p>Limits: smoke amounts are scaled to match NEA, not measured at the fires. The PSI conversion uses NEA's PM2.5 breakpoints. This is an independent public-good project; for health advice, follow NEA.</p>
@@ -413,7 +427,7 @@ function readColors(){['--void','--grid','--ink','--ink-2','--ink-3','--cyan','-
 readColors();
 
 /* ---------- state ---------- */
-const state={region:'national',sel:null,t:0,playing:false,running:false,runFrac:1,layers:{futures:true,smoke:true,wind:true,hot:true,air:true,sat:true},official:null,rerunAt:null};
+const state={region:'national',sel:null,t:0,playing:false,running:false,runFrac:1,layers:{futures:true,smoke:true,wind:true,hot:true,air:true,st:true,sat:true},official:null,rerunAt:null};
 let INP=null,FC=null,REC=null,COAST=null;
 const fmtSGT=(d,withDay)=>{const s=new Date(d.getTime()+8*3600e3);const hh=String(s.getUTCHours()).padStart(2,'0')+':'+String(s.getUTCMinutes()).padStart(2,'0');return withDay?['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][s.getUTCDay()]+' '+s.getUTCDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][s.getUTCMonth()]+' '+hh:hh;};
 const t0=()=>new Date(INP.t0);
@@ -743,10 +757,21 @@ function renderSeason(){
     'Beyond the forecasts, onset is taken from normal dates and pushed about '+cl.shiftDays+' days later by El Niño (RONI '+f(cl.roni)+', '+(cl.roniPeriod||'')+') and the Indian Ocean Dipole (DMI '+f(cl.dmi)+', '+(cl.dmiPeriod||'')+').'];
   ps.forEach(t=>{const p=document.createElement('p');p.textContent=t;$('seasonMore').appendChild(p);});
 }
+function renderBlend(){
+  const b=FC.blend;const el=$('blendNote');if(!b){el.textContent='';return;}
+  const at=(d)=>{const i=FC.arrivals_h.findIndex(h=>h>=d*24);return i<0?b.weight[b.weight.length-1]:b.weight[i];};
+  el.textContent='Further out, futures lean on how '+b.analogDays+' similar days in past seasons ('+b.years.join(', ')+') played out: about '+Math.round(at(3)*100)+'% by day 3, '+Math.round(at(6)*100)+'% by day 6, '+Math.round(at(14)*100)+'% by day 14.';
+}
 function renderNews(){
   const list=$('newsList');list.innerHTML='';const items=(INP.extras&&INP.extras.news)||[];$('newsCard').hidden=!items.length;
+  const sg=INP.signals;const chips=$('sigChips');chips.innerHTML='';
+  if(sg){const lab={spreading:'Fires spreading',emergency:'Emergency',suppression:'Firefighting',rain:'Rain',improving:'Easing'};
+    Object.keys(lab).forEach(k=>{const e=document.createElement('span');e.className='sig '+((k==='spreading'||k==='emergency')?(sg.counts[k]?'up':''):(sg.counts[k]?'down':''));e.textContent=lab[k]+' '+(sg.counts[k]||0);chips.appendChild(e);});
+    const pct=Math.round(sg.growthShift*1000)/10;
+    $('sigLine').textContent=(sg.pressure>0.15?'News leans worse':sg.pressure<-0.15?'News leans better':'News is mixed')+' ('+sg.articles+' reports). '+(pct?'Fire growth in the futures shifted '+(pct>0?'+':'')+pct+'% a day.':'No change to the futures.');}
+  else{$('sigLine').textContent='';}
   items.slice(0,6).forEach(n=>{const li=document.createElement('li');const a=document.createElement(n.url?'a':'span');a.textContent=n.title;if(n.url){a.href=n.url;a.target='_blank';a.rel='noopener';}
-    const m=document.createElement('span');m.textContent=(n.domain||'')+(n.time?' · '+fmtSGT(new Date(n.time),true):'');li.append(a,m);list.appendChild(li);});
+    const m=document.createElement('span');const tg=n.tags&&n.tags.signals&&n.tags.signals.length?' · '+n.tags.signals.join(', '):'';m.textContent=(n.domain||'')+(n.time?' · '+fmtSGT(new Date(n.time),true):'')+tg;li.append(a,m);list.appendChild(li);});
 }
 function dayIndexAt(t){let best=-1,bd=0.3;FC.days.forEach((d,i)=>{const dd=Math.abs(d.h/24-t);if(dd<bd){bd=dd;best=i;}});return best;}
 function renderMarkers(){
@@ -793,7 +818,7 @@ function syncT(){
 }
 function renderLayers(){
   const box=$('layers');box.innerHTML='';
-  [['futures','Air paths'],['smoke','Smoke'],['wind','Wind'],['hot','Hotspots'],['air','Airports'],['sat','Satellite']].forEach(l=>{const b=document.createElement('button');b.type='button';b.className='layer';b.id='layer-'+l[0];b.textContent=l[1];b.setAttribute('aria-pressed',String(state.layers[l[0]]));
+  [['futures','Air paths'],['smoke','Smoke'],['wind','Wind'],['hot','Hotspots'],['air','Airports'],['st','Stations'],['sat','Satellite']].forEach(l=>{const b=document.createElement('button');b.type='button';b.className='layer';b.id='layer-'+l[0];b.textContent=l[1];b.setAttribute('aria-pressed',String(state.layers[l[0]]));
     b.addEventListener('click',()=>{state.layers[l[0]]=!state.layers[l[0]];b.setAttribute('aria-pressed',String(state.layers[l[0]]));if(l[0]==='wind')initWind();});box.appendChild(b);});
 }
 function renderHeader(){
@@ -802,7 +827,7 @@ function renderHeader(){
   const chip=$('dataChip');chip.textContent=INP.sample?'Sample data':'Live data';chip.classList.toggle('live',!INP.sample);
   document.querySelectorAll('.nMembers').forEach(e=>e.textContent=FC.members);
 }
-function renderAll(){renderHeader();renderRegions();renderAnswer();renderStories();renderWhy();renderDays();renderCby();renderSeason();renderNews();renderExt();renderMarkers();renderTicks();renderTicker();renderShowing();renderRecord();}
+function renderAll(){renderHeader();renderRegions();renderAnswer();renderStories();renderWhy();renderDays();renderCby();renderSeason();renderNews();renderBlend();renderExt();renderMarkers();renderTicks();renderTicker();renderShowing();renderRecord();}
 
 /* ---------- record ---------- */
 function renderRecord(){
@@ -907,6 +932,9 @@ function render(now){
       for(const h of HOT){const s=P(h.lon,h.lat);const pulse=1+0.18*Math.sin(tSec*3+h.ph);const fresh=1-h.age/30;const r=(0.08+0.06*h.frp)*V.k*Math.sqrt(k)*pulse;c.globalAlpha=clamp((0.3+0.7*k)*(0.5+0.5*fresh),0.1,1);c.drawImage(fireSprite,s[0]-r,s[1]-r,r*2,r*2);}
       c.globalAlpha=1;c.globalCompositeOperation='source-over';
     }
+  }
+  if(FC&&state.layers.st&&INP.extras&&INP.extras.stations){
+    for(const st of INP.extras.stations){const p=P(st.lon,st.lat);const v=st.pm25;const k=v<=55?1:v<=150?2:v<=250?3:4;c.fillStyle=COL.b[k];c.strokeStyle='rgba(5,8,12,0.9)';c.lineWidth=1.5;c.beginPath();c.arc(p[0],p[1],3.5,0,Math.PI*2);c.fill();c.stroke();}
   }
   if(FC&&state.layers.air&&INP.extras&&INP.extras.airports){
     c.font='500 10px '+tok('--mono');c.textAlign='left';

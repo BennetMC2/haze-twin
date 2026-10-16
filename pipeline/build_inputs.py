@@ -29,6 +29,16 @@ def b64(arr, dtype):
     return {"dtype": np.dtype(dtype).name, "shape": list(a.shape), "b64": base64.b64encode(a.tobytes()).decode()}
 
 
+def quant_log16(S):
+    """Store sensitivities as log-scaled uint16 (about 4 significant digits, half the size)."""
+    smax = float(S.max()) if S.size else 1.0
+    s0 = max(smax * 1e-6, 1e-9)
+    q = np.round(np.log1p(np.maximum(S, 0) / s0) / np.log1p(smax / s0) * 65535).astype(np.uint16)
+    out = b64(q, np.uint16)
+    out.update({"dtype": "uint16log", "s0": s0, "smax": smax})
+    return out
+
+
 def round_hour(t):
     return t.replace(minute=0, second=0, microsecond=0)
 
@@ -88,7 +98,7 @@ def wind_display(weather):
     lons, lats = weather["lons"], weather["lats"]
     step = max(1, int(round(WIND_DISPLAY_DEG / (lons[1] - lons[0]))))
     t = weather["times"]
-    keep = [i for i, h in enumerate(t) if h >= -24 and (h <= 144 or (i % 2 == 0))]
+    keep = [i for i, h in enumerate(t) if h >= -24 and i % 2 == 0]
     sel = np.array(keep)
     u = weather["u"][:, sel][:, :, ::step, ::step]
     v = weather["v"][:, sel][:, :, ::step, ::step]
@@ -152,6 +162,16 @@ def main():
         g = fetch_gefs.fetch(log=log)
         cycle = g["cycle"]
         weather = fetch_gefs.to_weather(g, t0)
+        if __import__("os").environ.get("ECMWF_ENS", "1") != "0":
+            try:
+                import fetch_ecmwf
+                ens = fetch_ecmwf.fetch(log=log)
+                weather = fetch_ecmwf.merge(weather, ens, t0, log=log)
+                sources.append({"name": "ECMWF IFS ensemble", "status": "ok", "detail": f"51 forecasts, run {ens['run']:%Y-%m-%d %H}Z, to +240 h",
+                                "time": ens["run"].isoformat()})
+            except Exception as e:
+                log(f"  ECMWF failed: {e}")
+                sources.append({"name": "ECMWF IFS ensemble", "status": "failed", "detail": str(e)[:160]})
         sources.append({"name": "NOAA GEFS ensemble", "status": "ok" if not g["errors"] else "partial",
                         "detail": f"{g['files']}/{g['requested']} files, cycle {cycle:%Y-%m-%d %H}Z",
                         "time": cycle.isoformat()})
@@ -168,6 +188,27 @@ def main():
             from fetch_climate import SEED
             climate = dict(SEED)
             sources.append({"name": "El Niño and Indian Ocean Dipole", "status": "failed", "detail": str(e)[:160]})
+    import fetch_history
+    psi_rows = nea["psi_hist"]
+    psi_now = psi_rows[-1].get("national") if psi_rows else None
+    psi_2d = None
+    for row in psi_rows:
+        if abs((datetime.fromisoformat(row["t"]) - (t0 - timedelta(hours=48))).total_seconds()) < 1800:
+            psi_2d = row.get("national")
+    if args.sample:
+        analogs = fetch_history.sample_analogs()
+    else:
+        log("NEA history and past-season analogs")
+        try:
+            daily = fetch_history.load(log=log)
+            analogs = fetch_history.analogs(daily, psi_now, psi_2d, t0.astimezone(fetch_history.SGT).date())
+            sources.append({"name": "NEA PSI history (analogs)", "status": "ok" if analogs else "partial",
+                            "detail": (f"{len(analogs['paths'])} similar past days from {', '.join(map(str, analogs['years']))}" if analogs else "no similar past days"),
+                            "time": datetime.now(timezone.utc).isoformat()})
+        except Exception as e:
+            log(f"  history failed: {e}")
+            analogs = None
+            sources.append({"name": "NEA PSI history (analogs)", "status": "failed", "detail": str(e)[:160]})
     import fetch_extras
     if args.sample:
         extras = fetch_extras.sample(t0)
@@ -204,7 +245,7 @@ def main():
         "arrivals_h": ARRIVALS_H,
         "emis_bins_h": EMIS_BINS_H,
         "regions": [{**r, "frp0": frp0[i], "frp1": frp1[i], "n0": n0[i]} for i, r in enumerate(REGIONS)],
-        "S": b64(S, np.float32),
+        "S": quant_log16(S),
         "rain": {"t_h": [float(x) for x in rain_t], "data": b64(rain_reg, np.float32)},
         "obs": obs_block(nea, t0),
         "hotspots": hot,
@@ -213,7 +254,10 @@ def main():
                   "members": [[[[round(x, 2), round(y, 2)] for x, y in p] for p in mem] for mem in paths]},
         "summary": summary(S, cells, rain_reg, rain_t, weather),
         "climate": {k: climate.get(k) for k in ("roni", "roni_period", "dmi", "dmi_period", "source")},
-        "extras": extras,
+        "extras": {k: v for k, v in extras.items() if k not in ("signals", "dryness")},
+        "signals": extras.get("signals"),
+        "dryness": extras.get("dryness"),
+        "analogs": analogs,
         "sources": sources,
         "build_seconds": round(time.time() - started, 1),
     }

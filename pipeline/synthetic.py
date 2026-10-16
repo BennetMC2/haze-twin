@@ -23,12 +23,12 @@ def weather(t0, seed=3):
     R = np.zeros_like(U)
     for m in range(M):
         turn_t = rng.normal(70, 30)          # hours: when the north-east monsoon pushes south
-        turn_amp = rng.uniform(0, 1) ** 2      # how strongly
+        turn_amp = rng.uniform(0, 1) ** 4      # how strongly (rarely strong in mid-October)
         rain_t = rng.normal(65, 25)          # rain onset over Kalimantan
-        rain_amp = rng.uniform(0, 14)
+        rain_amp = rng.uniform(0, 3) if rng.uniform() < 0.75 else rng.uniform(4, 10)
         sw_t = rng.normal(45, 15)            # south-westerly burst over south Sumatra
         sw_amp = max(0.0, rng.normal(0.2, 0.35))
-        monsoon_t = rng.normal(300, 60)      # sustained rains, hours ahead
+        monsoon_t = rng.normal(420, 90)      # sustained rains, hours ahead (mostly beyond the forecast)
         monsoon_amp = rng.uniform(1.5, 4.0)
         for ti, t in enumerate(times):
             w = np.clip((LAT - 1.5) / 3.0, 0, 1)
