@@ -73,7 +73,7 @@ jobs:
           cp run.log site/data/run-log.txt
 
       - name: Save the forecast log
-        if: always()
+        if: ${{ !cancelled() }}
         run: |
           git config user.name "haze-twin bot"
           git config user.email "haze-twin-bot@users.noreply.github.com"
@@ -83,8 +83,11 @@ jobs:
           if ! git diff --cached --quiet; then
             T0=$(python -c "import json;print(json.load(open('site/data/inputs.json'))['t0'])" 2>/dev/null || date -u +%Y-%m-%dT%H:%M)
             git commit -m "Run ${T0} [skip ci]"
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-            git push origin "HEAD:${GITHUB_REF_NAME}"
+            for i in 1 2 3; do
+              git pull --rebase -X theirs origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && break
+              git rebase --abort 2>/dev/null || true
+              sleep 5
+            done
           fi
 
       - name: Archive this run's inputs and forecast
