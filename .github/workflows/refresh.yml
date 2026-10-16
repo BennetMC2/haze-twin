@@ -37,10 +37,10 @@ jobs:
           STAMP=${ASSET#inputs-}; STAMP=${STAMP%.json.gz}
           AGE=$(( ( $(date -u +%s) - $(date -u -d "$(echo $STAMP | sed -E 's/(....)(..)(..)T(..)(..)Z/\1-\2-\3 \4:\5/')" +%s) ) / 60 ))
           echo "latest full run $STAMP, $AGE minutes ago"
-          if [ "$AGE" -lt 40 ]; then echo "full run is fresh; skipping"; exit 0; fi
+          if [ "$AGE" -lt 40 ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then echo "full run is fresh; skipping"; exit 0; fi
           gh release download "$REL" -p "$ASSET" -D .work --clobber
           gunzip -c ".work/$ASSET" > site/data/inputs.json
-          python tools/refresh_obs.py site/data/inputs.json || { [ $? -eq 3 ] && exit 0; exit 1; }
+          python tools/refresh_obs.py site/data/inputs.json || { rc=$?; if [ $rc -eq 3 ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then exit 0; fi; [ $rc -eq 3 ] || exit 1; }
           cp engine/engine.js site/engine.js
           node engine/run.js --n 100000
           cp history/replay/summary.json site/data/replay.json 2>/dev/null || true
