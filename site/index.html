@@ -390,9 +390,9 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
   <header class="top">
     <div class="brand">Haze Twin</div>
     <nav class="tabs" aria-label="Views">
+      <button type="button" class="tab" data-tab="map">Map</button>
       <button type="button" class="tab" data-tab="better">When will it get better?</button>
       <button type="button" class="tab" data-tab="odds">The odds</button>
-      <button type="button" class="tab" data-tab="map">Map</button>
     </nav>
     <div class="status" role="status" aria-live="polite">
       <span class="live" id="liveDot"><i></i><span id="statusText">Loading the latest forecast…</span></span>
@@ -1515,7 +1515,7 @@ function setTab(tab){
   if(!['better','odds','map'].includes(tab))tab='better';
   document.body.dataset.tab=tab;document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-current',String(b.dataset.tab===tab)));
   const ask=$('cardAsk');if(ask){if(tab==='better')$('askSlotBetter').appendChild(ask);else{const r=document.querySelector('.right');r.insertBefore(ask,r.firstChild);}}
-  try{history.replaceState(null,'',tab==='better'?location.pathname+location.search:'#'+tab);}catch(e){}
+  try{history.replaceState(null,'',tab==='map'?location.pathname+location.search:'#'+tab);}catch(e){}
   if(tab==='map'){requestAnimationFrame(()=>{layout();needWarm=true;let seen=false;try{seen=localStorage.getItem('hazeTourSeen')==='1';}catch(e){}if(!seen&&FC&&tourI<0)setTimeout(startTour,700);});}
   window.scrollTo(0,0);
 }
@@ -1573,7 +1573,7 @@ async function boot(){
 }
 let rz=0;window.addEventListener('resize',()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{layout();renderDays();});});
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(FC){drawStatic();drawFan();}});
-setTab((location.hash||'').replace('#','')||'better');
+setTab((location.hash||'').replace('#','')||'map');
 boot();
 })();
 </script>
