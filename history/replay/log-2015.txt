@@ -1,13 +1,409 @@
-[14:26:35]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
-[14:26:36]   2015-09-01: PSI 64, fires {'VIIRS_SNPP_SP': 21100}, PM2.5 hours 0
-[14:26:42]     member c00: done (6s)
-[14:26:48]     member p01: done (11s)
-[14:26:53]     member p02: done (17s)
-[14:26:59]     member p03: done (22s)
-[14:27:04]     member p04: done (28s)
-[14:27:07]     reforecast: 220/225 member-steps, 16 history steps, 31s
-[14:27:20]   traced member 1/5
-[14:27:22]   traced member 5/5
-[14:27:22]   wrote 2015-09-01.json (0.3 MB) in 50s
-[14:27:22] done: 1 issue dates built
-2015-09-01 now 64 p50 69 68 69 66 66 68 4.2s
+[14:31:06]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:31:44]   2015-08-25: PSI 84, fires {'VIIRS_SNPP_SP': 10000}, PM2.5 hours 0
+[14:31:49]     member c00: done (5s)
+[14:31:54]     member p01: done (10s)
+[14:31:59]     member p02: done (15s)
+[14:32:04]     member p03: done (20s)
+[14:32:09]     member p04: done (25s)
+[14:32:12]     reforecast: 220/225 member-steps, 16 history steps, 28s
+[14:32:13]   traced member 1/5
+[14:32:14]   traced member 5/5
+[14:32:14]   wrote 2015-08-25.json (0.3 MB) in 71s
+[14:32:17]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:33:14]   2015-08-27: PSI 74, fires {'VIIRS_SNPP_SP': 7834}, PM2.5 hours 0
+[14:33:19]     member c00: done (5s)
+[14:33:24]     member p01: done (10s)
+[14:33:29]     member p02: done (15s)
+[14:33:34]     member p03: done (20s)
+[14:33:39]     member p04: done (25s)
+[14:33:42]     reforecast: 220/225 member-steps, 16 history steps, 28s
+[14:33:43]   traced member 1/5
+[14:33:44]   traced member 5/5
+[14:33:44]   wrote 2015-08-27.json (0.3 MB) in 90s
+[14:33:47]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:34:07]   2015-08-29: PSI 76, fires {'VIIRS_SNPP_SP': 7220}, PM2.5 hours 0
+[14:34:12]     member c00: done (6s)
+[14:34:18]     member p01: done (11s)
+[14:34:23]     member p02: done (16s)
+[14:34:28]     member p03: done (21s)
+[14:34:33]     member p04: done (26s)
+[14:34:36]     reforecast: 220/225 member-steps, 16 history steps, 29s
+[14:34:37]   traced member 1/5
+[14:34:38]   traced member 5/5
+[14:34:38]   wrote 2015-08-29.json (0.3 MB) in 54s
+[14:34:40]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:34:41]   2015-08-31: PSI 57, fires {'VIIRS_SNPP_SP': 17959}, PM2.5 hours 0
+[14:34:46]     member c00: done (5s)
+[14:34:51]     member p01: done (10s)
+[14:34:56]     member p02: done (15s)
+[14:35:01]     member p03: done (20s)
+[14:35:05]     member p04: done (25s)
+[14:35:08]     reforecast: 220/225 member-steps, 16 history steps, 28s
+[14:35:14]   traced member 1/5
+[14:35:15]   traced member 5/5
+[14:35:15]   wrote 2015-08-31.json (0.3 MB) in 37s
+[14:35:17]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:35:18]   2015-09-02: PSI 82, fires {'VIIRS_SNPP_SP': 17754}, PM2.5 hours 0
+[14:35:22]     member c00: done (4s)
+[14:35:26]     member p01: done (8s)
+[14:35:30]     member p02: done (12s)
+[14:35:34]     member p03: done (16s)
+[14:35:38]     member p04: done (20s)
+[14:35:41]     reforecast: 160/225 member-steps, 16 history steps, 23s
+[14:35:46]   traced member 1/5
+[14:35:47]   traced member 5/5
+[14:35:47]   wrote 2015-09-02.json (0.3 MB) in 32s
+[14:35:50]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:35:50]   2015-09-04: PSI 86, fires {'VIIRS_SNPP_SP': 14644}, PM2.5 hours 0
+[14:35:55]     member c00: done (5s)
+[14:36:00]     member p01: done (10s)
+[14:36:05]     member p02: done (15s)
+[14:36:10]     member p03: done (20s)
+[14:36:15]     member p04: done (25s)
+[14:36:18]     reforecast: 220/225 member-steps, 16 history steps, 28s
+[14:36:22]   traced member 1/5
+[14:36:23]   traced member 5/5
+[14:36:23]   wrote 2015-09-04.json (0.3 MB) in 36s
+[14:36:25]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:36:26]   2015-09-06: PSI 97, fires {'VIIRS_SNPP_SP': 16511}, PM2.5 hours 0
+[14:36:32]     member c00: done (5s)
+[14:36:36]     member p01: done (10s)
+[14:36:42]     member p02: done (15s)
+[14:36:46]     member p03: done (20s)
+[14:36:51]     member p04: done (25s)
+[14:36:54]     reforecast: 220/225 member-steps, 16 history steps, 28s
+[14:36:59]   traced member 1/5
+[14:37:00]   traced member 5/5
+[14:37:00]   wrote 2015-09-06.json (0.3 MB) in 37s
+[14:37:02]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:37:03]   2015-09-08: PSI 102, fires {'VIIRS_SNPP_SP': 20193}, PM2.5 hours 0
+[14:37:08]     member c00: done (5s)
+[14:37:13]     member p01: done (10s)
+[14:37:18]     member p02: done (15s)
+[14:37:23]     member p03: done (20s)
+[14:37:27]     member p04: done (24s)
+[14:37:30]     reforecast: 220/225 member-steps, 16 history steps, 27s
+[14:37:37]   traced member 1/5
+[14:37:38]   traced member 5/5
+[14:37:38]   wrote 2015-09-08.json (0.3 MB) in 38s
+[14:37:40]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:37:41]   2015-09-10: PSI 109, fires {'VIIRS_SNPP_SP': 20715}, PM2.5 hours 0
+[14:37:46]     member c00: done (5s)
+[14:37:51]     member p01: done (10s)
+[14:37:56]     member p02: done (15s)
+[14:38:00]     member p03: done (19s)
+[14:38:05]     member p04: done (24s)
+[14:38:08]     reforecast: 220/225 member-steps, 16 history steps, 27s
+[14:38:15]   traced member 1/5
+[14:38:16]   traced member 5/5
+[14:38:16]   wrote 2015-09-10.json (0.3 MB) in 38s
+[14:38:18]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:38:19]   2015-09-12: PSI 85, fires {'VIIRS_SNPP_SP': 17764}, PM2.5 hours 0
+[14:38:25]     member c00: done (6s)
+[14:38:30]     member p01: done (10s)
+[14:38:35]     member p02: done (15s)
+[14:38:40]     member p03: done (20s)
+[14:38:44]     member p04: done (25s)
+[14:38:48]     reforecast: 220/225 member-steps, 16 history steps, 28s
+[14:38:53]   traced member 1/5
+[14:38:54]   traced member 5/5
+[14:38:54]   wrote 2015-09-12.json (0.3 MB) in 38s
+[14:38:56]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:38:57]   2015-09-14: PSI 145, fires {'VIIRS_SNPP_SP': 20226}, PM2.5 hours 0
+[14:39:02]     member c00: done (5s)
+[14:39:07]     member p01: done (10s)
+[14:39:12]     member p02: done (15s)
+[14:39:17]     member p03: done (20s)
+[14:39:22]     member p04: done (25s)
+[14:39:25]     reforecast: 220/225 member-steps, 16 history steps, 28s
+[14:39:32]   traced member 1/5
+[14:39:33]   traced member 5/5
+[14:39:33]   wrote 2015-09-14.json (0.3 MB) in 39s
+[14:39:36]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:39:36]   2015-09-16: PSI 121, fires {'VIIRS_SNPP_SP': 16886}, PM2.5 hours 0
+[14:39:41]     member c00: done (4s)
+[14:39:45]     member p01: done (8s)
+[14:39:49]     member p02: done (12s)
+[14:39:52]     member p03: done (16s)
+[14:39:56]     member p04: done (20s)
+[14:39:59]     reforecast: 160/225 member-steps, 16 history steps, 23s
+[14:40:04]   traced member 1/5
+[14:40:05]   traced member 5/5
+[14:40:05]   wrote 2015-09-16.json (0.3 MB) in 32s
+[14:40:07]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:40:08]   2015-09-18: PSI 80, fires {'VIIRS_SNPP_SP': 12203}, PM2.5 hours 0
+[14:40:13]     member c00: done (5s)
+[14:40:17]     member p01: done (10s)
+[14:40:22]     member p02: done (14s)
+[14:40:27]     member p03: done (19s)
+[14:40:31]     member p04: done (24s)
+[14:40:34]     reforecast: 220/225 member-steps, 16 history steps, 26s
+[14:40:37]   traced member 1/5
+[14:40:38]   traced member 5/5
+[14:40:38]   wrote 2015-09-18.json (0.3 MB) in 33s
+[14:40:40]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:40:41]   2015-09-20: PSI 95, fires {'VIIRS_SNPP_SP': 11039}, PM2.5 hours 0
+[14:40:47]     member c00: done (5s)
+[14:40:51]     member p01: done (10s)
+[14:40:56]     member p02: done (15s)
+[14:41:01]     member p03: done (19s)
+[14:41:05]     member p04: done (24s)
+[14:41:08]     reforecast: 220/225 member-steps, 16 history steps, 27s
+[14:41:10]   traced member 1/5
+[14:41:11]   traced member 5/5
+[14:41:11]   wrote 2015-09-20.json (0.3 MB) in 34s
+[14:41:14]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:41:15]   2015-09-22: PSI 85, fires {'VIIRS_SNPP_SP': 24580}, PM2.5 hours 0
+[14:41:20]     member c00: done (5s)
+[14:41:25]     member p01: done (10s)
+[14:41:29]     member p02: done (15s)
+[14:41:34]     member p03: done (20s)
+[14:41:39]     member p04: done (24s)
+[14:41:42]     reforecast: 220/225 member-steps, 16 history steps, 27s
+[14:41:52]   traced member 1/5
+[14:41:53]   traced member 5/5
+[14:41:53]   wrote 2015-09-22.json (0.3 MB) in 42s
+[14:41:56]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:41:56]   2015-09-24: PSI 216, fires {'VIIRS_SNPP_SP': 23677}, PM2.5 hours 0
+[14:42:01]     member c00: done (5s)
+[14:42:06]     member p01: done (10s)
+[14:42:10]     member p02: done (14s)
+[14:42:15]     member p03: done (19s)
+[14:42:20]     member p04: done (23s)
+[14:42:23]     reforecast: 220/225 member-steps, 16 history steps, 27s
+[14:42:32]   traced member 1/5
+[14:42:33]   traced member 5/5
+[14:42:33]   wrote 2015-09-24.json (0.3 MB) in 40s
+[14:42:36]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:42:36]   2015-09-26: PSI 110, fires {'VIIRS_SNPP_SP': 11955}, PM2.5 hours 0
+[14:42:41]     member c00: done (5s)
+[14:42:46]     member p01: done (10s)
+[14:42:51]     member p02: done (15s)
+[14:42:56]     member p03: done (20s)
+[14:43:01]     member p04: done (24s)
+[14:43:04]     reforecast: 220/225 member-steps, 16 history steps, 27s
+[14:43:06]   traced member 1/5
+[14:43:07]   traced member 5/5
+[14:43:07]   wrote 2015-09-26.json (0.3 MB) in 34s
+[14:43:10]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:43:11]   2015-09-28: PSI 150, fires {'VIIRS_SNPP_SP': 13367}, PM2.5 hours 0
+[14:43:17]     member c00: done (5s)
+[14:43:21]     member p01: done (10s)
+[14:43:26]     member p02: done (15s)
+[14:43:31]     member p03: done (19s)
+[14:43:35]     member p04: done (24s)
+[14:43:38]     reforecast: 220/225 member-steps, 16 history steps, 27s
+[14:43:41]   traced member 1/5
+[14:43:42]   traced member 5/5
+[14:43:42]   wrote 2015-09-28.json (0.3 MB) in 35s
+[14:43:45]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:43:46]   2015-09-30: PSI 169, fires {'VIIRS_SNPP_SP': 9309}, PM2.5 hours 0
+[14:43:50]     member c00: done (4s)
+[14:43:54]     member p01: done (8s)
+[14:43:57]     member p02: done (12s)
+[14:44:01]     member p03: done (16s)
+[14:44:05]     member p04: done (20s)
+[14:44:08]     reforecast: 160/225 member-steps, 16 history steps, 22s
+[14:44:09]   traced member 1/5
+[14:44:10]   traced member 5/5
+[14:44:10]   wrote 2015-09-30.json (0.3 MB) in 28s
+[14:44:13]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:44:14]   2015-10-02: PSI 145, fires {'VIIRS_SNPP_SP': 17533}, PM2.5 hours 0
+[14:44:19]     member c00: done (5s)
+[14:44:23]     member p01: done (10s)
+[14:44:28]     member p02: done (14s)
+[14:44:33]     member p03: done (19s)
+[14:44:37]     member p04: done (24s)
+[14:44:40]     reforecast: 220/225 member-steps, 16 history steps, 26s
+[14:44:45]   traced member 1/5
+[14:44:46]   traced member 5/5
+[14:44:46]   wrote 2015-10-02.json (0.3 MB) in 36s
+[14:44:49]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:44:50]   2015-10-04: PSI 133, fires {'VIIRS_SNPP_SP': 21809}, PM2.5 hours 0
+[14:44:55]     member c00: done (5s)
+[14:45:00]     member p01: done (10s)
+[14:45:05]     member p02: done (15s)
+[14:45:09]     member p03: done (20s)
+[14:45:14]     member p04: done (25s)
+[14:45:17]     reforecast: 220/225 member-steps, 16 history steps, 27s
+[14:45:25]   traced member 1/5
+[14:45:26]   traced member 5/5
+[14:45:26]   wrote 2015-10-04.json (0.3 MB) in 40s
+[14:45:28]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:45:29]   2015-10-06: PSI 182, fires {'VIIRS_SNPP_SP': 13256}, PM2.5 hours 0
+[14:45:34]     member c00: done (5s)
+[14:45:39]     member p01: done (10s)
+[14:45:43]     member p02: done (14s)
+[14:45:48]     member p03: done (19s)
+[14:45:53]     member p04: done (24s)
+[14:45:56]     reforecast: 220/225 member-steps, 16 history steps, 27s
+[14:45:59]   traced member 1/5
+[14:46:00]   traced member 5/5
+[14:46:00]   wrote 2015-10-06.json (0.3 MB) in 34s
+[14:46:02]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:46:03]   2015-10-08: PSI 80, fires {'VIIRS_SNPP_SP': 14210}, PM2.5 hours 0
+[14:46:09]     member c00: done (6s)
+[14:46:14]     member p01: done (10s)
+[14:46:19]     member p02: done (15s)
+[14:46:23]     member p03: done (20s)
+[14:46:28]     member p04: done (25s)
+[14:46:31]     reforecast: 220/225 member-steps, 16 history steps, 28s
+[14:46:35]   traced member 1/5
+[14:46:36]   traced member 5/5
+[14:46:36]   wrote 2015-10-08.json (0.3 MB) in 36s
+[14:46:38]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:46:39]   2015-10-10: PSI 90, fires {'VIIRS_SNPP_SP': 14697}, PM2.5 hours 0
+[14:46:44]     member c00: done (5s)
+[14:46:49]     member p01: done (10s)
+[14:46:54]     member p02: done (15s)
+[14:46:58]     member p03: done (19s)
+[14:47:03]     member p04: done (24s)
+[14:47:06]     reforecast: 220/225 member-steps, 16 history steps, 27s
+[14:47:09]   traced member 1/5
+[14:47:10]   traced member 5/5
+[14:47:10]   wrote 2015-10-10.json (0.3 MB) in 35s
+[14:47:13]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:47:13]   2015-10-12: PSI 113, fires {'VIIRS_SNPP_SP': 10093}, PM2.5 hours 0
+[14:47:19]     member c00: done (6s)
+[14:47:24]     member p01: done (10s)
+[14:47:28]     member p02: done (15s)
+[14:47:33]     member p03: done (20s)
+[14:47:38]     member p04: done (24s)
+[14:47:41]     reforecast: 220/225 member-steps, 16 history steps, 27s
+[14:47:43]   traced member 1/5
+[14:47:43]   traced member 5/5
+[14:47:43]   wrote 2015-10-12.json (0.3 MB) in 33s
+[14:47:46]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:47:47]   2015-10-14: PSI 115, fires {'VIIRS_SNPP_SP': 20618}, PM2.5 hours 0
+[14:47:52]     member c00: done (5s)
+[14:47:55]     member p01: done (9s)
+[14:47:59]     member p02: done (12s)
+[14:48:03]     member p03: done (16s)
+[14:48:07]     member p04: done (20s)
+[14:48:10]     reforecast: 160/225 member-steps, 16 history steps, 23s
+[14:48:17]   traced member 1/5
+[14:48:18]   traced member 5/5
+[14:48:18]   wrote 2015-10-14.json (0.3 MB) in 35s
+[14:48:21]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:48:23]   2015-10-16: PSI 103, fires {'VIIRS_SNPP_SP': 22839}, PM2.5 hours 0
+[14:48:28]     member c00: done (5s)
+[14:48:32]     member p01: done (10s)
+[14:48:37]     member p02: done (14s)
+[14:48:42]     member p03: done (19s)
+[14:48:46]     member p04: done (24s)
+[14:48:49]     reforecast: 220/225 member-steps, 16 history steps, 26s
+[14:48:58]   traced member 1/5
+[14:48:59]   traced member 5/5
+[14:48:59]   wrote 2015-10-16.json (0.3 MB) in 40s
+[14:49:01]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:49:02]   2015-10-18: PSI 95, fires {'VIIRS_SNPP_SP': 18103}, PM2.5 hours 0
+[14:49:07]     member c00: done (5s)
+[14:49:12]     member p01: done (10s)
+[14:49:16]     member p02: done (14s)
+[14:49:21]     member p03: done (19s)
+[14:49:26]     member p04: done (24s)
+[14:49:29]     reforecast: 220/225 member-steps, 16 history steps, 27s
+[14:49:35]   traced member 1/5
+[14:49:35]   traced member 5/5
+[14:49:35]   wrote 2015-10-18.json (0.3 MB) in 37s
+[14:49:38]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:49:39]   2015-10-20: PSI 165, fires {'VIIRS_SNPP_SP': 31735}, PM2.5 hours 0
+[14:49:44]     member c00: done (5s)
+[14:49:49]     member p01: done (10s)
+[14:49:54]     member p02: done (14s)
+[14:49:58]     member p03: done (19s)
+[14:50:03]     member p04: done (24s)
+[14:50:06]     reforecast: 220/225 member-steps, 16 history steps, 27s
+[14:50:23]   traced member 1/5
+[14:50:23]   traced member 5/5
+[14:50:23]   wrote 2015-10-20.json (0.3 MB) in 48s
+[14:50:26]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:50:27]   2015-10-22: PSI 102, fires {'VIIRS_SNPP_SP': 19900}, PM2.5 hours 0
+[14:50:32]     member c00: done (5s)
+[14:50:36]     member p01: done (10s)
+[14:50:41]     member p02: done (14s)
+[14:50:46]     member p03: done (19s)
+[14:50:50]     member p04: done (23s)
+[14:50:53]     reforecast: 220/225 member-steps, 16 history steps, 26s
+[14:51:00]   traced member 1/5
+[14:51:01]   traced member 5/5
+[14:51:01]   wrote 2015-10-22.json (0.3 MB) in 37s
+[14:51:03]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:51:04]   2015-10-24: PSI 227, fires {'VIIRS_SNPP_SP': 24673}, PM2.5 hours 0
+[14:51:09]     member c00: done (5s)
+[14:51:14]     member p01: done (10s)
+[14:51:19]     member p02: done (15s)
+[14:51:24]     member p03: done (19s)
+[14:51:28]     member p04: done (24s)
+[14:51:31]     reforecast: 220/225 member-steps, 16 history steps, 27s
+[14:51:41]   traced member 1/5
+[14:51:42]   traced member 5/5
+[14:51:42]   wrote 2015-10-24.json (0.3 MB) in 42s
+[14:51:45]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:51:46]   2015-10-26: PSI 167, fires {'VIIRS_SNPP_SP': 17725}, PM2.5 hours 0
+[14:51:51]     member c00: done (5s)
+[14:51:56]     member p01: done (10s)
+[14:52:01]     member p02: done (15s)
+[14:52:06]     member p03: done (20s)
+[14:52:10]     member p04: done (25s)
+[14:52:13]     reforecast: 220/225 member-steps, 16 history steps, 28s
+[14:52:18]   traced member 1/5
+[14:52:19]   traced member 5/5
+[14:52:19]   wrote 2015-10-26.json (0.3 MB) in 37s
+[14:52:22]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:52:22]   2015-10-28: PSI 108, fires {'VIIRS_SNPP_SP': 8554}, PM2.5 hours 0
+[14:52:27]     member c00: done (4s)
+[14:52:30]     member p01: done (8s)
+[14:52:34]     member p02: done (12s)
+[14:52:38]     member p03: done (16s)
+[14:52:42]     member p04: done (20s)
+[14:52:45]     reforecast: 160/225 member-steps, 16 history steps, 23s
+[14:52:47]   traced member 1/5
+[14:52:48]   traced member 5/5
+[14:52:48]   wrote 2015-10-28.json (0.3 MB) in 28s
+[14:52:50]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:52:51]   2015-10-30: PSI 58, fires {'VIIRS_SNPP_SP': 4113}, PM2.5 hours 0
+[14:52:56]     member c00: done (5s)
+[14:53:01]     member p01: done (10s)
+[14:53:06]     member p02: done (15s)
+[14:53:10]     member p03: done (19s)
+[14:53:15]     member p04: done (24s)
+[14:53:18]     reforecast: 220/225 member-steps, 16 history steps, 27s
+[14:53:18]   traced member 1/5
+[14:53:19]   traced member 5/5
+[14:53:19]   wrote 2015-10-30.json (0.3 MB) in 32s
+[14:53:19] done: 34 issue dates built
+2015-08-25 now 84 p50 81 74 73 74 72 72 2.1s
+2015-08-27 now 74 p50 85 96 86 81 80 75 2.0s
+2015-08-29 now 76 p50 74 71 77 76 75 74 1.9s
+2015-08-31 now 57 p50 57 61 58 58 59 58 1.9s
+2015-09-02 now 82 p50 76 79 76 77 74 83 2.0s
+2015-09-04 now 86 p50 85 88 104 127 92 83 1.9s
+2015-09-06 now 97 p50 126 146 120 106 101 97 1.9s
+2015-09-08 now 102 p50 107 85 90 90 81 82 1.9s
+2015-09-10 now 109 p50 110 96 93 98 89 82 1.9s
+2015-09-12 now 85 p50 85 81 78 74 76 76 1.8s
+2015-09-14 now 145 p50 152 111 102 97 100 93 1.8s
+2015-09-16 now 121 p50 120 120 139 103 89 97 1.9s
+2015-09-18 now 80 p50 76 71 71 77 79 79 1.9s
+2015-09-20 now 95 p50 90 152 194 120 108 118 1.9s
+2015-09-22 now 85 p50 89 87 97 93 86 85 1.9s
+2015-09-24 now 216 p50 245 188 159 169 171 151 1.9s
+2015-09-26 now 110 p50 104 96 100 96 96 92 1.9s
+2015-09-28 now 150 p50 143 125 111 105 107 102 2.0s
+2015-09-30 now 169 p50 214 173 137 136 150 151 1.9s
+2015-10-02 now 145 p50 202 131 169 144 108 102 1.9s
+2015-10-04 now 133 p50 187 180 127 108 101 108 1.9s
+2015-10-06 now 182 p50 152 125 117 121 127 112 1.9s
+2015-10-08 now 80 p50 106 181 208 216 118 79 2.0s
+2015-10-10 now 90 p50 91 84 87 78 75 78 1.9s
+2015-10-12 now 113 p50 126 119 105 121 124 183 2.0s
+2015-10-14 now 115 p50 156 141 204 251 216 163 2.0s
+2015-10-16 now 103 p50 111 133 107 103 114 110 1.9s
+2015-10-18 now 95 p50 95 82 86 88 96 95 1.9s
+2015-10-20 now 165 p50 187 176 239 235 231 258 1.9s
+2015-10-22 now 102 p50 98 114 98 93 84 82 1.9s
+2015-10-24 now 227 p50 213 225 211 167 174 157 2.0s
+2015-10-26 now 167 p50 189 136 139 117 122 114 2.0s
+2015-10-28 now 108 p50 94 94 120 122 107 129 2.0s
+2015-10-30 now 58 p50 58 62 62 61 67 66 1.9s
