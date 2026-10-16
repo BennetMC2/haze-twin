@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Haze Twin</title>
+<meta name="haze-ai" content="">
 <meta name="description" content="How bad Singapore's haze is, how it is likely to change over the next 15 days, and where the smoke is coming from.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,6 +56,16 @@ a{color:var(--sky)}
 h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .note{margin:0;font-size:13px;color:var(--ink-3)}
 .sub{margin:0;color:var(--ink-2);font-size:14.5px}
+.ask{display:flex;gap:6px}
+.ask input{flex:1;min-width:0;min-height:40px;border:1px solid var(--line-hi);border-radius:5px;background:var(--bg);color:var(--ink);font:inherit;font-size:15px;padding:0 12px}
+.ask input:focus{outline:2px solid var(--sky);outline-offset:0;border-color:var(--sky)}
+.asksug{display:flex;flex-wrap:wrap;gap:6px}
+.asksug button{border:1px solid var(--line-hi);border-radius:14px;background:transparent;cursor:pointer;font-size:13px;color:var(--ink-2);padding:3px 10px;min-height:28px}
+.asksug button:hover{border-color:var(--sky);color:var(--ink)}
+.askout{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:8px;font-size:14.5px;color:var(--ink-2);line-height:1.5}
+.askout .q{color:var(--ink);font-weight:600}
+.askout p{margin:0}
+.askout .by{font-size:12px;color:var(--ink-3)}
 .how{margin:-4px 0 0;font-size:13.5px;color:var(--ink-3);line-height:1.45}
 .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
 
@@ -336,6 +347,15 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
   </section>
 
   <aside class="col right" aria-label="Detail">
+    <section class="panel card" id="cardAsk" aria-labelledby="askTitle">
+      <h2 id="askTitle">Ask about the haze</h2>
+      <form class="ask" id="askForm" autocomplete="off">
+        <input id="askIn" type="text" maxlength="300" placeholder="Will it be better by Sunday?" aria-label="Your question about the haze">
+        <button class="btn primary" type="submit" id="askBtn">Ask</button>
+      </form>
+      <div class="asksug" id="askSug"></div>
+      <div class="askout" id="askOut" aria-live="polite" hidden></div>
+    </section>
     <section class="panel card" id="cardScen" aria-labelledby="scTitle">
       <div class="head"><h2 id="scTitle">What could happen</h2><span class="note" id="scSpan"></span></div>
       <p class="how">We played out 100,000 possible versions of the next 6 days and sorted them by how they turn out. The % is how many ended that way.</p>
@@ -1079,12 +1099,94 @@ $('btnHow').addEventListener('click',()=>$('dlgHow').showModal());
 document.querySelectorAll('dialog [data-close]').forEach(b=>b.addEventListener('click',()=>b.closest('dialog').close()));
 document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close();}));
 
+/* ---------- ask about the haze ---------- */
+const AI_URL=(document.querySelector('meta[name="haze-ai"]')||{}).content||'';
+const SUGS=['Will it be better by Sunday?','When will the haze end?','Where is the smoke coming from?','Is it getting worse?','How sure are you?'];
+function renderAskSug(){const b=$('askSug');b.innerHTML='';SUGS.forEach(t=>{const x=document.createElement('button');x.type='button';x.textContent=t;x.addEventListener('click',()=>{$('askIn').value=t;ask(t);});b.appendChild(x);});}
+function askContext(){
+  const reg=R();const cs=cls();const nC=coreDays().length;const cnt={};INP.hotspots.forEach(h=>{const i=islandOf(h[0],h[1]);cnt[i]=(cnt[i]||0)+1;});
+  return {updated:new Date(FC.built).toISOString(),area:regionName(),psi_now:Math.round(reg.now),band_now:BANDS[bandOf(reg.now)].name,
+    areas:Object.fromEntries(REG.map(([k,n])=>[n,FC.regions[k]?Math.round(FC.regions[k].now):null])),
+    headline:$('headline').textContent,
+    outcomes_next_6_days:cs.map(c=>({name:plainName(c),percent:Math.round(c.odds),detail:c.outcome,drivers:c.watch})),
+    days:reg.days.map((d,i)=>({day:FC.days[i].label,reliable:i<nC,best_guess:d.p50,likely:[d.p25,d.p75],possible:[d.p5,d.p95],chance_100_or_below:Math.round((d.bands[0]+d.bands[1])),chance_above_200:Math.round(d.bands[3]+d.bands[4])})),
+    chance_cleared_by_day:(reg.clearBy||[]).map((v,i)=>({day:FC.days[i].label,percent:Math.round(v)})),
+    smoke_sources_next_3_days:(FC.sourceRegions||[]).slice(0,6).map(r=>({province:r.name,percent:Math.round(r.share)})),
+    hotspots_last_day:{total:INP.hotspots.length,Kalimantan:cnt.Kalimantan||0,Sumatra:cnt.Sumatra||0},
+    rain_next_5_days_mm:(INP.summary||{}).rain_mm_0_120h||null,
+    airports:((INP.extras||{}).airports||[]).map(a=>({name:a.name,visibility_km:a.vis_km,haze:a.haze})),
+    season_end:FC.season?{most_likely:FC.season.median,range_80pct:[FC.season.p10,FC.season.p90]}:null,
+    news:((INP.extras||{}).news||[]).slice(0,6).map(n=>n.title),
+    track_record:REC&&REC[state.region]&&REC[state.region].n?{days_scored:REC[state.region].n,inside_range:REC[state.region].hits}:'not scored yet'};
+}
+function findDay(q){
+  const days=FC.days;const sg=sgt(t0());const names=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+  if(/\btoday\b|\btonight\b|\bnow\b/.test(q))return -1;
+  if(/\btomorrow\b/.test(q))return 0;
+  if(/weekend/.test(q)){const i=days.findIndex(d=>d.dow==='Sat');return i<0?null:i;}
+  for(let k=0;k<7;k++){const n=names[k];if(new RegExp('\\b('+n+'|'+n.slice(0,3)+')\\b').test(q)){const i=days.findIndex(d=>d.dow===DOW[k]);if(i>=0)return i;}}
+  const m=q.match(/\b(\d{1,2})(st|nd|rd|th)?\b/);if(m){const dn=+m[1];const i=days.findIndex(d=>Number(d.label.split(' ')[1])===dn);if(i>=0)return i;}
+  if(/next week/.test(q)){const i=days.findIndex((d,j)=>j>=6);return i<0?null:i;}
+  return null;
+}
+function localAnswer(qRaw){
+  const q=qRaw.toLowerCase();const reg=R();const cs=cls();const nC=coreDays().length;const P=[];
+  const pct=(v)=>v<1?'under 1%':Math.round(v)+'%';
+  const di=findDay(q);
+  if(/what.*psi|psi mean|what is psi/.test(q)){P.push('PSI is NEA\'s air pollution index. The 24-hour PSI averages the last day. 0–50 is good, 51–100 moderate, 101–200 unhealthy, 201–300 very unhealthy, above 300 hazardous.');P.push('Right now it is '+Math.round(reg.now)+' ('+bandWord(reg.now)+').');return P;}
+  if(/run|jog|exercise|outside|outdoor|school|mask|walk|cycle|kids|children|safe/.test(q)){
+    P.push('PSI is '+Math.round(reg.now)+' now, which NEA calls '+bandWord(reg.now)+'.'+(di!=null&&di>=0?' For '+FC.days[di].label+' the best guess is '+reg.days[di].p50+' ('+bandWord(reg.days[di].p50)+').':''));
+    P.push('For what that means for outdoor activity, masks and children, NEA\'s health advice is the guide to follow: haze.gov.sg.');return P;}
+  if(di!=null){
+    if(di<0){P.push('Right now the 24-hour PSI is '+Math.round(reg.now)+', '+bandWord(reg.now)+'.');P.push($('headline').textContent);return P;}
+    const d=reg.days[di],fd=FC.days[di];const ok=d.bands[0]+d.bands[1],bad=d.bands[3]+d.bands[4];
+    P.push('For '+fd.label+' the best guess is PSI '+d.p50+' ('+bandWord(d.p50)+'), most likely between '+d.p25+' and '+d.p75+'.');
+    P.push('Chance it is 100 or below that day: '+pct(ok)+'. Chance it is above 200: '+pct(bad)+'.');
+    if(di>=nC)P.push('That is more than 6 days out, so treat it as a rough guide.');
+    if(/better|improv|clear|lower|down/.test(q)){const now=reg.now;P.push(d.p50<now-15?'So yes, it is likely to be a bit better than today ('+Math.round(now)+').':d.p50>now+15?'So no, it is more likely to be worse than today ('+Math.round(now)+').':'So probably about the same as today ('+Math.round(now)+').');}
+    return P;}
+  if(/when|end|over|clear|finish|stop|go away|last/.test(q)){
+    const cb=reg.clearBy||[];const i50=cb.findIndex(v=>v>=50);
+    P.push(reg.mode==='haze'?'Chance PSI is down to 100 or below by '+coreEndDow()+': '+pct(reg.clear)+'. By '+FC.days[cb.length-1].label+': '+pct(cb[cb.length-1]||0)+'.':'PSI is 100 or below now.');
+    if(i50>=0)P.push('It becomes more likely than not by '+FC.days[i50].label+'.');
+    if(FC.season)P.push('The haze season itself most likely ends around '+FC.season.median+', when steady rain sets in over the fires (80% chance between '+FC.season.p10+' and '+FC.season.p90+').');
+    return P;}
+  if(/where|source|from|which fire|who|indonesia|kalimantan|sumatra|malaysia/.test(q)){
+    const L=(FC.sourceRegions||[]).slice(0,4);P.push('Over the next 3 days, the smoke reaching Singapore comes mostly from '+L.map(r=>r.name+' ('+Math.round(r.share)+'%)').join(', ')+'.');
+    P.push('That depends on both how much is burning there and whether the winds carry it here.');return P;}
+  if(/worse|hazardous|300|peak|bad/.test(q)){const w=cs.find(c=>c.id==='worse');P.push('Chance it gets worse in the next 6 days: '+pct(w?w.odds:0)+'.'+(w&&w.outcome?' In those cases: '+w.outcome:''));if(w&&w.watch)P.push('What would cause it: '+w.watch);return P;}
+  if(/rain|monsoon|weather/.test(q)){const rn=(INP.summary||{}).rain_mm_0_120h||{};P.push('Rain expected over the fires in the next 5 days: Sumatra about '+Math.round(rn.Sumatra||0)+' mm, Kalimantan about '+Math.round(rn.Kalimantan||0)+' mm. Peat fires usually need days of steady rain to go out.');if(FC.season)P.push('Steady monsoon rain is most likely around '+FC.season.median+'.');return P;}
+  if(/sure|accura|trust|right|reliable|confiden/.test(q)){const rec=REC&&REC[state.region];P.push(rec&&rec.n?'So far '+rec.hits+' of '+rec.n+' scored days fell inside the forecast\'s possible range.':'Forecasts are kept and scored two days later against NEA\'s readings, but none have been scored yet.');P.push('The first 6 days are the most reliable. After that weather forecasts lose skill, so the ranges widen.');return P;}
+  if(/news|fire.*spread|firefight/.test(q)){const sg=INP.signals;if(sg)P.push($('sigLine').textContent);const n=((INP.extras||{}).news||[]).slice(0,3).map(x=>x.title);if(n.length)P.push('Recent: '+n.join('; ')+'.');return P;}
+  P.push($('headline').textContent+' '+$('lede').textContent);
+  P.push('Try asking about a day ("Sunday"), when it ends, where the smoke comes from, or how sure the forecast is.');
+  return P;
+}
+let askBusy=false;
+async function ask(q){
+  q=(q||'').trim().slice(0,300);if(!q||askBusy||!FC)return;askBusy=true;$('askBtn').disabled=true;
+  const out=$('askOut');out.hidden=false;out.innerHTML='<p class="q"></p><p>Thinking…</p>';out.querySelector('.q').textContent=q;
+  let paras=null,by='Answer from this forecast';
+  if(AI_URL){try{const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),20000);
+      const r=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,context:askContext()}),signal:ctl.signal});clearTimeout(tm);
+      if(r.ok){const js=await r.json();if(js.answer){paras=String(js.answer).split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);by='Answered by Claude, using this forecast. It can make mistakes.';}}
+    }catch(e){}}
+  if(!paras)paras=localAnswer(q);
+  out.innerHTML='';const qe=document.createElement('p');qe.className='q';qe.textContent=q;out.appendChild(qe);
+  paras.forEach(t=>{const p=document.createElement('p');p.textContent=t;out.appendChild(p);});
+  const b=document.createElement('p');b.className='by';b.textContent=by;out.appendChild(b);
+  askBusy=false;$('askBtn').disabled=false;
+}
+$('askForm').addEventListener('submit',e=>{e.preventDefault();ask($('askIn').value);});
+renderAskSug();
+
 /* ---------- guided tour ---------- */
 const TOUR=[
   ['cardNow','Start here','Today\'s PSI from NEA, and one sentence on what is most likely to happen next. The odds below it are the other ways it could go.'],
   ['cardDays','The next 15 days','One row per day, like a weather app. The number is the best guess; the coloured bar is the likely range. The first 6 days are the most reliable.'],
   ['mapcell','The map','Orange dots are fires seen by satellite. Grey is their smoke. The yellow shading is where the air reaching Singapore is coming from: fires inside it matter most. Drag to move, scroll to zoom, and use "What\'s on the map?" for more.'],
   ['timebar','Move through time','Pick a day, or press Play, to watch the fires, smoke and Singapore\'s air change over the coming days.'],
+  ['cardAsk','Ask a question','Type a question in plain words, like "Will it be better by Sunday?", and get an answer from today\'s forecast.'],
   ['cardScen','What could happen','The model played out 100,000 versions of the next 6 days. Each coloured square is 1% of them. Tap an outcome to see that version on the map and chart.'],
   ['cardSrc','Where the smoke comes from','Which provinces are sending the most smoke our way, plus fires, rain and visibility near the fires.'],
   ['actions','Check our work','"Track record" shows how past forecasts compared with what NEA measured. "How it works" explains the model. "Rerun" runs it again on your device with NEA\'s latest reading.'],
