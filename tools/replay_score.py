@@ -44,6 +44,15 @@ def crps_q(qs, y):
     return 2 * tot / len(levels)
 
 
+CALIB = [2.1, 1.6, 1.35]   # same multipliers as engine.js
+
+
+def widen(qs, lead):
+    k = CALIB[0] if lead <= 3 else CALIB[1] if lead <= 6 else CALIB[2]
+    m = math.log(max(1, qs[2]))
+    return [math.exp(m + k * (math.log(max(1, q)) - m)) for q in qs]
+
+
 def score(season):
     fc = json.loads((REPLAY / f"{season}.json").read_text())
     rows = []
@@ -65,7 +74,9 @@ def score(season):
             pband = d["bands"][band(obs)] / 100
             n = len(clim)
             cq = [clim[int(n * x)] for x in (0.05, 0.25, 0.5, 0.75, 0.95)]
+            cq2 = widen(qs, lead)
             rows.append({
+                "in90c": cq2[0] <= obs <= cq2[4], "in50c": cq2[1] <= obs <= cq2[3], "crpsc": crps_q(cq2, obs),
                 "issue": issue, "lead": lead, "obs": obs, "p5": qs[0], "p25": qs[1], "p50": qs[2], "p75": qs[3], "p95": qs[4],
                 "in90": qs[0] <= obs <= qs[4], "in50": qs[1] <= obs <= qs[3],
                 "ae": abs(qs[2] - obs), "ae_persist": abs(persist - obs),
@@ -86,6 +97,8 @@ def summarise(rows):
         m = lambda k: sum(r[k] for r in rs) / n
         skill = lambda a, b: round(1 - m(a) / m(b), 2) if m(b) > 0 else None
         return {"n": n, "coverage90": round(m("in90") * 100), "coverage50": round(m("in50") * 100),
+                "coverage90_calibrated": round(m("in90c") * 100), "coverage50_calibrated": round(m("in50c") * 100),
+                "crps_calibrated": round(m("crpsc"), 1), "crps_skill_vs_persist_calibrated": skill("crpsc", "crps_persist"),
                 "mae": round(m("ae"), 1), "mae_persist": round(m("ae_persist"), 1),
                 "crps": round(m("crps"), 1), "crps_skill_vs_persist": skill("crps", "crps_persist"),
                 "crps_skill_vs_clim": skill("crps", "crps_clim"),

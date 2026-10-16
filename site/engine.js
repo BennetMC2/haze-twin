@@ -241,11 +241,25 @@
       }
       blend = { analogDays: an.paths.length, years: an.years, weight: Array.from(lam, x => Math.round(x * 100) / 100) };
     }
+    // calibration from replays of the 2015, 2019 and 2023 seasons: the raw spread was too narrow,
+    // so widen each future around its median (in log space), most for days 1-3
+    const calib = (hh) => hh <= 0 ? 1 : hh < 18 ? 1 + (CALIB[0] - 1) * hh / 18 : hh <= 84 ? CALIB[0] : hh <= 156 ? CALIB[1] : CALIB[2];
+    {
+      const tmp = new Float64Array(Math.min(N, 20000)); const stp = Math.max(1, Math.floor(N / tmp.length));
+      for (let f = 0; f < F; f++) {
+        const k = calib(model.inputs.arrivals_h[futA[f]]); if (k === 1) continue;
+        let n = 0; for (let s = 0; s < N && n < tmp.length; s += stp) tmp[n++] = Math.log(Math.max(1, pm24[s * F + f]));
+        const srt = Array.from(tmp.subarray(0, n)).sort((a, b) => a - b); const med = srt[Math.floor(n / 2)];
+        for (let s = 0; s < N; s++) { const v = Math.log(Math.max(1, pm24[s * F + f])); pm24[s * F + f] = Math.exp(med + k * (v - med)); }
+      }
+    }
     if (report) report(0.9);
     return { N, F, pm24, idx, memb, share, rshare, pThalf, pRain, ess, model, blend };
   }
 
   /* ---------- classes (outcome storylines) ---------- */
+  // spread multipliers for days 1-3, 4-6 and 7-15, fitted on replayed seasons (history/replay/summary.json)
+  const CALIB = [2.1, 1.6, 1.35];
   const CLASS_DEFS = {
     haze: [
       { id: 'early', name: 'Clears early', color: '--sD' },
