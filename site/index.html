@@ -37,7 +37,7 @@ a{color:var(--sky)}
 .top{grid-area:top;display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;padding:2px 0}
 .brand{font-weight:700;font-size:20px;letter-spacing:.01em}
 .brand span{font-weight:500;color:var(--ink-3);margin-left:8px;font-size:15px}
-.status{flex:1 1 auto;display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;color:var(--ink-2);font-size:14px}
+.status{flex:1 1 auto;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;color:var(--ink-2);font-size:14px}
 .live{display:inline-flex;align-items:center;gap:6px}
 .live i{width:8px;height:8px;border-radius:50%;background:var(--sD)}
 .live.run i{background:var(--sky)}
@@ -182,7 +182,21 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 #map{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
 #map.drag{cursor:grabbing}
 .ov{position:absolute;z-index:2}
-.showing{top:12px;left:12px;max-width:min(440px,calc(100% - 200px));background:rgba(14,24,32,.88);border:1px solid var(--line);border-radius:6px;padding:8px 12px;display:flex;flex-direction:column;gap:1px;pointer-events:none}
+.showing{top:12px;left:12px;max-width:min(460px,calc(100% - 200px));max-height:calc(100% - 90px);overflow-y:auto;background:rgba(14,24,32,.92);border:1px solid var(--line);border-radius:6px;padding:8px 12px;display:flex;flex-direction:column;gap:1px}
+.whyday{margin-top:6px;border-top:1px solid var(--line);padding-top:6px}
+.whyday summary{cursor:pointer;color:var(--sky);font-size:14px;font-weight:500;list-style:none;min-height:24px;display:flex;align-items:center;gap:6px}
+.whyday summary::-webkit-details-marker{display:none}
+.whyday summary::before{content:'+';font-size:16px;width:12px}
+.whyday[open] summary::before{content:'–'}
+.whylist{list-style:none;margin:6px 0 2px;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--ink-2);line-height:1.45}
+.whylist li{display:grid;grid-template-columns:78px minmax(0,1fr);gap:8px}
+.whylist li span:first-child{color:var(--ink-3);font-size:13px;padding-top:1px}
+.whylist b{color:var(--ink);font-weight:600}
+.wday{cursor:pointer;background:transparent;font:inherit;color:inherit}
+.wday:hover{border-color:var(--line-hi)}
+.wday[aria-pressed="true"]{border-color:var(--sky);background:var(--raise)}
+.whyweek{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:8px}
+.whyweek h3{margin:0;font-size:16px}
 .showing b{font-size:15px;font-weight:600}
 .showing span{font-size:13.5px;color:var(--ink-2)}
 .tools{top:12px;right:12px;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
@@ -237,6 +251,7 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .gap{flex:none;width:1px;background:var(--line-hi);margin:4px 3px}
 
 /* tabs and simple views */
+@media (max-width:1500px){#nextText{display:none}}
 .tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:3px}
 .tab{border:0;background:transparent;cursor:pointer;font-size:14.5px;font-weight:500;color:var(--ink-2);padding:6px 12px;border-radius:5px;min-height:34px}
 .tab:hover{color:var(--ink)}
@@ -337,7 +352,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 <div class="app" id="app">
 
   <header class="top">
-    <div class="brand">Haze Twin<span>How bad Singapore's haze will be over the next 15 days, and why</span></div>
+    <div class="brand">Haze Twin</div>
     <nav class="tabs" aria-label="Views">
       <button type="button" class="tab" data-tab="better">When will it get better?</button>
       <button type="button" class="tab" data-tab="odds">The odds</button>
@@ -382,7 +397,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 
   <section class="mapcell" id="mapcell" aria-label="Map of fires, smoke and the air reaching Singapore">
     <canvas id="map" aria-hidden="true"></canvas>
-    <div class="ov showing" aria-live="polite"><b id="showing1"></b><span id="showing2"></span></div>
+    <div class="ov showing"><b id="showing1" aria-live="polite"></b><span id="showing2"></span><details class="whyday" id="whyMap" hidden><summary>Why this day looks like this</summary><ul class="whylist" id="whyMapList"></ul></details></div>
     <div class="ov tools">
       <div class="zoom" role="group" aria-label="Zoom">
         <button type="button" id="zIn" aria-label="Zoom in">+</button>
@@ -490,8 +505,9 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
         </div>
       </div>
       <section class="panel card">
-        <div class="head"><h2>Next 7 days</h2><span class="note">Best guess for the 24-hour PSI</span></div>
+        <div class="head"><h2>Next 7 days</h2><span class="note">Tap a day to see why</span></div>
         <div class="week" id="week"></div>
+        <div class="whyweek" id="whyWeek"><h3 id="whyWeekT"></h3><ul class="whylist" id="whyWeekList"></ul></div>
       </section>
       <p class="note vnote">Worked out from 100,000 simulated futures of the region's fires, smoke and winds, updated every 6 hours. <button type="button" class="linkbtn" data-goto="odds">See all the odds</button> or <button type="button" class="linkbtn" data-goto="map">see the map</button>.</p>
     </div>
@@ -897,7 +913,7 @@ function renderRegions(){
     b.title=key==='national'?'Highest of the five areas, as NEA reports it':name+' Singapore';
     b.addEventListener('click',()=>{if(state.running)return;state.region=key;state.sel=null;onRegion();});box.appendChild(b);});
 }
-function onRegion(){buildWinds();buildThreads();renderAll();drawThreads();drawFan();needWarm=true;}
+function onRegion(){if(WHY)WHY.cache={};whyMapKey='';buildWinds();buildThreads();renderAll();drawThreads();drawFan();needWarm=true;}
 
 /* 15-day list */
 const AXMAX=400;const ax=(v)=>clamp(v,0,AXMAX)/AXMAX*100;
@@ -1024,10 +1040,11 @@ function markCurrent(){
 function renderShowing(){
   if(!FC)return;const reg=R();
   const sel=state.sel!==null?cls()[state.sel]:null;
-  if(state.t<0.01){$('showing1').textContent='Now, '+dayName(t0())+', '+clock(new Date(INP.obs.time||INP.t0));$('showing2').textContent=(sel?'Showing outcome: '+plainName(sel)+'. ':'')+'Fires in the last day, today\'s smoke, and the shaded area Singapore\'s air is coming from.';}
+  if(state.t<0.01){$('whyMap').hidden=true;$('showing1').textContent='Now, '+dayName(t0())+', '+clock(new Date(INP.obs.time||INP.t0));$('showing2').textContent=(sel?'Showing outcome: '+plainName(sel)+'. ':'')+'Fires in the last day, today\'s smoke, and the shaded area Singapore\'s air is coming from.';}
   else{const d=new Date(t0().getTime()+Math.round(state.t*8)*3*3600e3);const i=arrIndex(state.t*24);
     $('showing1').textContent='Forecast for '+dayName(d)+', '+clock(d);
     const v=sel&&sel.median.length?sel.median[i]:reg.pct.p50[i];
+    renderWhyMap(i);
     $('showing2').textContent=sel?'Outcome "'+plainName(sel)+'": PSI near '+v+'.':'PSI near '+v+' (likely '+(reg.pct.p25?reg.pct.p25[i]:reg.pct.p5[i])+' to '+(reg.pct.p75?reg.pct.p75[i]:reg.pct.p95[i])+'). Shaded: where that day\'s air comes from.';}
 }
 function renderKey(){
@@ -1137,7 +1154,7 @@ function finishRun(res){
   const off=state.official;res.why={};
   for(const k of HE.NEA_REGIONS)res.why[k]=HE.why(off,res,INP.summary,INP.summary,k);
   res.built=new Date().toISOString();res.prevLabel=off.built;
-  FC=res;state.rerunAt=new Date();endRunUI();
+  FC=res;state.rerunAt=new Date();endRunUI();if(WHY)WHY.cache={};whyMapKey='';
   buildWinds();buildThreads();renderAll();$('statusText').textContent='Rerun on this device at '+clock(state.rerunAt);
   const wc=$('changeCard');wc.classList.remove('flash');void wc.offsetWidth;wc.classList.add('flash');threadsDirty=true;drawFan();needWarm=true;
 }
@@ -1291,6 +1308,60 @@ renderAskSug();
 try{const pc=new URLSearchParams(location.search).get('premium');if(pc){if(pc==='off')localStorage.removeItem('hazePremium');else localStorage.setItem('hazePremium',pc);history.replaceState(null,'',location.pathname);}}catch(e){}
 
 
+
+/* ---------- why a given day looks the way it does ---------- */
+let WHY=null;
+function prepWhy(){
+  const S=HE.decode(INP.S);const M=INP.members.length,A=INP.arrivals_h.length,Rn=INP.regions.length,B=INP.emis_bins_h.length;
+  const rain=HE.decode(INP.rain.data),rT=INP.rain.t_h.length;
+  WHY={S,M,A,Rn,B,rain,rT,cache:{}};
+}
+function whyContrib(sel){
+  const key=String(sel);if(WHY.cache[key])return WHY.cache[key];
+  const {S,M,A,Rn,B}=WHY;const mc=R().memberClass;const w=mc.map(x=>sel===null?x[0]+x[1]+x[2]+x[3]:x[sel]);const tot=w.reduce((a,b)=>a+b,0)||1;
+  const C=new Float64Array(A*Rn);
+  for(let m=0;m<M;m++){const wm=w[m]/tot;if(!wm)continue;for(let a=0;a<A;a++)for(let q=0;q<Rn;q++){let v=0;const off=((m*A+a)*Rn+q)*B;for(let b=0;b<B;b++)v+=S[off+b];C[a*Rn+q]+=wm*v;}}
+  const rainCum=(h,isl)=>{const {rain,rT}=WHY;const th=INP.rain.t_h;const regs=INP.regions.map((g,q)=>[g,q]).filter(([g])=>g.island===isl&&(g.frp0||0)>0);if(!regs.length)return null;const fw=regs.reduce((a,[g])=>a+g.frp0,0);
+    let tv=0;for(let m=0;m<M;m++){const wm=w[m]/tot;if(!wm)continue;let v=0;for(let t=0;t<rT;t++){if(th[t]<=0||th[t]>h)continue;for(const [g,q] of regs)v+=rain[(m*rT+t)*Rn+q]*g.frp0/fw;}tv+=wm*v;}return tv;};
+  return WHY.cache[key]={C,rainCum};
+}
+function whyLines(i){
+  if(!WHY)return [];const reg=R();const sel=state.sel;const W=whyContrib(sel);const {Rn}=WHY;const lines=[];
+  const fd=FC.days[i];const h=fd.h;const AH=INP.arrivals_h;let a=0;AH.forEach((x,k)=>{if(Math.abs(x-h)<Math.abs(AH[a]-h))a=k;});let a0=0;AH.forEach((x,k)=>{if(Math.abs(x)<Math.abs(AH[a0]))a0=k;});
+  const d=reg.days[i];const now=Math.round(reg.now);
+  // headline comparison
+  const diff=d.p50-now;lines.push(['Compared with today','Best guess <b>'+d.p50+'</b>'+(Math.abs(diff)<15?', about the same as today ('+now+').':diff<0?', down from '+now+' today.':', up from '+now+' today.')]);
+  // sources that day
+  const row=[];let tot=0;for(let q=0;q<Rn;q++){const v=W.C[a*Rn+q];row.push([INP.regions[q].name,v]);tot+=v;}
+  row.sort((x,y)=>y[1]-x[1]);
+  if(tot>0){const top=row.filter(r=>r[1]/tot>=0.1).slice(0,3);lines.push(['Smoke from','The smoke reaching Singapore that day would mostly come from '+top.map(r=>'<b>'+esc(r[0])+'</b> ('+Math.round(r[1]/tot*100)+'%)').join(', ')+'.']);}
+  // winds vs today
+  let t0v=0;for(let q=0;q<Rn;q++)t0v+=W.C[a0*Rn+q];
+  if(t0v>0){const ratio=tot/t0v;lines.push(['Winds',ratio>1.25?'Winds point <b>more</b> of the fires\' smoke straight at Singapore than today.':ratio<0.8?'Winds point <b>less</b> of the fires\' smoke at Singapore than today'+(ratio<0.4?', a big shift.':'.'):'Winds point about as much of the fires\' smoke at Singapore as today.']);}
+  const dd=h/24;const g=(INP.signals&&INP.signals.growthShift)||0;const act=Math.pow(0.5,dd/12.6)*Math.exp(g*dd);
+  if(dd>1.5)lines.push(['Fires',act<0.92?'Without heavy rain, fires are expected to burn down slowly: by then roughly <b>'+Math.round(act*100)+'%</b> as active as now in the middle estimate.':'Fires are expected to keep burning at about today\'s level.']);
+  // rain on the fires by then
+  const rk=W.rainCum(h,'Kalimantan'),rs=W.rainCum(h,'Sumatra');
+  const rtxt=(v)=>v==null?null:Math.round(v)+' mm';
+  if(rk!=null||rs!=null){const mx=Math.max(rk||0,rs||0);lines.push(['Rain','By then about '+[rk!=null?'<b>'+rtxt(rk)+'</b> on the Kalimantan fires':null,rs!=null?'<b>'+rtxt(rs)+'</b> on the Sumatra fires':null].filter(Boolean).join(' and ')+' in the middle forecast. '+(mx>100?'That is enough to start dimming peat fires.':mx>35?'That helps a little, but peat fires need more.':'Not enough to dim peat fires.')]);}
+  // how the model gets there
+  const b=FC.blend;if(b){const k=FC.arrivals_h.findIndex(x=>x>=h);const wv=k<0?b.weight[b.weight.length-1]:b.weight[k];if(wv>0.15)lines.push(['Past seasons','This far ahead the forecast leans about <b>'+Math.round(wv*100)+'%</b> on how similar days in past haze seasons played out, because weather forecasts lose detail.']);}
+  // certainty
+  lines.push(['How sure',(i>=coreDays().length?'Less certain: more than 6 days out. ':'')+'Likely '+d.p25+' to '+d.p75+'; anywhere from '+d.p5+' to '+d.p95+' is possible. '+'Chance it is 100 or below: '+pctTxt(d.bands[0]+d.bands[1])+'.']);
+  return lines;
+}
+function fillWhy(ul,lines){ul.innerHTML='';lines.forEach(([k,t])=>{const li=document.createElement('li');li.innerHTML='<span>'+esc(k)+'</span><span>'+t+'</span>';ul.appendChild(li);});}
+let whyMapKey='';
+function renderWhyMap(arrI){
+  const box=$('whyMap');if(!WHY){box.hidden=true;return;}
+  const h=FC.arrivals_h[arrI];let best=0;FC.days.forEach((d,k)=>{if(Math.abs(d.h-h)<Math.abs(FC.days[best].h-h))best=k;});
+  box.hidden=false;box.querySelector('summary').textContent='Why '+FC.days[best].label+' looks like this';
+  const key=best+'|'+state.sel+'|'+state.region;if(key===whyMapKey)return;whyMapKey=key;fillWhy($('whyMapList'),whyLines(best));
+}
+let weekSel=0;
+function renderWhyWeek(){if(!WHY)return;$('whyWeekT').textContent='Why '+FC.days[weekSel].label+' looks like this';fillWhy($('whyWeekList'),whyLines(weekSel));
+  document.querySelectorAll('.wday').forEach((b,k)=>b.setAttribute('aria-pressed',String(k===weekSel)));}
+
 /* ---------- simple views: when will it get better, and the odds ---------- */
 function fmtDate(iso){const d=sgt(new Date(iso));return DOW[d.getUTCDay()]+' '+d.getUTCDate()+' '+MON[d.getUTCMonth()];}
 const pctTxt=(v)=>v<1?'<1%':v>99?'>99%':Math.round(v)+'%';
@@ -1316,8 +1387,9 @@ function renderBetter(){
   add('Wind','A change in wind direction away from '+(src||'the fires')+', which send most of the smoke our way right now.');
   const c=cls().find(x=>x.id==='later'||x.id==='early');if(c&&c.watch&&c.n&&!/No single driver/.test(c.watch))add('In the futures that clear',c.watch);
   // next 7 days
-  const wk=$('week');wk.innerHTML='';reg.days.slice(0,7).forEach((d,i)=>{const fd=FC.days[i];const el=document.createElement('div');el.className='wday';el.style.setProperty('--c',COL.b[bandOf(d.p50)]);
-    el.innerHTML='<span></span><b></b><small></small><i></i>';el.children[0].textContent=fd.dow+' '+fd.label.split(' ')[1];el.children[1].textContent=d.p50;el.children[2].textContent=BANDS[bandOf(d.p50)].name;el.setAttribute('aria-label',fd.label+': '+d.p50+', '+BANDS[bandOf(d.p50)].name);wk.appendChild(el);});
+  const wk=$('week');wk.innerHTML='';reg.days.slice(0,7).forEach((d,i)=>{const fd=FC.days[i];const el=document.createElement('button');el.type='button';el.className='wday';el.addEventListener('click',()=>{weekSel=i;renderWhyWeek();});el.style.setProperty('--c',COL.b[bandOf(d.p50)]);
+    el.innerHTML='<span></span><b></b><small></small><i></i>';el.children[0].textContent=fd.dow+' '+fd.label.split(' ')[1];el.children[1].textContent=d.p50;el.children[2].textContent=BANDS[bandOf(d.p50)].name;el.setAttribute('aria-label',fd.label+': '+d.p50+', '+BANDS[bandOf(d.p50)].name+'. Show why.');wk.appendChild(el);});
+  renderWhyWeek();
 }
 function renderOdds(){
   const reg=R();const m=reg.markets||{};const cb=reg.clearBy||[];const nC=coreDays().length;const end=coreEndDow();const se=FC.season;
@@ -1394,6 +1466,7 @@ async function boot(){
     COAST=coast;INP=inp;FC=fc;state.official=fc;
     try{REC=await getJSON('data/record.json');}catch(e){REC=null;}
     RINGS=COAST.map(enc=>{const pts=[];let x=0,y=0;for(let i=0;i<enc.length;i+=2){x+=enc[i];y+=enc[i+1];pts.push([x/100,y/100]);}return pts;});
+    try{prepWhy();}catch(e){WHY=null;}
     buildHot();buildWinds();buildThreads();renderAll();layout();initWind();syncT();
     let seen=false;try{seen=localStorage.getItem('hazeTourSeen')==='1';}catch(e){}if(!seen&&document.body.dataset.tab==='map')setTimeout(startTour,900);
   }catch(e){showError('The latest forecast could not be loaded ('+e.message+'). Reload the page to try again.');$('statusText').textContent='No forecast loaded';$('headline').textContent='The latest forecast could not be loaded.';}
