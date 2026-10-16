@@ -941,7 +941,6 @@ function renderExplainer(){
   const air=state.sel!==null?classColor(cls()[state.sel]):COL['--sA'];
   const rows=[
     ['<i class="ky-catch" style="--c:'+air+';display:inline-block"></i>','<b>Where Singapore\'s air comes from.</b> The air that will be over Singapore on the day you pick passed over this area in the 4 days before. Brighter means more of the '+FC.members+' weather forecasts agree. Fires inside it send smoke to Singapore; fires outside it mostly don\'t. It is not the wind: most air in the region goes elsewhere.'],
-    ['<i class="ky-air" style="--c:'+air+';display:inline-block"></i>','<b>Air paths to Singapore</b> (off by default, under Layers): the same thing drawn as one line per weather forecast.'],
     ['<i class="ky-fire" style="display:inline-block"></i>','<b>Fire hotspots</b> seen by NASA satellites in the last day. Bigger and brighter means a hotter fire.'],
     ['<i class="ky-smoke" style="display:inline-block"></i>','<b>Smoke</b> from those fires, drifting with the forecast winds. It is a picture of the model, not a satellite photo.'],
     ['<i class="ky-wind" style="display:inline-block"></i>','<b>Wind</b> about 1 km up, where most of the smoke travels. This shows which way air and smoke are actually moving.'],
@@ -950,7 +949,7 @@ function renderExplainer(){
   $('explainer').innerHTML='<div class="xh"><h2 id="exTitle">What\'s on the map</h2><button type="button" aria-label="Close" id="exClose">×</button></div><dl>'+rows.map(r=>'<dt>'+r[0]+'</dt><dd>'+r[1]+'</dd>').join('')+'</dl><p class="note">Pick a day below the map, or press Play, to see how this changes. Point at the shaded area, an airport or Singapore for details.</p>';
   $('exClose').addEventListener('click',toggleExplainer);
 }
-const LAYERS=[['futures','Where Singapore\'s air comes from'],['paths','Air paths to Singapore','detail'],['smoke','Smoke'],['hot','Fire hotspots'],['wind','Wind'],['air','Airport visibility'],['st','Air quality stations'],['sat','Satellite photo','yesterday']];
+const LAYERS=[['futures','Where Singapore\'s air comes from'],['smoke','Smoke'],['hot','Fire hotspots'],['wind','Wind'],['air','Airport visibility'],['st','Air quality stations'],['sat','Satellite photo','yesterday']];
 function renderLayers(){
   const m=$('layerMenu');m.innerHTML='';
   LAYERS.forEach(l=>{const lab=document.createElement('label');lab.innerHTML='<input type="checkbox"><span></span>'+(l[2]?'<small>'+l[2]+'</small>':'');lab.children[1].textContent=l[1];const inp=lab.children[0];inp.checked=state.layers[l[0]];
