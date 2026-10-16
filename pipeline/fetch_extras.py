@@ -80,7 +80,7 @@ def cams(log=print):
 def news(log=print):
     r = get("https://api.gdeltproject.org/api/v2/doc/doc",
             params={"query": NEWS_QUERY, "mode": "artlist", "maxrecords": 75, "format": "json",
-                    "timespan": "3d", "sort": "datedesc"}, timeout=60, retries=2, min_interval=5.0)
+                    "timespan": "3d", "sort": "datedesc"}, timeout=60, retries=4, min_interval=6.0)
     try:
         arts = r.json().get("articles") or []
     except ValueError:

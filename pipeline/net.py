@@ -33,5 +33,7 @@ def get(url, *, headers=None, params=None, timeout=60, retries=4, min_interval=0
                 break
         if r is not None and r.status_code == 302 and 'Rate Limit' in r.text:
             time.sleep(30)
+        if r is not None and r.status_code == 429:
+            time.sleep(15)
         time.sleep(min(60, 2 ** attempt * 2))
     raise RuntimeError(f"GET failed for {url.split('?')[0]}: {err}")
