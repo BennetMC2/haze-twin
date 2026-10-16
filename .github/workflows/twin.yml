@@ -21,7 +21,7 @@ permissions:
 
 concurrency:
   group: twin
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.event_name == 'push' }}
 
 jobs:
   build:
@@ -51,6 +51,7 @@ jobs:
           restore-keys: ecmwf-
 
       - name: Fetch data and back-trace from Singapore
+        timeout-minutes: 100
         env:
           FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
           OPENAQ_API_KEY: ${{ secrets.OPENAQ_API_KEY }}

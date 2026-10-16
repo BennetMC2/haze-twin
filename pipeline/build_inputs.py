@@ -164,8 +164,15 @@ def main():
         weather = fetch_gefs.to_weather(g, t0)
         if __import__("os").environ.get("ECMWF_ENS", "1") != "0":
             try:
-                import fetch_ecmwf
-                ens = fetch_ecmwf.fetch(log=log)
+                import fetch_ecmwf, signal
+                def _timeout(signum, frame):
+                    raise TimeoutError("ECMWF download took longer than 25 minutes")
+                signal.signal(signal.SIGALRM, _timeout)
+                signal.alarm(25 * 60)
+                try:
+                    ens = fetch_ecmwf.fetch(log=log)
+                finally:
+                    signal.alarm(0)
                 weather = fetch_ecmwf.merge(weather, ens, t0, log=log)
                 sources.append({"name": "ECMWF IFS ensemble", "status": "ok", "detail": f"51 forecasts, run {ens['run']:%Y-%m-%d %H}Z, to +240 h",
                                 "time": ens["run"].isoformat()})

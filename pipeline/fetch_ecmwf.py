@@ -67,7 +67,7 @@ def fetch(log=print):
     run = None
     for src in ("aws", "ecmwf"):
         try:
-            c = Client(source=src, model="ifs", resol="0p25")
+            c = Client(source=src, model="ifs", resol="0p25", maximum_retries=3, retry_after=15)
             run = c.latest(type="pf", stream="enfo", step=240, param="tp")
             client = c
             break
