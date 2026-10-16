@@ -9,6 +9,7 @@
 //   DAILY_LIMIT                  e.g. 500 questions a day in total
 //   OPENAI_API_KEY     (secret)  premium answers via OpenAI (used first if set)
 //   OPENAI_MODEL                 optional, default gpt-4o-mini
+//   OPENAI_BASE_URL              optional, for any OpenAI-compatible provider, e.g. Z.ai: https://api.z.ai/api/paas/v4 (model glm-5.3-flash)
 //   MODEL                        optional Claude model, default claude-haiku-5-5
 //   PREMIUM_CODES      (secret)  comma-separated codes that unlock Claude answers; everyone else gets Workers AI
 //
@@ -72,7 +73,7 @@ export default {
     if (!premium) return json({ error: "no model configured" }, 500, h);
 
     if (env.OPENAI_API_KEY) {
-      const r = await fetch("https://api.openai.com/v1/chat/completions", {
+      const r = await fetch((env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(/\/$/, "") + "/chat/completions", {
         method: "POST",
         headers: { "content-type": "application/json", "authorization": "Bearer " + env.OPENAI_API_KEY },
         body: JSON.stringify({
