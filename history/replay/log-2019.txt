@@ -1,0 +1,12 @@
+[14:26:36]   2019-08-28: PSI 60, fires {'VIIRS_SNPP_SP': 1484, 'VIIRS_NOAA20_SP': 1397}, PM2.5 hours 41
+[14:26:42]     member c00: done (6s)
+[14:26:47]     member p01: done (12s)
+[14:26:53]     member p02: done (17s)
+[14:26:58]     member p03: done (22s)
+[14:27:03]     member p04: done (27s)
+[14:27:07]     reforecast: 160/225 member-steps, 16 history steps, 31s
+[14:27:08]   traced member 1/5
+[14:27:09]   traced member 5/5
+[14:27:09]   wrote 2019-08-28.json (0.3 MB) in 37s
+[14:27:09] done: 1 issue dates built
+2019-08-28 now 60 p50 61 62 61 61 62 63 3.5s

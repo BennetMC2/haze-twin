@@ -1,0 +1,19 @@
+[14:26:40]   2023-09-20: PSI 41, fires {'VIIRS_SNPP_SP': 1606, 'VIIRS_NOAA20_SP': 1645, 'VIIRS_NOAA21_SP': 1762}, PM2.5 hours 41
+[14:26:45]     member c00: done (5s)
+[14:26:49]     member p01: done (9s)
+[14:26:53]     member p02: done (13s)
+[14:26:57]     member p03: done (17s)
+[14:27:01]     member p04: done (21s)
+[14:27:06]     member p05: done (26s)
+[14:27:09]     member p06: done (30s)
+[14:27:13]     member p07: done (33s)
+[14:27:18]     member p08: done (38s)
+[14:27:22]     member p09: done (42s)
+[14:27:26]     member p10: done (46s)
+[14:27:29]     operational: 484/495 member-steps, 16 history steps, 49s
+[14:27:30]   traced member 1/11
+[14:27:34]   traced member 9/11
+[14:27:35]   traced member 11/11
+[14:27:35]   wrote 2023-09-20.json (0.6 MB) in 60s
+[14:27:35] done: 1 issue dates built
+2023-09-20 now 41 p50 51 60 62 57 55 59 3.5s

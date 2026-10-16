@@ -1,0 +1,13 @@
+[14:26:35]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[14:26:36]   2015-09-01: PSI 64, fires {'VIIRS_SNPP_SP': 21100}, PM2.5 hours 0
+[14:26:42]     member c00: done (6s)
+[14:26:48]     member p01: done (11s)
+[14:26:53]     member p02: done (17s)
+[14:26:59]     member p03: done (22s)
+[14:27:04]     member p04: done (28s)
+[14:27:07]     reforecast: 220/225 member-steps, 16 history steps, 31s
+[14:27:20]   traced member 1/5
+[14:27:22]   traced member 5/5
+[14:27:22]   wrote 2015-09-01.json (0.3 MB) in 50s
+[14:27:22] done: 1 issue dates built
+2015-09-01 now 64 p50 69 68 69 66 66 68 4.2s
