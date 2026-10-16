@@ -5,7 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Haze Twin</title>
 <meta name="haze-ai" content="https://haze-ask.healthid-cloudflare.workers.dev/">
-<meta name="description" content="How bad Singapore's haze is, how it is likely to change over the next 15 days, and where the smoke is coming from.">
+<meta name="description" content="When will Singapore's haze get better? Day-by-day odds for the next 15 days, where the smoke is coming from, and why. Updated every hour.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Haze Twin">
+<meta property="og:title" content="Haze Twin: when will Singapore's haze get better?">
+<meta property="og:description" content="Day-by-day odds for the next 15 days, where the smoke is coming from, and why. Updated every hour.">
+<meta property="og:url" content="https://bennetmc2.github.io/haze-twin/">
+<meta property="og:image" content="https://bennetmc2.github.io/haze-twin/data/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Haze Twin: when will Singapore's haze get better?">
+<meta name="twitter:image" content="https://bennetmc2.github.io/haze-twin/data/og.png">
+<meta name="theme-color" content="#0E1820">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230E1820'/%3E%3Ccircle cx='32' cy='28' r='13' fill='%23E9813A'/%3E%3Crect x='10' y='36' width='44' height='5' rx='2.5' fill='%23A9B9C3'/%3E%3Crect x='16' y='45' width='32' height='5' rx='2.5' fill='%237F929F'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
@@ -42,6 +55,8 @@ a{color:var(--sky)}
 .live i{width:8px;height:8px;border-radius:50%;background:var(--sD)}
 .live.run i{background:var(--sky)}
 .live.sample i{background:var(--unh)}
+.live.stale i{background:var(--vunh)}
+#nextText.warn{color:var(--vunh)}
 .actions{display:flex;gap:8px}
 .btn{min-height:38px;padding:0 14px;border-radius:5px;border:1px solid var(--line-hi);background:transparent;cursor:pointer;font-weight:500;font-size:14px}
 .btn:hover{border-color:var(--sky)}
@@ -997,7 +1012,9 @@ function renderHeader(){
   const b=new Date(FC.built);
   $('statusText').textContent=(INP.sample?'Sample data. ':'')+'Updated '+dayName(b).split(' ')[0]+' '+clock(b);
   $('liveDot').classList.toggle('sample',!!INP.sample);
-  const n=nextUpdate();$('nextText').textContent=n?'Next update about '+clock(n):'';
+  const ageH=(Date.now()-b.getTime())/3600e3;
+  if(ageH>3&&!INP.sample){$('liveDot').classList.add('stale');$('nextText').classList.add('warn');$('nextText').textContent='This is '+Math.round(ageH)+' hours old. The next update is running late; the odds may be out of date.';}
+  else{$('liveDot').classList.remove('stale');$('nextText').classList.remove('warn');$('nextText').textContent='Updates every hour';}
   document.querySelectorAll('.nMembers').forEach(e=>e.textContent=FC.members);
 }
 function renderAll(){renderHeader();renderRegions();renderAnswer();renderDays();renderScenarios();renderSources();renderChanges();renderNews();renderSeason();renderHood();renderStrip();renderKey();renderShowing();renderRecord();markCurrent();}
