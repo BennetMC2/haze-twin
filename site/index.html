@@ -66,6 +66,13 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .askout .q{color:var(--ink);font-weight:600}
 .askout p{margin:0}
 .askout .by{font-size:12px;color:var(--ink-3)}
+.gtip{position:fixed;z-index:60;pointer-events:none;background:#0A141B;border:1px solid var(--line-hi);border-radius:6px;padding:7px 10px;font-size:13px;color:var(--ink-2);display:flex;flex-direction:column;gap:1px;max-width:260px;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+.gtip[hidden]{display:none}
+.gtip .gt1{color:var(--ink);font-weight:600}
+.gtip b{color:var(--ink)}
+.bandscale{display:flex;flex-wrap:wrap;gap:4px}
+.bandscale span{font-size:12px;color:var(--ink-2);border-left:3px solid var(--c);padding:1px 6px;background:rgba(255,255,255,.03);border-radius:2px}
+.facts a{color:var(--sky)}
 .how{margin:-4px 0 0;font-size:13.5px;color:var(--ink-3);line-height:1.45}
 .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
 
@@ -316,7 +323,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
           <span class="note" id="nowProv">24-hour PSI</span>
         </div>
       </div>
-      <p class="how">PSI is NEA's air pollution index for the last 24 hours. Above 100 is unhealthy, above 200 very unhealthy, above 300 hazardous. Tap an area of Singapore to see it.</p>
+      <div class="bandscale" aria-label="NEA PSI bands"><span style="--c:var(--good)">0–50 Good</span><span style="--c:var(--mod)">51–100 Moderate</span><span style="--c:var(--unh)">101–200 Unhealthy</span><span style="--c:var(--vunh)">201–300 Very unhealthy</span><span style="--c:var(--haz)">300+ Hazardous</span></div>
       <div class="regions" role="group" aria-label="Area of Singapore" id="regions"></div>
       <h1 class="headline" id="headline">Loading…</h1>
       <p class="lede" id="lede"></p>
@@ -325,10 +332,9 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 
     <section class="panel card" id="cardDays" aria-labelledby="daysTitle">
       <div class="head"><h2 id="daysTitle">Next 15 days</h2><span class="note">24-hour PSI</span></div>
-      <p class="how">One row per day. The dot and number are the best guess. The coloured bar is where PSI will most likely be; the grey line is the full possible spread. Tap a day to see it on the map.</p>
       <div class="scale" aria-hidden="true"><span></span><div class="ax" id="ax"></div><span></span></div>
       <div id="dayList"></div>
-      <div class="keyrow"><span><i class="k-mid"></i>Likely range</span><span><i class="k-wide"></i>Possible range</span><span><i class="k-dot"></i>Middle forecast</span></div>
+      <div class="keyrow"><span><i class="k-mid"></i>Likely range</span><span><i class="k-wide"></i>Possible range</span><span><i class="k-dot"></i>Best guess</span></div>
     </section>
   </aside>
 
@@ -368,15 +374,13 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     </section>
     <section class="panel card" id="cardScen" aria-labelledby="scTitle">
       <div class="head"><h2 id="scTitle">What could happen</h2><span class="note" id="scSpan"></span></div>
-      <p class="how">We played out 100,000 possible versions of the next 6 days and sorted them by how they turn out. The % is how many ended that way.</p>
       <div class="dots" id="dots" role="img"></div>
-      <p class="note">Each square is 1% of the simulated futures. Select an outcome to see it on the map.</p>
+      <p class="note">Share of 100,000 simulated weeks. 1 square = 1%.</p>
       <div class="scen" id="scen"></div>
     </section>
 
     <section class="panel card" id="cardSrc" aria-labelledby="srcTitle">
-      <div class="head"><h2 id="srcTitle">Where the smoke comes from</h2><span class="note">Next 3 days</span></div>
-      <p class="how">Which provinces' fires are sending smoke our way: how much is burning there, and whether the wind carries it to Singapore.</p>
+      <div class="head"><h2 id="srcTitle">Where the smoke comes from</h2><span class="note">Share of fire smoke, next 3 days</span></div>
       <p class="sub" id="srcLine"></p>
       <div class="srcs" id="srcs"></div>
       <ul class="facts" id="facts"></ul>
@@ -384,20 +388,17 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 
     <section class="panel card" id="changeCard" aria-labelledby="chTitle">
       <div class="head"><h2 id="chTitle">Since the last update</h2><span class="note" id="chWhen"></span></div>
-      <p class="how">The forecast is redone every 6 hours. This shows how the odds moved and what caused it.</p>
       <div class="changes" id="changes"></div>
     </section>
 
     <section class="panel card" aria-labelledby="fanTitle">
       <div class="head"><h2 id="fanTitle">PSI, past 2 days and next 15</h2></div>
-      <p class="how">Blue is what NEA measured. White is the best guess. The light bands show the likely and possible range, which widen further out because weather forecasts get less certain.</p>
       <canvas id="fan" role="img" aria-label="Chart of 24-hour PSI"></canvas>
-      <div class="fankey"><span><i class="fk-meas"></i>Measured</span><span><i class="fk-mid"></i>Middle forecast</span><span><i class="fk-50"></i>Likely</span><span><i class="fk-90"></i>Possible</span></div>
+      <div class="fankey"><span><i class="fk-meas"></i>Measured</span><span><i class="fk-mid"></i>Best guess</span><span><i class="fk-50"></i>Likely</span><span><i class="fk-90"></i>Possible</span></div>
     </section>
 
     <section class="panel card" id="newsCard" aria-labelledby="newsTitle">
       <div class="head"><h2 id="newsTitle">In the news</h2><span class="note">Last 3 days</span></div>
-      <p class="how">Recent reports about the fires. Lots of reports of fires spreading nudge the forecast slightly worse; rain and firefighting nudge it better.</p>
       <p class="sigline" id="sigLine"></p>
       <div class="sigs" id="sigChips"></div>
       <ul class="news" id="newsList"></ul>
@@ -405,7 +406,6 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 
     <section class="panel card" id="seasonCard" aria-labelledby="seTitle">
       <div class="head"><h2 id="seTitle">When the haze season ends</h2><span class="note">Experimental</span></div>
-      <p class="how">Haze usually ends when the monsoon rains set in over Sumatra and Kalimantan and put the fires out. This is the chance that has happened by each date.</p>
       <p class="sub" id="seasonLine"></p>
       <div id="seasonRows" style="display:flex;flex-direction:column;gap:6px"></div>
       <details class="more"><summary>How this is worked out</summary><div id="seasonMore"></div></details>
@@ -444,8 +444,8 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
       <li><b>End of season:</b> when steady rain sets in over the fire areas, from the weather forecasts and, beyond them, from normal dates adjusted for El Niño. Experimental.</li>
     </ul>
     <div class="srclist">
-      <div><h3>Measured</h3><ul><li>NEA PSI and PM2.5 (data.gov.sg)</li><li>NASA FIRMS fire hotspots (VIIRS)</li><li>Airport visibility near the fires</li><li>Regional PM2.5 stations (OpenAQ)</li><li>Recent rain over the fire areas (Open-Meteo)</li><li>NEA PSI history since 2014</li><li>Satellite imagery (NASA GIBS)</li><li>El Niño and Indian Ocean Dipole (NOAA)</li></ul></div>
-      <div><h3>Simulated</h3><ul><li>Winds and rain from <span class="nMembers">31</span> NOAA GEFS forecasts</li><li>Air paths traced back from Singapore</li><li>Smoke, outcomes and odds</li><li>CAMS smoke model, for comparison</li></ul></div>
+      <div><h3>Measured</h3><ul><li><a href="https://www.haze.gov.sg/" target="_blank" rel="noopener">NEA PSI and PM2.5</a> via <a href="https://data.gov.sg/" target="_blank" rel="noopener">data.gov.sg</a></li><li><a href="https://firms.modaps.eosdis.nasa.gov/map/" target="_blank" rel="noopener">NASA FIRMS fire hotspots</a> (VIIRS satellites)</li><li><a href="https://aviationweather.gov/data/metar/" target="_blank" rel="noopener">Airport visibility (METAR)</a> near the fires</li><li><a href="https://explore.openaq.org/" target="_blank" rel="noopener">Regional PM2.5 stations (OpenAQ)</a></li><li><a href="https://open-meteo.com/" target="_blank" rel="noopener">Recent rain over the fire areas (Open-Meteo)</a></li><li><a href="https://data.gov.sg/" target="_blank" rel="noopener">NEA PSI history since 2014</a></li><li><a href="https://worldview.earthdata.nasa.gov/" target="_blank" rel="noopener">Satellite imagery (NASA Worldview)</a></li><li><a href="https://www.cpc.ncep.noaa.gov/" target="_blank" rel="noopener">El Niño and Indian Ocean Dipole (NOAA)</a></li><li><a href="https://www.gdeltproject.org/" target="_blank" rel="noopener">News (GDELT)</a></li></ul></div>
+      <div><h3>Simulated</h3><ul><li>Winds and rain from <span class="nMembers">31</span> <a href="https://www.ncei.noaa.gov/products/weather-climate-models/global-ensemble-forecast" target="_blank" rel="noopener">NOAA GEFS</a> forecasts</li><li>Air paths traced back from Singapore</li><li>Smoke, outcomes and odds</li><li><a href="https://atmosphere.copernicus.eu/" target="_blank" rel="noopener">CAMS smoke model</a>, for comparison</li></ul></div>
     </div>
     <p>Limits: smoke amounts are scaled to match NEA, not measured at the fires. This is an independent public-good project. For health advice, follow NEA.</p>
   </div>
@@ -659,14 +659,32 @@ let puffs=[],HOT=[];
 const puffSprite=(function(){const s=document.createElement('canvas');s.width=s.height=64;const c=s.getContext('2d');const g=c.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(203,187,166,1)');g.addColorStop(0.5,'rgba(203,187,166,0.45)');g.addColorStop(1,'rgba(203,187,166,0)');c.fillStyle=g;c.fillRect(0,0,64,64);return s;})();
 const fireSprite=(function(){const s=document.createElement('canvas');s.width=s.height=64;const c=s.getContext('2d');const g=c.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,236,190,1)');g.addColorStop(0.18,'rgba(255,160,70,0.95)');g.addColorStop(0.45,'rgba(255,100,20,0.35)');g.addColorStop(1,'rgba(255,80,0,0)');c.fillStyle=g;c.fillRect(0,0,64,64);return s;})();
 let srnd=rng(77);
+/* fire activity by province over the forecast: burns down slowly, dimmed by rain, shaped by the chosen outcome */
+let ACT=null;
+const OUTCOME_FIRE={early:{th:5,g:-0.02},later:{th:7,g:-0.01},stays:{th:14,g:0},worse:{th:30,g:0.03},clean:{th:5,g:-0.02},brief:{th:8,g:0},returns:{th:16,g:0.01}};
+function buildAct(){
+  const Rn=INP.regions.length,th=INP.rain.t_h,rT=th.length,rain=WHY?WHY.rain:HE.decode(INP.rain.data),M=INP.members.length;
+  const mc=R().memberClass;const w=mc.map(x=>state.sel===null?x[0]+x[1]+x[2]+x[3]:x[state.sel]);const tot=w.reduce((a,b)=>a+b,0)||1;
+  const cum=[];for(let q=0;q<Rn;q++){const row=new Float32Array(rT);let acc=0;for(let t=0;t<rT;t++){let v=0;for(let m=0;m<M;m++){if(!w[m])continue;v+=w[m]/tot*Math.max(0,rain[(m*rT+t)*Rn+q]-1.5);}if(th[t]>0)acc+=v;row[t]=acc;}cum.push(row);}
+  const c=state.sel!==null?cls()[state.sel]:null;const of=(c&&OUTCOME_FIRE[c.id])||{th:12.6,g:0};
+  const g=((INP.signals&&INP.signals.growthShift)||0)+of.g;
+  ACT={th:th,cum:cum,half:of.th,g:g,rs:0.05,key:state.sel+'|'+state.region};
+}
+function regionAct(q,tDays){
+  if(!ACT||tDays<=0)return 1;const th=ACT.th,h=tDays*24;let i=0;while(i<th.length-1&&th[i+1]<=h)i++;
+  return clamp(Math.pow(0.5,tDays/ACT.half)*Math.exp(-ACT.rs*ACT.cum[q][i])*Math.exp(ACT.g*tDays),0.02,2.5);
+}
+let actFrame=null,actFrameT=-1;
+function actNow(tDays){if(!ACT||ACT.key!==state.sel+'|'+state.region)buildAct();if(actFrameT===tDays&&actFrame)return actFrame;actFrame=INP.regions.map((g,q)=>regionAct(q,tDays));actFrameT=tDays;return actFrame;}
 function buildHot(){
   const hs=INP.hotspots;const frps=hs.map(h=>h[2]).sort((a,b)=>a-b);const med=frps[Math.floor(frps.length/2)]||10;
-  HOT=hs.map((h,i)=>({lon:h[0],lat:h[1],frp:clamp(h[2]/med,0.2,4),age:h[3],ph:(i*2.399)%6.28,acc:(i*0.618)%1}));
+  const regs=INP.regions;const near=(lon,lat)=>{let b=0,bd=1e9;regs.forEach((g,q)=>{const d=(g.lon-lon)**2+(g.lat-lat)**2;if(d<bd){bd=d;b=q;}});return b;};
+  HOT=hs.map((h,i)=>({lon:h[0],lat:h[1],frp:clamp(h[2]/med,0.2,4),age:h[3],ph:(i*2.399)%6.28,acc:(i*0.618)%1,q:near(h[0],h[1]),seed:((i*9301+49297)%233280)/233280}));
   const scale=Math.min(1,700/Math.max(1,HOT.length));HOT.forEach(h=>h.rate=3.2*h.frp*scale);
 }
 function stepSmoke(dt,tDays,F){
-  if(dt<=0||!HOT.length)return;const k=intensityAt(Math.max(0,tDays));
-  for(const h of HOT){h.acc+=dt*h.rate*k;while(h.acc>=1){h.acc-=1;if(puffs.length<3200)puffs.push({lon:h.lon+gauss(srnd)*0.06,lat:h.lat+gauss(srnd)*0.05,age:0,life:2.0+srnd()*1.3,w:0.7+srnd()*0.6});}}
+  if(dt<=0||!HOT.length)return;const act=actNow(Math.max(0,tDays));
+  for(const h of HOT){const k=act[h.q]*(h.seed<act[h.q]?1:0.15);h.acc+=dt*h.rate*k;while(h.acc>=1){h.acc-=1;if(puffs.length<3200)puffs.push({lon:h.lon+gauss(srnd)*0.06,lat:h.lat+gauss(srnd)*0.05,age:0,life:2.0+srnd()*1.3,w:0.7+srnd()*0.6});}}
   const hh=tDays*24;
   for(let i=puffs.length-1;i>=0;i--){const p=puffs[i];const uv=windAt(p.lon,p.lat,hh,F);p.lon+=uv[0]*dt;p.lat+=uv[1]*dt;p.age+=dt;
     if(p.age>p.life||p.lon<88||p.lon>128||p.lat<-14||p.lat>14){puffs[i]=puffs[puffs.length-1];puffs.pop();}}
@@ -813,7 +831,8 @@ function renderDays(){
     if(i===nCore){const dv=document.createElement('div');dv.className='divider';dv.textContent='Less certain from here';box.appendChild(dv);}
     const fd=FC.days[i];const row=document.createElement('button');row.type='button';row.className='drow'+(i>=nCore?' ext':'');row.dataset.t=fd.h/24;
     const p25=d.p25!=null?d.p25:d.p5,p75=d.p75!=null?d.p75:d.p95;
-    row.setAttribute('aria-label',fd.label+': middle forecast '+d.p50+', '+bandWord(d.p50)+'. Likely '+p25+' to '+p75+', possible '+d.p5+' to '+d.p95+'.');
+    row.setAttribute('aria-label',fd.label+': best guess '+d.p50+', '+bandWord(d.p50)+'. Likely '+p25+' to '+p75+', possible '+d.p5+' to '+d.p95+'.');
+    row.dataset.tip=fd.label+'|Best guess <b>'+d.p50+'</b> ('+bandWord(d.p50)+')|Likely '+p25+'–'+p75+'|Possible '+d.p5+'–'+d.p95+'|100 or below: '+pctTxt(d.bands[0]+d.bands[1])+' · above 200: '+pctTxt(d.bands[3]+d.bands[4]);
     const zones=[0,50,100,200,300,AXMAX].slice(0,-1).map((e,k,arr)=>'<i class="zone" style="left:'+ax(e)+'%;width:'+(ax([0,50,100,200,300,AXMAX][k+1])-ax(e))+'%;background:'+COL.b[k]+'"></i>').join('');
     row.innerHTML='<span class="dl"><b>'+esc(fd.dow)+'</b>'+esc(fd.label.split(' ')[1])+'</span><span class="track">'+zones+
       '<i class="wide" style="left:'+ax(d.p5)+'%;width:'+Math.max(0.5,ax(d.p95)-ax(d.p5))+'%"></i>'+
@@ -832,7 +851,7 @@ function renderScenarios(){
   raw.map((v,i)=>[v-fl[i],i]).sort((a,b)=>b[0]-a[0]).forEach(([,i])=>{if(left>0){fl[i]++;left--;}});
   const dots=$('dots');dots.innerHTML='';dots.classList.toggle('dim',state.sel!==null);
   const lab=[];
-  [3,2,1,0].forEach(ci=>{for(let k=0;k<fl[ci];k++){const i=document.createElement('i');i.style.background=classColor(cs[ci]);if(state.sel===ci)i.classList.add('on');dots.appendChild(i);}if(fl[ci])lab.push(plainName(cs[ci])+' '+fl[ci]+'%');});
+  [3,2,1,0].forEach(ci=>{for(let k=0;k<fl[ci];k++){const i=document.createElement('i');i.style.background=classColor(cs[ci]);i.dataset.tip=plainName(cs[ci])+'|<b>'+Math.round(cs[ci].odds)+'%</b> of simulated weeks|'+esc(cs[ci].outcome||'');if(state.sel===ci)i.classList.add('on');dots.appendChild(i);}if(fl[ci])lab.push(plainName(cs[ci])+' '+fl[ci]+'%');});
   dots.setAttribute('aria-label',lab.join(', '));
   $('scSpan').textContent='Next 6 days';
   const box=$('scen');box.innerHTML='';
@@ -856,14 +875,14 @@ function renderSources(){
   const k=Math.round((ss.Kalimantan||0)/10),s=Math.round((ss.Sumatra||0)/10);
   $('srcLine').textContent='Of the fire smoke likely to reach Singapore, about '+k*10+'% comes from Kalimantan and '+s*10+'% from Sumatra.';
   const box=$('srcs');box.innerHTML='';const mx=Math.max(1,...list.map(r=>r.share));
-  list.forEach(r=>{const el=document.createElement('div');el.className='src';el.innerHTML='<span></span><span class="bar"><i></i></span><span class="pc"></span>';el.children[0].textContent=r.name;el.querySelector('i').style.width=(r.share/mx*100)+'%';el.children[2].textContent=Math.round(r.share)+'%';box.appendChild(el);});
+  list.forEach(r=>{const el=document.createElement('div');el.className='src';el.innerHTML='<span></span><span class="bar"><i></i></span><span class="pc"></span>';el.children[0].textContent=r.name;el.dataset.tip=r.name+'|<b>'+Math.round(r.share)+'%</b> of the fire smoke reaching Singapore over the next 3 days';el.querySelector('i').style.width=(r.share/mx*100)+'%';el.children[2].textContent=Math.round(r.share)+'%';box.appendChild(el);});
   const facts=$('facts');facts.innerHTML='';const add=(k,html)=>{const li=document.createElement('li');li.innerHTML='<span>'+k+'</span><span>'+html+'</span>';facts.appendChild(li);};
   const cnt={};INP.hotspots.forEach(h=>{const i=islandOf(h[0],h[1]);cnt[i]=(cnt[i]||0)+1;});const fmt=(n)=>n.toLocaleString('en-US');
-  add('Fires','<b>'+fmt(INP.hotspots.length)+'</b> hotspots seen by satellite in the last day: Kalimantan '+fmt(cnt.Kalimantan||0)+', Sumatra '+fmt(cnt.Sumatra||0)+'.');
+  add('Fires','<b>'+fmt(INP.hotspots.length)+'</b> hotspots seen by <a href="https://firms.modaps.eosdis.nasa.gov/map/#d:24hrs;@108,-1,6z" target="_blank" rel="noopener">NASA satellites</a> in the last day: Kalimantan '+fmt(cnt.Kalimantan||0)+', Sumatra '+fmt(cnt.Sumatra||0)+'.');
   const rn=(INP.summary&&INP.summary.rain_mm_0_120h)||null;
-  if(rn)add('Rain','Expected over the fires in the next 5 days: Sumatra <b>'+Math.round(rn.Sumatra||0)+' mm</b>, Kalimantan <b>'+Math.round(rn.Kalimantan||0)+' mm</b>. Peat fires need days of steady rain to go out.');
+  if(rn)add('Rain','Expected over the fires in the next 5 days (<a href="https://www.ncei.noaa.gov/products/weather-climate-models/global-ensemble-forecast" target="_blank" rel="noopener">NOAA forecasts</a>): Sumatra <b>'+Math.round(rn.Sumatra||0)+' mm</b>, Kalimantan <b>'+Math.round(rn.Kalimantan||0)+' mm</b>. Peat fires need days of steady rain to go out.');
   const ap=((INP.extras||{}).airports||[]).filter(a=>a.icao!=='WSSS'&&a.haze&&a.vis_km!=null).sort((a,b)=>a.vis_km-b.vis_km).slice(0,3);
-  if(ap.length)add('Visibility','Smoke haze at airports near the fires: '+ap.map(a=>esc(a.name)+' '+a.vis_km+' km').join(', ')+'.');
+  if(ap.length)add('Visibility','Smoke haze reported at <a href="https://aviationweather.gov/data/metar/?id=WIBB,WIPP,WIOO,WAGG" target="_blank" rel="noopener">airports</a> near the fires: '+ap.map(a=>esc(a.name)+' '+a.vis_km+' km').join(', ')+'.');
 }
 function renderChanges(){
   const w=(FC.why||{})[state.region];const box=$('changes');box.innerHTML='';
@@ -917,7 +936,7 @@ function renderStrip(){
     b.addEventListener('click',()=>{stopPlay();setT(t);needWarm=true;});box.appendChild(b);};
   mk(0,'Now',Math.round(reg.now),false,'Now, PSI '+Math.round(reg.now));
   reg.days.forEach((d,i)=>{if(i===nCore){const g=document.createElement('span');g.className='gap';g.setAttribute('aria-hidden','true');box.appendChild(g);}
-    const fd=FC.days[i];mk(fd.h/24,i<nCore?fd.dow:fd.label.split(' ')[1]+' '+MON[sgt(new Date(fd.iso)).getUTCMonth()],d.p50,i>=nCore,fd.label+', middle forecast '+d.p50);});
+    const fd=FC.days[i];mk(fd.h/24,i<nCore?fd.dow:fd.label.split(' ')[1]+' '+MON[sgt(new Date(fd.iso)).getUTCMonth()],d.p50,i>=nCore,fd.label+', best guess '+d.p50);box.lastChild.dataset.tip=fd.label+'|Best guess <b>'+d.p50+'</b>|Likely '+(d.p25??d.p5)+'–'+(d.p75??d.p95)+'|Possible '+d.p5+'–'+d.p95;});
 }
 function markCurrent(){
   const t=state.t;let best=null,bd=1e9;document.querySelectorAll('.dchip').forEach(b=>{const d=Math.abs(Number(b.dataset.t)-t);if(d<bd){bd=d;best=b;}});
@@ -1080,8 +1099,8 @@ function render(now){
     if(state.layers.futures&&CATCH){const a=P(CG.lon0,CG.lat1),b=P(CG.lon0+CG.nx*CG.d,CG.lat1-CG.ny*CG.d);c.imageSmoothingEnabled=true;c.drawImage(catchCv,a[0],a[1],b[0]-a[0],b[1]-a[1]);}
     if(state.layers.paths){c.setTransform(1,0,0,1,0,0);c.drawImage(threadCv,0,0);c.setTransform(V.dpr,0,0,V.dpr,0,0);}
     if(state.layers.hot){
-      c.globalCompositeOperation='lighter';const k=intensityAt(state.t);const kk=V.k0*Math.pow(VIEW.z,0.35);
-      for(const h of HOT){const s=P(h.lon,h.lat);if(s[0]<-20||s[0]>V.w+20||s[1]<-20||s[1]>V.h+20)continue;const pulse=1+0.18*Math.sin(tSec*3+h.ph);const fresh=1-h.age/30;const r=(0.08+0.06*h.frp)*kk*Math.sqrt(k)*pulse;c.globalAlpha=clamp((0.3+0.7*k)*(0.5+0.5*fresh),0.1,1);c.drawImage(fireSprite,s[0]-r,s[1]-r,r*2,r*2);}
+      c.globalCompositeOperation='lighter';const act=actNow(state.t);const kk=V.k0*Math.pow(VIEW.z,0.35);
+      for(const h of HOT){const a0=act[h.q];const alive=h.seed<a0;if(!alive&&a0<0.98){if(h.seed>a0+0.25)continue;}const k=alive?a0:a0*0.3;const s=P(h.lon,h.lat);if(s[0]<-20||s[0]>V.w+20||s[1]<-20||s[1]>V.h+20)continue;const pulse=1+0.18*Math.sin(tSec*3+h.ph);const fresh=1-h.age/30;const r=(0.08+0.06*h.frp)*kk*Math.sqrt(k)*pulse;c.globalAlpha=clamp((0.3+0.7*k)*(0.5+0.5*fresh),0.1,1);c.drawImage(fireSprite,s[0]-r,s[1]-r,r*2,r*2);}
       c.globalAlpha=1;c.globalCompositeOperation='source-over';
     }
     const ex=INP.extras||{};
@@ -1245,6 +1264,22 @@ function renderWhyMap(arrI){
   const key=best+'|'+state.sel+'|'+state.region;if(key===whyMapKey)return;whyMapKey=key;fillWhy($('whyMapList'),whyLines(best));
 }
 
+
+
+/* ---------- hover numbers ---------- */
+const gtip=document.createElement('div');gtip.className='gtip';gtip.hidden=true;gtip.setAttribute('role','tooltip');document.body.appendChild(gtip);
+function showTip(html,x,y){gtip.innerHTML=html;gtip.hidden=false;const w=gtip.offsetWidth,h=gtip.offsetHeight;let px=x+14,py=y+14;if(px+w>innerWidth-8)px=x-w-14;if(py+h>innerHeight-8)py=y-h-14;gtip.style.left=Math.max(8,px)+'px';gtip.style.top=Math.max(8,py)+'px';}
+function tipHTML(t){const parts=t.split('|');return '<b class="gt1">'+esc(parts[0])+'</b>'+parts.slice(1).map(x=>'<span>'+x+'</span>').join('');}
+document.addEventListener('pointermove',e=>{if(e.pointerType==='touch')return;const el=e.target.closest&&e.target.closest('[data-tip]');if(el)showTip(tipHTML(el.dataset.tip),e.clientX,e.clientY);else if(e.target!==fan)gtip.hidden=true;});
+document.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')return;const el=e.target.closest&&e.target.closest('[data-tip]');if(el){showTip(tipHTML(el.dataset.tip),e.clientX,e.clientY);clearTimeout(gtip._t);gtip._t=setTimeout(()=>gtip.hidden=true,2500);}});
+document.addEventListener('scroll',()=>{gtip.hidden=true;},true);
+// chart: read the value under the cursor
+fan.addEventListener('pointermove',ev=>{if(!FC||dragFan)return;const r=fan.getBoundingClientRect();const G=fanGeom();const t=G.x0+((ev.clientX-r.left)-FL.l)/(G.w-FL.l-FL.r)*(G.x1-G.x0);
+  const reg=R();let html;
+  if(t<0){const hist=(INP.obs.psi_hist||[]).filter(x=>x[1][state.region]!=null);if(!hist.length)return;let b=hist[0];hist.forEach(x=>{if(Math.abs(x[0]/24-t)<Math.abs(b[0]/24-t))b=x;});const d=new Date(t0().getTime()+b[0]*3600e3);html='<b class="gt1">'+dayName(d)+', '+clock(d)+'</b><span>Measured <b>'+Math.round(b[1][state.region])+'</b></span>';}
+  else{const i=arrIndex(t*24);const d=new Date(t0().getTime()+FC.arrivals_h[i]*3600e3);const pc=reg.pct;html='<b class="gt1">'+dayName(d)+', '+clock(d)+'</b><span>Best guess <b>'+pc.p50[i]+'</b> ('+bandWord(pc.p50[i])+')</span>'+(pc.p25?'<span>Likely '+pc.p25[i]+'–'+pc.p75[i]+'</span>':'')+'<span>Possible '+pc.p5[i]+'–'+pc.p95[i]+'</span>';}
+  showTip(html,ev.clientX,ev.clientY);});
+fan.addEventListener('pointerleave',()=>{gtip.hidden=true;});
 
 /* ---------- guided tour ---------- */
 const TOUR=[
