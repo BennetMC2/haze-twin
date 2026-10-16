@@ -1169,7 +1169,7 @@ async function ask(q){
   let paras=null,by='Answer from this forecast';
   if(AI_URL){try{const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),20000);
       const r=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,context:askContext()}),signal:ctl.signal});clearTimeout(tm);
-      if(r.ok){const js=await r.json();if(js.answer){paras=String(js.answer).split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);by='Answered by Claude, using this forecast. It can make mistakes.';}}
+      if(r.ok){const js=await r.json();if(js.answer){paras=String(js.answer).split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);by='Answered by AI using this forecast. It can make mistakes.';}}
     }catch(e){}}
   if(!paras)paras=localAnswer(q);
   out.innerHTML='';const qe=document.createElement('p');qe.className='q';qe.textContent=q;out.appendChild(qe);
