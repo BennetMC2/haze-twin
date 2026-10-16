@@ -713,11 +713,12 @@ const _ds=drawStatic;drawStatic=function(){_ds();drawStaticTop();};
 
 /* ---------- satellite imagery (NASA GIBS, NOAA-20 true colour) ---------- */
 const TILES=new Map();let satZ=2;
-function satZoom(){return clamp(Math.ceil(Math.log2(Math.max(1,V.k*V.dpr*180/512))),2,8);}
+// GIBS EPSG:4326 tiles are 512 px; a level-0 tile spans 288 degrees, halving at each level (250 m layer: levels 0-8)
+function satZoom(){return clamp(Math.ceil(Math.log2(Math.max(1,V.k*V.dpr*288/512))),2,8);}
 function satDate(){return new Date(Date.now()-36*3600e3).toISOString().slice(0,10);}
 function loadSat(){
   if(!state.layers.sat)return;
-  const z=satZoom();satZ=z;const size=180/Math.pow(2,z);const date=satDate();
+  const z=satZoom();satZ=z;const size=288/Math.pow(2,z);const date=satDate();
   const lon0=(0-V.ox)/V.k,lon1=(V.w-V.ox)/V.k,lat1=V.oy/V.k,lat0=(V.oy-V.h)/V.k;
   const c0=Math.floor((Math.max(88,lon0)+180)/size),c1=Math.floor((Math.min(128,lon1)+180)/size);
   const r0=Math.floor((90-Math.min(14,lat1))/size),r1=Math.floor((90-Math.max(-14,lat0))/size);
