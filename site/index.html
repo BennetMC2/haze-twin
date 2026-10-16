@@ -55,6 +55,8 @@ a{color:var(--sky)}
 .live i{width:8px;height:8px;border-radius:50%;background:var(--sD)}
 .live.run i{background:var(--sky)}
 .live.sample i{background:var(--unh)}
+.live.stale i{background:var(--vunh)}
+.live.stale + #nextText{color:var(--vunh)}
 .actions{display:flex;gap:8px}
 .btn{min-height:38px;padding:0 14px;border-radius:5px;border:1px solid var(--line-hi);background:transparent;cursor:pointer;font-weight:500;font-size:14px}
 .btn:hover{border-color:var(--sky)}
@@ -264,7 +266,7 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .gap{flex:none;width:1px;background:var(--line-hi);margin:4px 3px}
 
 /* tabs and simple views */
-@media (max-width:1500px){#nextText{display:none}}
+@media (max-width:1500px){#nextText:not(.warn){display:none}}
 .tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:3px}
 .tab{border:0;background:transparent;cursor:pointer;font-size:14.5px;font-weight:500;color:var(--ink-2);padding:6px 12px;border-radius:5px;min-height:34px}
 .tab:hover{color:var(--ink)}
@@ -1124,7 +1126,9 @@ function renderHeader(){
   const b=new Date(FC.built);
   $('statusText').textContent=(INP.sample?'Sample data. ':'')+'Updated '+dayName(b).split(' ')[0]+' '+clock(b);
   $('liveDot').classList.toggle('sample',!!INP.sample);
-  const n=nextUpdate();$('nextText').textContent=n?'Next update about '+clock(n):'';
+  const ageH=(Date.now()-b.getTime())/3600e3;
+  if(ageH>3&&!INP.sample){$('liveDot').classList.add('stale');$('nextText').classList.add('warn');$('nextText').textContent='This is '+Math.round(ageH)+' hours old. The next update is running late; the odds below may be out of date.';}
+  else{$('liveDot').classList.remove('stale');$('nextText').classList.remove('warn');$('nextText').textContent='Updates every hour';}
   document.querySelectorAll('.nMembers').forEach(e=>e.textContent=FC.members);
 }
 function renderAll(){renderBetter();renderOdds();renderHeader();renderRegions();renderAnswer();renderDays();renderScenarios();renderSources();renderChanges();renderNews();renderSeason();renderHood();renderStrip();renderKey();renderShowing();renderRecord();markCurrent();}

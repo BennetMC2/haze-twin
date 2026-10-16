@@ -1,0 +1,72 @@
+name: Hourly odds refresh
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: twin
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      deploy: ${{ steps.go.outputs.deploy }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12", cache: pip, cache-dependency-path: pipeline/requirements.txt}
+      - uses: actions/setup-node@v4
+        with: {node-version: "20"}
+      - run: pip install numpy requests pillow
+      - id: go
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DATAGOVSG_API_KEY: ${{ secrets.DATAGOVSG_API_KEY }}
+        run: |
+          set -o pipefail
+          echo "deploy=false" >> $GITHUB_OUTPUT
+          mkdir -p site/data
+          REL=$(gh release list --limit 4 --json tagName,createdAt -q '[.[] | select(.tagName|startswith("archive-"))] | sort_by(.createdAt) | last | .tagName')
+          ASSET=$(gh release view "$REL" --json assets -q '[.assets[].name | select(startswith("inputs-"))] | sort | last')
+          [ -z "$ASSET" ] && { echo "no archived inputs"; exit 0; }
+          STAMP=${ASSET#inputs-}; STAMP=${STAMP%.json.gz}
+          AGE=$(( ( $(date -u +%s) - $(date -u -d "$(echo $STAMP | sed -E 's/(....)(..)(..)T(..)(..)Z/\1-\2-\3 \4:\5/')" +%s) ) / 60 ))
+          echo "latest full run $STAMP, $AGE minutes ago"
+          if [ "$AGE" -lt 40 ]; then echo "full run is fresh; skipping"; exit 0; fi
+          gh release download "$REL" -p "$ASSET" -D .work --clobber
+          gunzip -c ".work/$ASSET" > site/data/inputs.json
+          python tools/refresh_obs.py site/data/inputs.json || { [ $? -eq 3 ] && exit 0; exit 1; }
+          cp engine/engine.js site/engine.js
+          node engine/run.js --n 100000
+          mkdir -p .work/fonts
+          for f in barlow/Barlow-Bold barlow/Barlow-Medium barlow/Barlow-SemiBold barlowsemicondensed/BarlowSemiCondensed-Bold; do
+            curl -sSfL -o .work/fonts/$(basename $f).ttf "https://github.com/google/fonts/raw/main/ofl/$f.ttf" || true
+          done
+          python tools/og_image.py site/data/forecast.json site/data/inputs.json site/data/og.png .work/fonts || echo "share image failed"
+          git config user.name "haze-twin bot"; git config user.email "haze-twin-bot@users.noreply.github.com"
+          git add history/runs.json history/obs.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Hourly refresh [skip ci]"
+            for i in 1 2 3; do git pull --rebase -X theirs origin main && git push origin HEAD:main && break; git rebase --abort 2>/dev/null || true; sleep 5; done
+          fi
+          echo "deploy=true" >> $GITHUB_OUTPUT
+      - if: steps.go.outputs.deploy == 'true'
+        uses: actions/configure-pages@v5
+      - if: steps.go.outputs.deploy == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with: {path: site}
+  deploy:
+    needs: refresh
+    if: needs.refresh.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
