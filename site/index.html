@@ -354,6 +354,11 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 .miss{border-top:1px solid var(--line);padding-top:8px;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:14px}
 .miss .m3{color:var(--vunh)}
 .chart-wrap{overflow-x:auto}
+.rplctl{display:flex;flex-wrap:wrap;gap:8px}
+.seg{display:inline-flex;border:1px solid var(--line-hi);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:transparent;cursor:pointer;padding:6px 12px;font-size:13.5px;color:var(--ink-2);min-height:32px}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--raise);color:var(--ink);box-shadow:inset 0 -2px 0 var(--sky)}
 .srclist{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
 .srclist ul{margin:4px 0 0;padding-left:18px;color:var(--ink-2);display:flex;flex-direction:column;gap:3px;font-size:14px}
 
@@ -391,7 +396,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     </div>
     <div class="actions" id="actions">
       <button class="btn" id="btnTour" type="button">Take the tour</button>
-      <button class="btn" id="btnRecord" type="button">Track record</button>
+      <button class="btn" id="btnRecord" type="button">How accurate is it?</button>
       <button class="btn" id="btnHow" type="button">How it works</button>
       <button class="btn primary" id="btnRerun" type="button" aria-busy="false" title="Run the forecast again on this device with NEA's latest reading">Update now</button>
     </div>
@@ -543,7 +548,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
           </section>
         </div>
       </div>
-      <p class="note vnote">Worked out from 100,000 simulated futures of the region's fires, smoke and winds. <button type="button" class="linkbtn" data-goto="odds">See all the odds</button> or <button type="button" class="linkbtn" data-goto="map">see the map</button>.</p>
+      <p class="note vnote">Worked out from 100,000 simulated futures of the region's fires, smoke and winds, and tested on past haze seasons. <button type="button" class="linkbtn" id="openRecord">How accurate is it?</button> &middot; <button type="button" class="linkbtn" data-goto="odds">All the odds</button> &middot; <button type="button" class="linkbtn" data-goto="map">The map</button></p>
       <p class="note vnote fine">Haze Twin is an independent forecast. It is not run by or linked to NEA. For official readings and health advice, go to <a href="https://www.haze.gov.sg/" target="_blank" rel="noopener">haze.gov.sg</a>.</p>
     </div>
   </main>
@@ -568,7 +573,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 </div>
 
 <dialog id="dlgRecord" aria-labelledby="recTitle">
-  <div class="dlghead"><h2 id="recTitle">Track record</h2><button class="btn" type="button" data-close>Close</button></div>
+  <div class="dlghead"><h2 id="recTitle">How accurate is it?</h2><button class="btn" type="button" data-close>Close</button></div>
   <div class="dlgbody" id="recBody"></div>
 </dialog>
 
@@ -630,7 +635,7 @@ const PLAIN={early:'Clears within a few days',later:'Clears later in the week',s
 /* ---------- state ---------- */
 const state={region:'national',sel:null,t:0,playing:false,playEnd:0,running:false,runFrac:1,
   layers:{futures:true,paths:false,smoke:true,wind:true,hot:true,air:true,st:false,sat:true},official:null,rerunAt:null};
-let INP=null,FC=null,REC=null,COAST=null;
+let INP=null,FC=null,REC=null,COAST=null,RPL=null;
 const t0=()=>new Date(INP.t0);
 const R=()=>FC.regions[state.region];
 const cls=()=>R().classes;
@@ -1136,8 +1141,10 @@ function renderAll(){renderBetter();renderOdds();renderHeader();renderRegions();
 /* ---------- record ---------- */
 function renderRecord(){
   const body=$('recBody');const rec=REC&&REC[state.region];
-  let h='<p>Every forecast is kept as issued. Two days later it is checked against what NEA measured at noon.</p>';
-  if(!rec||!rec.n){h+='<p>No forecasts have been scored yet. The first scores appear two days after the twin starts running.</p>';body.innerHTML=h;return;}
+  let h='';
+  h+=replayHTML();
+  h+='<h3>This season, live</h3><p>Every forecast is kept as issued. Two days later it is checked against what NEA measured at noon.</p>';
+  if(!rec||!rec.n){h+='<p>No live forecasts have been scored yet. The first scores appear two days after launch.</p>';body.innerHTML=h;wireReplay();return;}
   h+='<div class="stats"><div class="stat"><span class="v">'+rec.hits+' of '+rec.n+'</span><span class="k">Days the reading fell inside the possible range</span></div>'+
     '<div class="stat"><span class="v">'+(rec.skill==null?'–':(rec.skill>0?'+':'')+rec.skill)+'</span><span class="k">Better than "same as today", 2 days ahead (above 0 is better)</span></div></div>';
   h+='<div class="chart-wrap" id="recChart"></div>';
@@ -1150,6 +1157,52 @@ function renderRecord(){
   [100,200].forEach(v=>{s+='<line x1="'+l+'" x2="'+(W-6)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="#223542" stroke-dasharray="3 3"/><text x="'+(l-6)+'" y="'+(y(v)+3)+'" fill="#7F929F" font-size="11" text-anchor="end">'+v+'</text>';});
   data.forEach((d,i)=>{s+='<rect x="'+(x(i)-7)+'" y="'+y(d.p95)+'" width="14" height="'+Math.max(1,y(d.p5)-y(d.p95))+'" rx="3" fill="#33495A"/><circle cx="'+x(i)+'" cy="'+y(d.obs)+'" r="5" fill="'+(d.hit?'#E8EEF1':'#E9813A')+'" stroke="#14222C" stroke-width="2"/><text x="'+x(i)+'" y="'+(H-6)+'" fill="#7F929F" font-size="11" text-anchor="middle">'+d.date.slice(8,10)+'</text>';});
   $('recChart').innerHTML=s+'</svg>';
+  wireReplay();
+}
+
+
+/* ---------- replays of past seasons ---------- */
+let rplSeason=null,rplLead=3;
+function replayHeadline(){
+  if(!RPL||!RPL.overall||!RPL.overall.all_1_6)return null;const o=RPL.overall.all_1_6;
+  const yrs=Object.keys(RPL.seasons||{}).join(', ');
+  return {o,yrs};
+}
+function replayHTML(){
+  const hd=replayHeadline();if(!hd)return '<h3>Tested on past seasons</h3><p>Replays of the 2015, 2019 and 2023 haze seasons are being scored. Results will appear here.</p>';
+  const o=hd.o;
+  let h='<h3>Tested on past haze seasons ('+esc(hd.yrs)+')</h3>';
+  h+='<p>We replayed past seasons day by day. On each day the twin only saw what was known then: that morning\'s weather forecasts, the fires seen by satellite, and NEA\'s readings. Then we checked its forecasts against what NEA actually measured.</p>';
+  h+='<div class="stats">'+
+    '<div class="stat"><span class="v">'+o.coverage90+'%</span><span class="k">of readings fell inside the possible range (aim: 90%)</span></div>'+
+    '<div class="stat"><span class="v">'+o.mae+'</span><span class="k">typical miss in PSI points, days 1 to 6 (vs '+o.mae_persist+' for "same as today")</span></div>'+
+    '<div class="stat"><span class="v">'+o.band_hit+'%</span><span class="k">of days in the right NEA band (vs '+o.band_hit_persist+'% for "same as today")</span></div>'+
+    '</div>';
+  h+='<div class="rplctl" id="rplCtl"></div><div class="chart-wrap" id="rplChart"></div><p class="note" id="rplNote"></p>';
+  return h;
+}
+function wireReplay(){
+  const ctl=$('rplCtl');if(!ctl||!RPL)return;const seasons=Object.keys(RPL.seasons||{});if(!seasons.length)return;
+  if(!rplSeason||!seasons.includes(rplSeason))rplSeason=seasons.includes('2015')?'2015':seasons[0];
+  ctl.innerHTML='';
+  const grp=(items,cur,cb,label)=>{const g=document.createElement('div');g.className='seg';g.setAttribute('role','group');g.setAttribute('aria-label',label);items.forEach(([v,t])=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.setAttribute('aria-pressed',String(String(v)===String(cur)));b.addEventListener('click',()=>{cb(v);wireReplay();});g.appendChild(b);});ctl.appendChild(g);};
+  grp(seasons.map(x=>[x,x]),rplSeason,v=>rplSeason=v,'Season');
+  grp([[1,'1 day ahead'],[3,'3 days ahead'],[6,'6 days ahead']],rplLead,v=>rplLead=v,'How far ahead');
+  const S=RPL.seasons[rplSeason];const ser=(S.series||{})[rplLead]||[];const obs=S.observed||{};
+  const dates=Object.keys(obs).sort();if(!dates.length){$('rplChart').innerHTML='';return;}
+  const W=640,H=230,l=36,r=10,t=12,b=26;const t0=new Date(dates[0]).getTime(),t1=new Date(dates[dates.length-1]).getTime();
+  const vmax=Math.max(150,...dates.map(d=>obs[d]),...ser.map(x=>Math.min(x.p95,450)))+20;
+  const X=(d)=>l+(new Date(d).getTime()-t0)/(t1-t0||1)*(W-l-r),Y=(v)=>t+(1-Math.min(v,vmax)/vmax)*(H-t-b);
+  let g='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="min-width:460px;display:block" role="img" aria-label="Forecasts made '+rplLead+' days ahead against NEA readings, '+rplSeason+'">';
+  [[0,50],[50,100],[100,200],[200,300],[300,vmax]].forEach(([a,c],k)=>{if(a>=vmax)return;g+='<rect x="'+l+'" y="'+Y(c)+'" width="'+(W-l-r)+'" height="'+(Y(a)-Y(c))+'" fill="'+COL.b[k]+'" opacity="0.07"/>';});
+  [100,200,300].forEach(v=>{if(v<vmax)g+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="#223542" stroke-dasharray="3 3"/><text x="'+(l-6)+'" y="'+(Y(v)+4)+'" fill="#7F929F" font-size="11" text-anchor="end">'+v+'</text>';});
+  ser.forEach(x=>{const cx=X(x.valid);g+='<line x1="'+cx+'" x2="'+cx+'" y1="'+Y(x.p95)+'" y2="'+Y(x.p5)+'" stroke="#E9813A" stroke-opacity="0.35" stroke-width="5" stroke-linecap="round"/>';g+='<line x1="'+cx+'" x2="'+cx+'" y1="'+Y(x.p75)+'" y2="'+Y(x.p25)+'" stroke="#E9813A" stroke-opacity="0.75" stroke-width="5" stroke-linecap="round"/>';});
+  g+='<polyline fill="none" stroke="#E8EEF1" stroke-width="2" points="'+dates.map(d=>X(d)+','+Y(obs[d])).join(' ')+'"/>';
+  ser.forEach(x=>{g+='<circle cx="'+X(x.valid)+'" cy="'+Y(x.p50)+'" r="3" fill="#E9813A"/>';});
+  const ticks=dates.filter((d,i)=>i%7===0);ticks.forEach(d=>{g+='<text x="'+X(d)+'" y="'+(H-6)+'" fill="#7F929F" font-size="11" text-anchor="middle">'+(+d.slice(8,10))+' '+MON[+d.slice(5,7)-1]+'</text>';});
+  $('rplChart').innerHTML=g+'</svg>';
+  const sm=(S.summary||{}).by_lead||{};const L=sm[rplLead];
+  $('rplNote').textContent='White line: what NEA measured (24-hour PSI at noon). Orange: what the twin forecast '+rplLead+' day'+(rplLead>1?'s':'')+' earlier: dot is the best guess, dark bar the likely range, light bar the possible range.'+(L?' At this lead: '+L.coverage90+'% inside the possible range, typical miss '+L.mae+' (vs '+L.mae_persist+' for "same as today").':'');
 }
 
 /* ---------- rerun on this device ---------- */
@@ -1257,6 +1310,7 @@ function render(now){
 /* ---------- controls ---------- */
 $('btnRerun').addEventListener('click',rerun);
 $('btnRecord').addEventListener('click',()=>$('dlgRecord').showModal());
+$('openRecord').addEventListener('click',()=>$('dlgRecord').showModal());
 $('btnHow').addEventListener('click',()=>$('dlgHow').showModal());
 document.querySelectorAll('dialog [data-close]').forEach(b=>b.addEventListener('click',()=>b.closest('dialog').close()));
 document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close();}));
@@ -1505,6 +1559,7 @@ async function boot(){
     const [coast,inp,fc]=await Promise.all([getJSON('data/coast.json'),getJSON('data/inputs.json'),getJSON('data/forecast.json')]);
     COAST=coast;INP=inp;FC=fc;state.official=fc;
     try{REC=await getJSON('data/record.json');}catch(e){REC=null;}
+    try{RPL=await getJSON('data/replay.json');}catch(e){RPL=null;}
     RINGS=COAST.map(enc=>{const pts=[];let x=0,y=0;for(let i=0;i<enc.length;i+=2){x+=enc[i];y+=enc[i+1];pts.push([x/100,y/100]);}return pts;});
     try{prepWhy();}catch(e){WHY=null;}
     buildHot();buildWinds();buildThreads();renderAll();layout();initWind();syncT();

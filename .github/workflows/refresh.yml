@@ -43,6 +43,7 @@ jobs:
           python tools/refresh_obs.py site/data/inputs.json || { [ $? -eq 3 ] && exit 0; exit 1; }
           cp engine/engine.js site/engine.js
           node engine/run.js --n 100000
+          cp history/replay/summary.json site/data/replay.json 2>/dev/null || true
           mkdir -p .work/fonts
           for f in barlow/Barlow-Bold barlow/Barlow-Medium barlow/Barlow-SemiBold barlowsemicondensed/BarlowSemiCondensed-Bold; do
             curl -sSfL -o .work/fonts/$(basename $f).ttf "https://github.com/google/fonts/raw/main/ofl/$f.ttf" || true
