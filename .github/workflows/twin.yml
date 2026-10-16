@@ -2,8 +2,8 @@ name: Run the twin
 
 on:
   schedule:
-    # 40 minutes after each GEFS cycle is usually complete (cycles at 00, 06, 12, 18 UTC)
-    - cron: "40 5,11,17,23 * * *"
+    # about 7 hours after each GEFS cycle (00, 06, 12, 18 UTC), when the 16-day run is complete
+    - cron: "40 1,7,13,19 * * *"
   workflow_dispatch:
     inputs:
       sample:
@@ -23,7 +23,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
 

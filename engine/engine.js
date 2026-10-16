@@ -79,16 +79,20 @@
     // arrival indices
     const arrIdx = {}; inputs.arrivals_h.forEach((a, i) => (arrIdx[a] = i));
     const futA = []; inputs.arrivals_h.forEach((a, i) => { if (a >= 0) futA.push(i); });
-    // day targets: noon SGT on each of the next 6 days
+    // day targets: noon SGT on each coming day the arrivals reach (days 1-6 core, later days extended)
     const days = [];
     const s0 = sgt(t0);
-    for (let d = 1; d <= 6; d++) {
+    const lastH = inputs.arrivals_h[inputs.arrivals_h.length - 1];
+    for (let d = 1; d <= 20; d++) {
       const noon = Date.UTC(s0.getUTCFullYear(), s0.getUTCMonth(), s0.getUTCDate() + d, 12) - 8 * 3600e3;
       const h = (noon - t0.getTime()) / 3600e3;
+      if (h > lastH + 3) break;
       let best = futA[0]; for (const i of futA) if (Math.abs(inputs.arrivals_h[i] - h) < Math.abs(inputs.arrivals_h[best] - h)) best = i;
       const dd = sgt(new Date(noon));
-      days.push({ d, h, ai: best, label: DAYNAME[dd.getUTCDay()] + ' ' + dd.getUTCDate(), dow: DAYNAME[dd.getUTCDay()], iso: new Date(noon).toISOString() });
+      days.push({ d, h, ai: best, label: DAYNAME[dd.getUTCDay()] + ' ' + dd.getUTCDate(), dow: DAYNAME[dd.getUTCDay()], iso: new Date(noon).toISOString(), tier: d <= 6 ? 'core' : 'extended' });
     }
+    // arrivals inside the 24 hours ending at each arrival (for 24-hour means)
+    const win24 = inputs.arrivals_h.map((a) => { const w = []; inputs.arrivals_h.forEach((b, j) => { if (b > a - 24 && b <= a) w.push(j); }); return w; });
     // observed now
     const pmNow = obs.pm24_now || {}; const nat = pmNow.national || Math.max(...NEA_REGIONS.slice(1).map(r => pmNow[r] || 0)) || null;
     const regRatio = NEA_REGIONS.map(r => (nat && pmNow[r] ? pmNow[r] / nat : 1));
@@ -106,7 +110,7 @@
     const trans = new Float64Array(M);
     for (let m = 0; m < M; m++) { let v = 0; for (const d of days.slice(1, 4)) { const off = (m * A + d.ai) * R * B; for (let k = 0; k < R * B; k++) v += S[off + k]; } trans[m] = v; }
     const tmean = trans.reduce((a, b) => a + b, 0) / M || 1; for (let m = 0; m < M; m++) trans[m] /= tmean;
-    return { inputs, M, A, R, B, S, cum, isl, islands, ratio, binMid, arrIdx, futA, days, obs, nat, regRatio, K0, anchored, t0, trans };
+    return { inputs, M, A, R, B, S, cum, isl, islands, ratio, binMid, arrIdx, futA, days, obs, nat, regRatio, K0, anchored, t0, trans, win24 };
   }
 
   /* ---------- Monte Carlo ---------- */
@@ -133,7 +137,7 @@
       const m = Math.floor(r() * M); memb[s] = m;
       const K = model.K0 * Math.exp(gauss(r) * 0.6);
       const ef = [Math.exp(gauss(r) * 0.35), Math.exp(gauss(r) * 0.35), Math.exp(gauss(r) * 0.35)];
-      const thalf = 2 + r() * 10;             // days for fire activity to halve, no rain
+      const thalf = Math.exp(Math.log(4) + r() * Math.log(10));   // days for fire activity to halve without rain: 4-40 (peat fires persist until rain)
       const rs = 0.03 + r() * 0.09;           // fraction of fire put out per mm of rain
       const grow = gauss(r) * 0.06;           // new fires, per day
       const bg = Math.max(5, 18 + gauss(r) * 5);
@@ -166,8 +170,7 @@
       let lw = 0;
       for (const [ai, lo] of pastObs) { const d = (Math.log(C[s * A + ai]) - lo) / 0.35; lw -= 0.5 * d * d; }
       if (pmNowLog !== null) {
-        const i0 = arrIdx[0];
-        const pm24 = (C[s * A + i0] + C[s * A + i0 - 1] + C[s * A + i0 - 2] + C[s * A + i0 - 3]) / 4;
+        const w0 = model.win24[arrIdx[0]]; let pm24 = 0; for (const j of w0) pm24 += C[s * A + j]; pm24 /= w0.length;
         const d = (Math.log(pm24) - pmNowLog) / 0.2; lw -= 0.5 * d * d;
       }
       logw[s] = lw;
@@ -183,7 +186,7 @@
     const pm24 = new Float32Array(N * F);
     for (let s = 0; s < N; s++) {
       const j = idx[s];
-      for (let f = 0; f < F; f++) { const a = futA[f]; pm24[s * F + f] = (C[j * A + a] + C[j * A + a - 1] + C[j * A + a - 2] + C[j * A + a - 3]) / 4; }
+      for (let f = 0; f < F; f++) { const w = model.win24[futA[f]]; let v = 0; for (const k of w) v += C[j * A + k]; pm24[s * F + f] = v / w.length; }
     }
     if (report) report(0.9);
     return { N, F, pm24, idx, memb, share, pThalf, pRain, ess, model };
@@ -218,7 +221,7 @@
     const dayF = days.map(d => fOf[d.ai]);
     const psiNowObs = (model.obs.psi_now || {});
     const out = { issued: model.inputs.t0, built: new Date().toISOString(), n: N, members: model.M, ess: Math.round(sim.ess),
-      anchored: model.anchored, sample: !!model.inputs.sample, days: days.map(d => ({ label: d.label, dow: d.dow, iso: d.iso, h: d.h })),
+      anchored: model.anchored, sample: !!model.inputs.sample, days: days.map(d => ({ label: d.label, dow: d.dow, iso: d.iso, h: d.h, tier: d.tier })),
       arrivals_h: model.futA.map(ai => model.inputs.arrivals_h[ai]), regions: {} };
     const sampleIdx = []; { const r = rng(99); for (let k = 0; k < 240; k++) sampleIdx.push(Math.floor(r() * N)); }
     out.samples = sampleIdx.map(s => Array.from(sim.pm24.subarray(s * F, s * F + F), v => Math.round(v * 10) / 10));
@@ -233,14 +236,17 @@
       const cls = new Uint8Array(N);
       const dayVals = days.map(() => new Float32Array(N));
       const clearDay = new Int8Array(N); const peakV = new Float32Array(N); const peakD = new Int8Array(N);
+      const nC = Math.min(6, days.length); const firstAll = new Int8Array(N);
       for (let s = 0; s < N; s++) {
-        let cd = -1, pk = -1, pkd = 0;
+        let cd = -1, pk = -1, pkd = 0, fa = -1;
         for (let d = 0; d < days.length; d++) {
           const v = regionPsi(sim, s, dayF[d], rr); dayVals[d][s] = v;
+          if (fa < 0 && (mode === 'haze' ? v <= 100.5 : v > 100.5)) fa = d + 1;
+          if (d >= nC) continue;
           if (cd < 0 && v <= 100.5) cd = d + 1;
           if (v > pk) { pk = v; pkd = d + 1; }
         }
-        clearDay[s] = cd; peakV[s] = pk; peakD[s] = pkd;
+        clearDay[s] = cd; peakV[s] = pk; peakD[s] = pkd; firstAll[s] = fa;
         let c;
         if (mode === 'haze') {
           if (pk >= Math.max(200.5, now + 25) && bandOf(pk) > bandOf(now)) c = 3;
@@ -248,7 +254,7 @@
           else if (cd > 0) c = 1;
           else c = 2;
         } else {
-          let nHaze = 0; for (let d = 0; d < days.length; d++) if (dayVals[d][s] > 100.5) nHaze++;
+          let nHaze = 0; for (let d = 0; d < nC; d++) if (dayVals[d][s] > 100.5) nHaze++;
           if (pk > 200.5) c = 3; else if (nHaze === 0) c = 0; else if (nHaze <= 2) c = 1; else c = 2;
         }
         cls[s] = c;
@@ -266,8 +272,9 @@
         const sorted = Float32Array.from(psiAll.subarray(0, nn)).sort();
         pct.p5.push(Math.round(quantile(sorted, 0.05))); pct.p50.push(Math.round(quantile(sorted, 0.5))); pct.p95.push(Math.round(quantile(sorted, 0.95)));
       }
-      const lastDay = days.length;
-      let clearCount = 0; for (let s = 0; s < N; s++) if (dayVals[lastDay - 1][s] <= 100.5) clearCount++;
+      let clearCount = 0; for (let s = 0; s < N; s++) if (dayVals[nC - 1][s] <= 100.5) clearCount++;
+      const by = days.map(() => 0); for (let s = 0; s < N; s++) if (firstAll[s] > 0) for (let d = firstAll[s] - 1; d < days.length; d++) by[d]++;
+      const clearBy = by.map(x => Math.round(x / N * 1000) / 10);
       // per-class summaries
       const counts = [0, 0, 0, 0]; for (let s = 0; s < N; s++) counts[cls[s]]++;
       const mean = (arr, sel) => { let t = 0, n = 0; for (let s = 0; s < N; s++) if (sel(s)) { t += arr(s); n++; } return n ? t / n : 0; };
@@ -289,7 +296,7 @@
         cds.sort((x, y) => x - y); pks.sort((x, y) => x - y); pkds.sort((x, y) => x - y);
         const dl = (k) => days[Math.max(0, Math.min(days.length - 1, k - 1))].dow;
         if (def.id === 'early' || def.id === 'later') o.outcome = 'PSI 100 or below by ' + dl(quantile(cds, 0.5)) + '.';
-        else if (def.id === 'stays') { let lastAbove = 0; days.forEach((d, k) => { if (med[dayF[k]] > 100) lastAbove = k + 1; }); o.outcome = 'Above 100 through ' + dl(lastAbove || days.length) + '. Middle path near ' + Math.round(med[dayF[Math.min(2, days.length - 1)]] / 5) * 5 + '.'; }
+        else if (def.id === 'stays') { let lastAbove = 0; days.slice(0, nC).forEach((d, k) => { if (med[dayF[k]] > 100) lastAbove = k + 1; }); o.outcome = 'Above 100 through ' + dl(lastAbove || nC) + '. Middle path near ' + Math.round(med[dayF[Math.min(2, days.length - 1)]] / 5) * 5 + '.'; }
         else if (def.id === 'worse') o.outcome = 'Peaks ' + Math.round(quantile(pks, 0.1) / 5) * 5 + '–' + Math.round(quantile(pks, 0.9) / 5) * 5 + ' around ' + dl(quantile(pkds, 0.5)) + '.';
         else if (def.id === 'clean') o.outcome = 'PSI stays 100 or below all week.';
         else if (def.id === 'brief') o.outcome = 'One or two days above 100.';
@@ -304,8 +311,8 @@
         if (ck - allShareKal > 0.06) cues.push([1 + (ck - allShareKal) * 5, 'Winds keep carrying Kalimantan smoke (' + Math.round(ck * 100) + '% of the fire smoke reaching Singapore).']);
         if (cw < 0.8) cues.push([1 / Math.max(cw, 0.2), 'Winds turn and carry less fire smoke towards Singapore.']);
         if (cw > 1.2) cues.push([cw, 'Winds line up to carry more fire smoke towards Singapore.']);
-        if (ct > allT + 1.0) cues.push([ct / allT, 'Fires keep burning without much let-up.']);
-        if (ct < allT - 1.0) cues.push([allT / ct, 'Fires die down quickly.']);
+        if (ct > allT * 1.25) cues.push([ct / allT, 'Fires keep burning without much let-up.']);
+        if (ct < allT * 0.8) cues.push([allT / ct, 'Fires die down quickly.']);
         cues.sort((x, y) => y[0] - x[0]);
         o.watch = cues.length ? cues.slice(0, 2).map(x => x[1]).join(' ') : 'No single driver stands out; these futures differ mainly in wind details.';
         o.shareSumatra = Math.round(cs * 100); o.shareKalimantan = Math.round(ck * 100);
@@ -317,11 +324,88 @@
       const mw = []; for (let m = 0; m < model.M; m++) mw.push([0, 0, 0, 0]);
       for (let s = 0; s < N; s++) mw[sim.memb[sim.idx[s]]][cls[s]]++;
       const sampleClass = sampleIdx.map(s => cls[s]);
-      out.regions[reg] = { now: now, mode, factor: model.regRatio[rr], clear: Math.round(clearCount / N * 1000) / 10, days: dayStats, pct, classes, memberClass: mw, sampleClass };
+      out.regions[reg] = { now: now, mode, factor: model.regRatio[rr], clear: Math.round(clearCount / N * 1000) / 10, clearDayLabel: days[nC - 1].dow, clearBy, days: dayStats, pct, classes, memberClass: mw, sampleClass };
     }
     const shares = [0, 0, 0]; for (let s = 0; s < N; s++) for (let k = 0; k < 3; k++) shares[k] += sim.share[sim.idx[s] * 3 + k];
     out.sourceShare = { Sumatra: Math.round(shares[0] / N * 100), Kalimantan: Math.round(shares[1] / N * 100), Other: Math.round(shares[2] / N * 100) };
     return out;
+  }
+
+
+  /* ---------- season outlook (experimental) ----------
+     When does the haze season end? Taken as: rain has set in over both main source areas
+     (Kalimantan and Sumatra fire regions), plus a few days for fires and haze to die down.
+     Rain onset comes from the weather forecasts where they reach it; beyond that, from a
+     climatological onset date shifted later by El Niño and a positive Indian Ocean Dipole. */
+  const SEASON_PRIORS = { Kalimantan: [9, 31], Sumatra: [9, 28] };   // [month index, day]: normal onset, rough, from BMKG season normals
+  function season(model, opts) {
+    opts = opts || {};
+    const inp = model.inputs; const M = model.M, R = model.R;
+    const rain = decode(inp.rain.data); const tH = inp.rain.t_h; const T = tH.length;
+    const clim = inp.climate || {};
+    const roni = typeof clim.roni === 'number' ? clim.roni : 0, dmi = typeof clim.dmi === 'number' ? clim.dmi : 0;
+    const shiftDays = 6 * Math.min(2.5, Math.max(0, roni)) + 4 * Math.min(2, Math.max(0, dmi / 0.4));
+    const year = sgt(model.t0).getUTCFullYear();
+    const groups = [['Kalimantan', 1, 'ckal'], ['Sumatra', 0, 'ssum']].map(([name, isl, fallback]) => {
+      let w = inp.regions.map((r, i) => (model.isl[i] === isl ? (r.frp0 || 0) : 0));
+      if (!w.some(x => x > 0)) w = inp.regions.map(r => (r.id === fallback ? 1 : 0));
+      const tot = w.reduce((a, b) => a + b, 0) || 1;
+      return { name, w: w.map(x => x / tot) };
+    });
+    const lastH = tH[T - 1], horizonH = lastH - 120;
+    const onset = groups.map(g => {
+      const out = new Float64Array(M).fill(NaN);
+      for (let m = 0; m < M; m++) {
+        const series = new Float64Array(T);
+        for (let t = 0; t < T; t++) { let v = 0; for (let q = 0; q < R; q++) if (g.w[q]) v += g.w[q] * rain[(m * T + t) * R + q]; series[t] = v; }
+        for (let t = 0; t < T; t++) {
+          if (tH[t] < 0 || tH[t] > horizonH) continue;
+          let sum = 0; for (let u = t + 1; u < T && tH[u] <= tH[t] + 120; u++) sum += series[u];
+          if (sum >= 25) { out[m] = tH[t] + 48; break; }
+        }
+      }
+      return out;
+    });
+    const r = rng(opts.seed || 7);
+    const N = 20000; const ends = new Float64Array(N); const ons = groups.map(() => new Float64Array(N));
+    let seen = 0;
+    for (let s = 0; s < N; s++) {
+      const m = Math.floor(r() * M); let e = 0; let allSeen = true;
+      groups.forEach((g, k) => {
+        let o = onset[k][m];
+        if (isNaN(o)) {
+          allSeen = false;
+          const pr = SEASON_PRIORS[g.name];
+          let tries = 0;
+          do {
+            const date = Date.UTC(year, pr[0], pr[1]) + (shiftDays + gauss(r) * 9) * 864e5;
+            o = (date - model.t0.getTime()) / 3600e3;
+          } while (o < horizonH && ++tries < 30);
+          if (o < horizonH) o = horizonH + (-Math.log(1 - r()) * 5 * 24);
+        }
+        ons[k][s] = o; e = Math.max(e, o);
+      });
+      if (allSeen) seen++;
+      ends[s] = e + Math.max(1, 6 + gauss(r) * 3) * 24;
+    }
+    const sorted = Float64Array.from(ends).sort();
+    const toDate = (h) => new Date(model.t0.getTime() + h * 3600e3);
+    const label = (d) => { const x = sgt(d); return x.getUTCDate() + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][x.getUTCMonth()]; };
+    const dates = [];
+    const s0 = sgt(model.t0);
+    for (let mo = 0; mo < 4; mo++) for (const day of [1, 15]) {
+      const d = new Date(Date.UTC(s0.getUTCFullYear(), s0.getUTCMonth() + mo, day) - 8 * 3600e3);
+      const h = (d - model.t0) / 3600e3; if (h <= 24 || h > 24 * 80) continue;
+      let c = 0; for (let k = 0; k < N; k++) if (ends[k] <= h) c++;
+      dates.push({ iso: d.toISOString(), label: label(d), p: Math.round(c / N * 100) });
+    }
+    const medOn = ons.map(a => label(toDate(quantile(Float64Array.from(a).sort(), 0.5))));
+    return {
+      dates, median: label(toDate(quantile(sorted, 0.5))), p10: label(toDate(quantile(sorted, 0.1))), p90: label(toDate(quantile(sorted, 0.9))),
+      onset: { Kalimantan: medOn[0], Sumatra: medOn[1] }, seenInForecast: Math.round(seen / N * 100),
+      climate: { roni: clim.roni, roniPeriod: clim.roni_period, dmi: clim.dmi, dmiPeriod: clim.dmi_period, shiftDays: Math.round(shiftDays) },
+      horizonDays: Math.round(horizonH / 24)
+    };
   }
 
   /* ---------- why the odds moved ---------- */
@@ -351,9 +435,10 @@
     const model = prepare(inputs, opts);
     const sim = simulate(model, opts);
     const res = summarize(sim, opts);
+    try { res.season = season(model, opts); } catch (e) { res.season = null; }
     if (opts.onProgress) opts.onProgress(1);
     return res;
   }
 
-  return { run, prepare, simulate, summarize, why, psiOf, bandOf, BANDS, NEA_REGIONS, decode };
+  return { run, prepare, simulate, summarize, season, why, psiOf, bandOf, BANDS, NEA_REGIONS, decode };
 });

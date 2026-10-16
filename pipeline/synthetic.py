@@ -15,7 +15,7 @@ def weather(t0, seed=3):
     rng = np.random.default_rng(seed)
     lons = np.arange(WEST, EAST + 0.001, 0.5)
     lats = np.arange(SOUTH, NORTH + 0.001, 0.5)
-    times = np.arange(-96.0, 150.1, 6.0)
+    times = np.arange(-96.0, 390.1, 6.0)
     LON, LAT = np.meshgrid(lons, lats)
     M = len(GEFS_MEMBERS)
     U = np.zeros((M, len(times), len(lats), len(lons)), np.float32)
@@ -28,6 +28,8 @@ def weather(t0, seed=3):
         rain_amp = rng.uniform(0, 14)
         sw_t = rng.normal(45, 15)            # south-westerly burst over south Sumatra
         sw_amp = max(0.0, rng.normal(0.2, 0.35))
+        monsoon_t = rng.normal(300, 60)      # sustained rains, hours ahead
+        monsoon_amp = rng.uniform(1.5, 4.0)
         for ti, t in enumerate(times):
             w = np.clip((LAT - 1.5) / 3.0, 0, 1)
             u = -7.0 * (1 - w) + 5.0 * w
@@ -46,7 +48,9 @@ def weather(t0, seed=3):
             base = 0.3 * np.clip(LAT + 2, 0, None)
             if t > 0:
                 kal = np.exp(-(((LON - 113.5) / 3.0) ** 2 + ((LAT + 1.5) / 2.5) ** 2))
-                base = base + rain_amp * kal / (1 + np.exp(-(t - rain_t) / 6.0))
+                sum_ = np.exp(-(((LON - 104.0) / 3.0) ** 2 + ((LAT + 2.5) / 2.5) ** 2))
+                base = base + rain_amp * kal / (1 + np.exp(-(t - rain_t) / 6.0)) * np.exp(-max(0, t - rain_t - 36) / 30.0)
+                base = base + monsoon_amp * (kal + sum_) / (1 + np.exp(-(t - monsoon_t) / 12.0))
             R[m, ti] = np.maximum(0, base + rng.normal(0, 0.3, base.shape))
     return {"members": GEFS_MEMBERS, "lons": lons, "lats": lats, "times": times, "u": U, "v": V, "rain": R}
 

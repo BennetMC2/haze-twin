@@ -87,7 +87,9 @@ def region_rain(weather, cells):
 def wind_display(weather):
     lons, lats = weather["lons"], weather["lats"]
     step = max(1, int(round(WIND_DISPLAY_DEG / (lons[1] - lons[0]))))
-    sel = weather["times"] >= -24
+    t = weather["times"]
+    keep = [i for i, h in enumerate(t) if h >= -24 and (h <= 144 or (i % 2 == 0))]
+    sel = np.array(keep)
     u = weather["u"][:, sel][:, :, ::step, ::step]
     v = weather["v"][:, sel][:, :, ::step, ::step]
     q = np.stack([u, v], axis=2) / WIND_SCALE
@@ -153,6 +155,26 @@ def main():
         sources.append({"name": "NOAA GEFS ensemble", "status": "ok" if not g["errors"] else "partial",
                         "detail": f"{g['files']}/{g['requested']} files, cycle {cycle:%Y-%m-%d %H}Z",
                         "time": cycle.isoformat()})
+    if args.sample:
+        from fetch_climate import SEED
+        climate = dict(SEED)
+    else:
+        import fetch_climate
+        try:
+            climate, cstat = fetch_climate.fetch(log=log)
+            sources.append({"name": "El Niño and Indian Ocean Dipole", "status": "ok" if "kept" not in cstat else "partial", "detail": cstat,
+                            "time": datetime.now(timezone.utc).isoformat()})
+        except Exception as e:
+            from fetch_climate import SEED
+            climate = dict(SEED)
+            sources.append({"name": "El Niño and Indian Ocean Dipole", "status": "failed", "detail": str(e)[:160]})
+    import fetch_extras
+    if args.sample:
+        extras = fetch_extras.sample(t0)
+    else:
+        log("extra sources")
+        extras, xs = fetch_extras.fetch_all(log=log)
+        sources.extend(xs)
     log(f"t0 {t0.isoformat()}, weather times {weather['times'][0]:.0f}..{weather['times'][-1]:.0f} h, "
         f"{len(weather['members'])} members")
 
@@ -190,6 +212,8 @@ def main():
         "paths": {"arrivals_h": path_arrivals, "step_h": 3,
                   "members": [[[[round(x, 2), round(y, 2)] for x, y in p] for p in mem] for mem in paths]},
         "summary": summary(S, cells, rain_reg, rain_t, weather),
+        "climate": {k: climate.get(k) for k in ("roni", "roni_period", "dmi", "dmi_period", "source")},
+        "extras": extras,
         "sources": sources,
         "build_seconds": round(time.time() - started, 1),
     }

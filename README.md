@@ -1,6 +1,6 @@
 # Haze Twin
 
-Odds for Singapore's haze over the next six days, from a digital twin of Southeast Asia's fires, smoke and winds.
+Odds for Singapore's haze over the next two weeks, and when the haze season is likely to end, from a digital twin of Southeast Asia's fires, smoke and winds.
 
 Every six hours the twin takes in the latest readings, traces the air arriving in Singapore back through 31 weather forecasts, and runs 100,000 possible futures. It shows the result as plain odds ("38% chance PSI is 100 or below by Thursday"), as storylines (clears early, clears later, stays unhealthy, gets worse), and on a live map of fires, smoke, wind and the paths the air took.
 
@@ -9,12 +9,14 @@ This is an independent, public-good project. For health advice, follow NEA.
 ## How it works
 
 1. **Measured** — NEA 24-hour PSI and PM2.5 for each Singapore region (data.gov.sg), and fire hotspots from NASA FIRMS (VIIRS on NOAA-20 and NOAA-21).
-2. **Weather** — the NOAA GEFS ensemble: 31 forecasts of wind and rain at 0.5°, out to six days, cropped to 92–124°E, 10°S–10°N.
+2. **Weather** — the NOAA GEFS ensemble: 31 forecasts of wind and rain at 0.5°, out to 16 days, cropped to 92–124°E, 10°S–10°N.
+   Extra free sources: airport visibility near the fires (METAR), the CAMS smoke model as a second opinion (via Open-Meteo), news (GDELT), satellite imagery (NASA GIBS), El Niño (NOAA RONI) and the Indian Ocean Dipole (NOAA DMI).
 3. **Back-tracing** — for each forecast, 300 particles are released at Singapore every six hours and traced back four days through that forecast's winds (mean of 925 and 850 hPa) with turbulent spread. Where they pass over fire cells they pick up sensitivity to those fires, reduced by rain along the way and by age (`pipeline/trajectories.py`).
 4. **Futures** — the engine samples the uncertain parts on top of each forecast: smoke per unit of fire power, how long fires keep burning, how much rain puts them out, new fires, and background pollution. 100,000 futures in all (`engine/engine.js`).
 5. **Anchoring** — futures are weighted by how well they match NEA's readings over the last day, so the twin starts from the real air.
 6. **Storylines and odds** — futures are grouped by outcome; the odds are the share in each. Each storyline says what distinguishes it (rain, wind, fires).
-7. **Record** — every forecast is logged in `history/` and scored two days later against what NEA measured. The page shows hits, misses and skill against "same as today".
+7. **Horizons** — days 1–6 are the full twin with storylines; days 7–15 run on the longer forecasts and are shown as chance by date; the season outlook (experimental) estimates when rain sets in over the fire areas, from the forecasts where they reach it and from normal onset dates shifted by El Niño and the IOD beyond that.
+8. **Record** — every forecast is logged in `history/` and scored two days later against what NEA measured. The page shows hits, misses and skill against "same as today".
 
 The page runs the same engine in the browser, so **Rerun** repeats the 100,000 futures on your device with NEA's latest reading.
 
@@ -38,7 +40,7 @@ cp engine/engine.js site/engine.js
 python -m http.server -d site 8000            # open http://localhost:8000
 ```
 
-For live data: set `FIRMS_MAP_KEY` (free from NASA FIRMS) and run `python pipeline/build_inputs.py` without `--sample`. It downloads about 800 small GEFS files from NOMADS and takes 10–20 minutes.
+For live data: set `FIRMS_MAP_KEY` (free from NASA FIRMS) and run `python pipeline/build_inputs.py` without `--sample`. It downloads about 800 small GEFS files from NOMADS and takes 25–40 minutes (about 1,400 small files).
 
 ## Setup on GitHub
 

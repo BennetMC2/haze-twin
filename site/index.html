@@ -226,6 +226,33 @@ dialog::backdrop{background:rgba(2,4,6,.72)}
 .dchip:empty{display:none}
 .errbox{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:80%;background:rgba(5,8,12,.92);border:1px solid var(--vunh);color:var(--ink);padding:12px 16px;font-size:13px}
 .miss{display:flex;flex-wrap:wrap;gap:4px 12px}
+
+.answer3{margin:0;font-size:13px;color:var(--cyan)}
+.extzone{position:absolute;top:46px;height:24px;right:8px;background:repeating-linear-gradient(135deg,rgba(127,147,159,.10) 0 4px,transparent 4px 8px);border-left:1px dashed var(--edge-hi);pointer-events:none}
+.extzone span{position:absolute;top:-14px;left:4px;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--ink-3);white-space:nowrap}
+.cby{display:grid;grid-template-columns:repeat(15,minmax(0,1fr));gap:3px;align-items:end;height:74px}
+.cby div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;height:100%}
+.cby i{display:block;width:100%;background:var(--sB);min-height:1px}
+.cby i.ext{background:rgba(92,225,230,.45)}
+.cby b{font-family:var(--mono);font-weight:400;font-size:9px;color:var(--ink-2)}
+.cbyx{display:grid;grid-template-columns:repeat(15,minmax(0,1fr));gap:3px;font-family:var(--mono);font-size:9px;color:var(--ink-3);text-align:center}
+.xchip{font-family:var(--mono);font-size:10px;letter-spacing:.06em;border:1px solid var(--edge-hi);color:var(--ink-3);padding:1px 6px;border-radius:2px;text-transform:uppercase}
+.season-rows{display:flex;flex-direction:column;gap:6px}
+.srow{display:grid;grid-template-columns:76px minmax(0,1fr) 40px;gap:10px;align-items:center;font-size:12.5px}
+.srow .lab{font-family:var(--mono);color:var(--ink-2)}
+.srow .bar{height:8px;background:var(--grid);position:relative;overflow:hidden}
+.srow .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--sD)}
+.srow .pc{font-family:var(--mono);text-align:right}
+.more{font-size:12.5px;color:var(--ink-2)}
+.more summary{cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--cyan);text-transform:uppercase;min-height:24px;display:inline-flex;align-items:center}
+.more p{margin:6px 0 0;max-width:60ch}
+.news{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+.news li{display:flex;flex-direction:column;gap:2px;font-size:13px;line-height:1.35}
+.news a{color:var(--ink);text-decoration:none}
+.news a:hover{color:var(--cyan);text-decoration:underline}
+.news span{font-family:var(--mono);font-size:10.5px;color:var(--ink-3)}
+.lg.cams{border-top:2px dotted var(--fire)}
+.key-air{width:9px;height:9px;transform:rotate(45deg);border:1.5px solid var(--ink-2);display:inline-block}
 </style>
 </head>
 <body>
@@ -251,6 +278,7 @@ dialog::backdrop{background:rgba(2,4,6,.72)}
       <p class="eyebrow" id="eyebrow">Singapore</p>
       <h1 class="answer" id="answer">Loading…</h1>
       <p class="answer2" id="answer2"></p>
+      <p class="answer3" id="answer3"></p>
     </div>
     <div class="sect s-now">
       <div class="row between"><h2>24-hr PSI now</h2><span class="prov" id="nowProv">Measured · NEA</span></div>
@@ -275,6 +303,7 @@ dialog::backdrop{background:rgba(2,4,6,.72)}
       <span><i class="key-smoke"></i>Smoke</span>
       <span><i class="key-dot"></i>Fire hotspot, last 24 h</span>
       <span><i class="key-line" style="background:#8EA2AE;height:1px"></i>Wind</span>
+      <span><i class="key-air"></i>Airport visibility</span>
     </div>
     <div class="maphud br mono" id="readout">Point at the map</div>
     <div class="runbox" id="runbox" hidden>Running futures <span id="runCount">0</span> / 100,000<small id="runSub">on your device, with the latest NEA reading</small></div>
@@ -285,17 +314,33 @@ dialog::backdrop{background:rgba(2,4,6,.72)}
     <div class="sect">
       <div class="row between"><h2>Futures</h2><span class="prov">24-hr PSI · <span id="fanRegion"></span></span></div>
       <canvas id="fan" role="img" aria-label="Chart of simulated 24-hour PSI futures"></canvas>
-      <div class="fanlegend"><span><i class="lg meas"></i>Measured</span><span><i class="lg"></i>Middle (P50)</span><span><i class="lg dash"></i>90% range</span><span>Thin lines: one future each</span></div>
+      <div class="fanlegend"><span><i class="lg meas"></i>Measured</span><span><i class="lg"></i>Middle (P50)</span><span><i class="lg dash"></i>90% range</span><span><i class="lg cams"></i>CAMS model</span><span>Thin lines: one future each</span></div>
     </div>
     <div class="sect" id="whyCard">
       <div class="row between"><h2>Why the odds moved</h2><span class="prov" id="whyLabel"></span></div>
       <div class="deltas" id="whyDeltas"></div>
       <ul class="why" id="whyList"></ul>
     </div>
+    <div class="sect" id="seasonCard">
+      <div class="row between"><h2>Season outlook</h2><span class="xchip">Experimental</span></div>
+      <p class="answer2" id="seasonLine"></p>
+      <div class="season-rows" id="seasonRows"></div>
+      <details class="more"><summary>How this is worked out</summary><div id="seasonMore"></div></details>
+    </div>
+    <div class="sect">
+      <div class="row between"><h2 id="cbyTitle">Next 15 days</h2><span class="prov">Share of futures</span></div>
+      <p class="hint" id="cbyHint"></p>
+      <div class="cby" id="cby" role="img"></div>
+      <div class="cbyx" id="cbyx"></div>
+    </div>
     <div class="sect">
       <div class="row between"><h2>Next 6 days</h2><span class="prov">Share of futures</span></div>
       <div id="days"></div>
       <div class="legend" id="bandLegend"></div>
+    </div>
+    <div class="sect" id="newsCard">
+      <div class="row between"><h2>In the news</h2><span class="prov">Last 3 days · GDELT</span></div>
+      <ul class="news" id="newsList"></ul>
     </div>
   </aside>
 
@@ -305,7 +350,8 @@ dialog::backdrop{background:rgba(2,4,6,.72)}
       <button class="btn play" id="btnPlay" type="button">PLAY</button>
       <div class="track">
         <div class="markers" id="markers"></div>
-        <input type="range" id="scrub" min="0" max="5.75" step="0.0125" value="0" aria-label="Forecast time, from now to six days ahead">
+        <div class="extzone" id="extzone"><span>EXTENDED · LOWER CONFIDENCE</span></div>
+        <input type="range" id="scrub" min="0" max="15" step="0.0125" value="0" aria-label="Forecast time, from now to 15 days ahead">
         <div class="ticks" id="ticks"></div>
       </div>
     </div>
@@ -329,10 +375,17 @@ dialog::backdrop{background:rgba(2,4,6,.72)}
       <li>Futures are grouped into storylines by outcome. The odds are the share of futures in each. Rerun repeats the sampling on your device with NEA's latest reading.</li>
       <li>Every forecast is kept as issued. Two days later it is scored against what NEA measured, misses included.</li>
     </ol>
+    <h3 class="srch">Three horizons</h3>
+    <ul class="steps">
+      <li><b>Days 1–6:</b> the full twin. Storylines and daily odds come from here.</li>
+      <li><b>Days 7–15:</b> the same twin on the longer weather forecasts. Wind forecasts lose skill after about a week, so the odds widen and the page shows chance by date rather than a middle line.</li>
+      <li><b>Season outlook:</b> when rain sets in over the Kalimantan and Sumatra fire areas. Taken from the weather forecasts where they reach it; beyond that, from normal onset dates shifted later by El Niño and a positive Indian Ocean Dipole. Experimental.</li>
+    </ul>
     <div class="srcs">
-      <div><h3>Measured</h3><ul><li>NEA 24-hr PSI, 24-hr and 1-hr PM2.5 (data.gov.sg)</li><li>NASA FIRMS hotspots, VIIRS on NOAA-20 and NOAA-21</li></ul></div>
-      <div><h3>Simulated</h3><ul><li>Winds and rain from <span class="nMembers">31</span> NOAA GEFS forecasts</li><li>Back-traced air paths to Singapore</li><li>Fire smoke, storylines and odds</li></ul></div>
+      <div><h3>Measured</h3><ul><li>NEA 24-hr PSI, 24-hr and 1-hr PM2.5 (data.gov.sg)</li><li>NASA FIRMS hotspots, VIIRS on NOAA-20 and NOAA-21</li><li>Airport visibility near the fires (METAR)</li><li>Satellite true-colour imagery (NASA GIBS, NOAA-20)</li><li>El Niño (NOAA RONI) and Indian Ocean Dipole (NOAA DMI)</li></ul></div>
+      <div><h3>Simulated</h3><ul><li>Winds and rain from <span class="nMembers">31</span> NOAA GEFS forecasts, 16 days</li><li>Back-traced air paths to Singapore</li><li>Fire smoke, storylines and odds</li><li>CAMS smoke model, shown for comparison</li></ul></div>
     </div>
+    <p>News headlines come from GDELT and link to the original reports.</p>
     <p>Limits: smoke amounts are scaled to match NEA, not measured at the fires. The PSI conversion uses NEA's PM2.5 breakpoints. This is an independent public-good project; for health advice, follow NEA.</p>
   </div>
 </dialog>
@@ -360,7 +413,7 @@ function readColors(){['--void','--grid','--ink','--ink-2','--ink-3','--cyan','-
 readColors();
 
 /* ---------- state ---------- */
-const state={region:'national',sel:null,t:0,playing:false,running:false,runFrac:1,layers:{futures:true,smoke:true,wind:true,hot:true},official:null,rerunAt:null};
+const state={region:'national',sel:null,t:0,playing:false,running:false,runFrac:1,layers:{futures:true,smoke:true,wind:true,hot:true,air:true,sat:true},official:null,rerunAt:null};
 let INP=null,FC=null,REC=null,COAST=null;
 const fmtSGT=(d,withDay)=>{const s=new Date(d.getTime()+8*3600e3);const hh=String(s.getUTCHours()).padStart(2,'0')+':'+String(s.getUTCMinutes()).padStart(2,'0');return withDay?['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][s.getUTCDay()]+' '+s.getUTCDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][s.getUTCMonth()]+' '+hh:hh;};
 const t0=()=>new Date(INP.t0);
@@ -377,6 +430,8 @@ const P=(lon,lat)=>[V.ox+lon*V.k,V.oy-lat*V.k];
 const staticCv=document.createElement('canvas'),sctx=staticCv.getContext('2d');
 const trailCv=document.createElement('canvas'),tctx=trailCv.getContext('2d');
 const threadCv=document.createElement('canvas'),thctx=threadCv.getContext('2d');
+const coastCv=document.createElement('canvas'),cctx=coastCv.getContext('2d');
+const satCv=document.createElement('canvas'),satctx=satCv.getContext('2d');let satOK=false;
 let narrow=false,RINGS=[];
 const PLACES=[['RIAU',101.2,0.25],['JAMBI',102.6,-1.9],['S. SUMATRA',103.5,-3.9],['C. KALIMANTAN',112.6,-1.25],['S. KALIMANTAN',114.4,-4.0],['W. KALIMANTAN',110.0,0.55],['SARAWAK',112.4,2.6],['PENINSULAR MALAYSIA',100.9,4.4],['JAVA SEA',109.6,-5.2],['SOUTH CHINA SEA',107.6,5.2]];
 function layout(){
@@ -384,7 +439,7 @@ function layout(){
   if(narrow){const a=app.getBoundingClientRect(),r=mapcell.getBoundingClientRect();stage.style.inset='auto';stage.style.top=(r.top-a.top)+'px';stage.style.left=(r.left-a.left)+'px';stage.style.width=r.width+'px';stage.style.height=r.height+'px';}
   else{stage.style.inset='0';stage.style.top='';stage.style.left='';stage.style.width='';stage.style.height='';}
   const sr=stage.getBoundingClientRect();V.dpr=Math.min(2,window.devicePixelRatio||1);V.w=Math.max(1,sr.width);V.h=Math.max(1,sr.height);
-  [cv,staticCv,trailCv,threadCv].forEach(c=>{c.width=Math.round(V.w*V.dpr);c.height=Math.round(V.h*V.dpr);});
+  [cv,staticCv,trailCv,threadCv,coastCv,satCv].forEach(c=>{c.width=Math.round(V.w*V.dpr);c.height=Math.round(V.h*V.dpr);});
   const mr=mapcell.getBoundingClientRect();
   const pad=narrow?{l:8,r:8,t:118,b:56}:{l:10,r:10,t:62,b:40};
   V.cell={x:mr.left-sr.left,y:mr.top-sr.top,w:mr.width,h:mr.height};
@@ -393,10 +448,10 @@ function layout(){
   V.k=Math.min(cw/(lonB-lonA),ch/(latB-latA));
   const cx=V.cell.x+pad.l+cw/2,cy=V.cell.y+pad.t+ch/2;
   V.ox=cx-((lonA+lonB)/2)*V.k;V.oy=cy+((latA+latB)/2)*V.k;
-  drawStatic();if(FC){needWarm=true;initWind();drawThreads();drawFan();renderMarkers();}
+  drawStatic();loadSat();if(FC){needWarm=true;initWind();drawThreads();drawFan();renderMarkers();}
 }
 function drawStatic(){
-  const c=sctx;c.setTransform(V.dpr,0,0,V.dpr,0,0);
+  let c=sctx;c.setTransform(V.dpr,0,0,V.dpr,0,0);
   c.fillStyle=COL['--void'];c.fillRect(0,0,V.w,V.h);
   const sg=P(SG[0],SG[1]);const g=c.createRadialGradient(sg[0],sg[1],0,sg[0],sg[1],Math.max(V.w,V.h)*0.7);
   g.addColorStop(0,'rgba(20,48,60,0.35)');g.addColorStop(1,'rgba(5,8,12,0)');c.fillStyle=g;c.fillRect(0,0,V.w,V.h);
@@ -406,8 +461,11 @@ function drawStatic(){
   c.stroke();
   c.beginPath();RINGS.forEach(r=>{r.forEach((p,i)=>{const s=P(p[0],p[1]);if(i===0)c.moveTo(s[0],s[1]);else c.lineTo(s[0],s[1]);});c.closePath();});
   c.fillStyle='#0A1720';c.fill();
-  c.strokeStyle='rgba(92,225,230,0.10)';c.lineWidth=4;c.stroke();
-  c.strokeStyle='rgba(92,225,230,0.42)';c.lineWidth=0.8;c.stroke();
+  const k2=cctx;k2.setTransform(1,0,0,1,0,0);k2.clearRect(0,0,coastCv.width,coastCv.height);k2.setTransform(V.dpr,0,0,V.dpr,0,0);
+  k2.beginPath();RINGS.forEach(r=>{r.forEach((p,i)=>{const s=P(p[0],p[1]);if(i===0)k2.moveTo(s[0],s[1]);else k2.lineTo(s[0],s[1]);});k2.closePath();});
+  k2.strokeStyle='rgba(92,225,230,0.10)';k2.lineWidth=4;k2.stroke();
+  k2.strokeStyle='rgba(92,225,230,0.42)';k2.lineWidth=0.8;k2.stroke();
+  c=k2;
   c.font='500 10px '+tok('--mono');c.fillStyle=COL['--ink-3'];
   const cb=V.cell.y+V.cell.h-6;
   for(let lon=100;lon<=120;lon+=4){const x=P(lon,0)[0];if(x>V.cell.x+150&&x<V.cell.x+V.cell.w-150){c.textAlign='center';c.fillText(lon+'°E',x,cb-28);}}
@@ -416,6 +474,23 @@ function drawStatic(){
   c.font='500 '+Math.max(9,Math.min(11,V.k*0.24))+'px '+tok('--mono');c.fillStyle='rgba(174,191,201,0.62)';c.textAlign='center';
   PLACES.forEach(p=>{const s=P(p[1],p[2]);c.fillText(p[0],s[0],s[1]);});
   c.textAlign='left';
+}
+
+/* ---------- satellite imagery (NASA GIBS, yesterday's NOAA-20 true colour) ---------- */
+let satKey='';
+function loadSat(){
+  const z=clamp(Math.ceil(Math.log2(Math.max(1,V.k*V.dpr*180/512))),2,6);const size=180/Math.pow(2,z);
+  const d=new Date(Date.now()-36*3600e3);const date=d.toISOString().slice(0,10);
+  const key=z+'|'+date+'|'+V.w+'x'+V.h+'|'+V.k.toFixed(2);if(key===satKey)return;satKey=key;
+  satctx.setTransform(1,0,0,1,0,0);satctx.clearRect(0,0,satCv.width,satCv.height);satctx.setTransform(V.dpr,0,0,V.dpr,0,0);satOK=false;
+  const lon0=(0-V.ox)/V.k,lon1=(V.w-V.ox)/V.k,lat1=V.oy/V.k,lat0=(V.oy-V.h)/V.k;
+  const c0=Math.floor((Math.max(88,lon0)+180)/size),c1=Math.floor((Math.min(128,lon1)+180)/size);
+  const r0=Math.floor((90-Math.min(14,lat1))/size),r1=Math.floor((90-Math.max(-14,lat0))/size);
+  for(let row=r0;row<=r1;row++)for(let col=c0;col<=c1;col++){
+    const img=new Image();const myKey=satKey;
+    img.onload=()=>{if(myKey!==satKey)return;const lonW=col*size-180,latN=90-row*size;const a=P(lonW,latN),b=P(lonW+size,latN-size);satctx.drawImage(img,a[0],a[1],b[0]-a[0],b[1]-a[1]);satOK=true;};
+    img.src='https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/VIIRS_NOAA20_CorrectedReflectance_TrueColor/default/'+date+'/250m/'+z+'/'+row+'/'+col+'.jpg';
+  }
 }
 
 /* ---------- winds from the ensemble ---------- */
@@ -431,7 +506,7 @@ function buildWinds(){
 }
 function windAt(lon,lat,h,F){
   const g=WG.g;let fx=(lon-g.lon0)/g.d,fy=(lat-g.lat0)/g.d;fx=clamp(fx,0,g.nx-1.0001);fy=clamp(fy,0,g.ny-1.0001);
-  const tt=WG.t;let ti=0;if(h<=tt[0])ti=0;else if(h>=tt[tt.length-1])ti=tt.length-2;else{ti=Math.min(tt.length-2,Math.floor((h-tt[0])/(tt[1]-tt[0])));}
+  const tt=WG.t;let ti=0;if(h<=tt[0])ti=0;else if(h>=tt[tt.length-1])ti=tt.length-2;else{let lo=0,hi=tt.length-1;while(hi-lo>1){const mid=(lo+hi)>>1;if(tt[mid]<=h)lo=mid;else hi=mid;}ti=lo;}
   const wt=clamp((h-tt[ti])/(tt[ti+1]-tt[ti]),0,1);
   const ix=fx|0,iy=fy|0,wx=fx-ix,wy=fy-iy;const n=WG.n,nx=g.nx;
   let u=0,v=0;
@@ -538,13 +613,28 @@ function drawFan(){
   c.font='10px '+tok('--mono');c.textAlign='right';c.fillStyle=COL['--ink-3'];c.strokeStyle='rgba(127,147,159,0.18)';c.lineWidth=1;
   [50,100,200,300].forEach(v=>{const y=Math.round(G.y(v))+0.5;c.beginPath();c.moveTo(FL.l,y);c.lineTo(G.w-FL.r,y);c.stroke();c.fillText(String(v),FL.l-5,y+3);});
   c.textAlign='left';[['Good',25],['Moderate',75],['Unhealthy',150],['V. unhealthy',250],['Hazardous',315]].forEach((b,k)=>{c.fillStyle=COL.b[k];c.fillText(b[0],G.w-FL.r+5,G.y(b[1])+3);});
+  const coreEnd=coreEndT();const xe=G.x(coreEnd);
+  c.fillStyle='rgba(127,147,159,0.07)';c.fillRect(xe,FL.t,G.w-FL.r-xe,G.h-FL.t-FL.b);
+  c.strokeStyle='rgba(127,147,159,0.35)';c.setLineDash([2,3]);c.beginPath();c.moveTo(Math.round(xe)+0.5,FL.t);c.lineTo(Math.round(xe)+0.5,G.h-FL.b);c.stroke();c.setLineDash([]);
+  c.fillStyle=COL['--ink-3'];c.font='9.5px '+tok('--mono');c.textAlign='left';c.fillText('EXTENDED',xe+4,FL.t+10);c.font='10px '+tok('--mono');
   c.fillStyle=COL['--ink-3'];c.textAlign='center';
-  for(let d=G.x0;d<=G.x1;d++){const lab=d===0?'Now':fmtSGT(new Date(t0().getTime()+d*864e5),true).split(' ')[0];c.fillText(lab,G.x(d),G.h-6);}
+  const step=(G.x1-G.x0)>10?2:1;
+  for(let d=G.x0;d<=G.x1;d+=step){const lab=d===0?'Now':fmtSGT(new Date(t0().getTime()+d*864e5),true).split(' ').slice(0,d>6?2:1).join(' ').replace(/^(\w+) (\d+)$/,(m,a,b)=>d>6?b:a);c.fillText(lab,G.x(d),G.h-6);}
   const reg=R();const A=FC.arrivals_h;const n=Math.ceil(FC.samples.length*state.runFrac);
   for(let ci=0;ci<4;ci++){const on=state.sel===ci,dim=state.sel!==null&&!on;
     c.strokeStyle=rgba(classColor(reg.classes[ci]),dim?0.03:on?0.24:0.11);c.lineWidth=0.8;c.beginPath();
-    for(let k=0;k<n;k++){if(reg.sampleClass[k]!==ci)continue;const s=FC.samples[k];for(let i=0;i<A.length;i++){const x=G.x(A[i]/24),y=G.y(regionPsi(s[i],A[i]));if(i===0)c.moveTo(x,y);else c.lineTo(x,y);}}
+    const ic=A.findIndex(a=>a/24>coreEnd);const iCut=ic<0?A.length:ic;
+    for(let k=0;k<n;k++){if(reg.sampleClass[k]!==ci)continue;const s=FC.samples[k];for(let i=0;i<iCut;i++){const x=G.x(A[i]/24),y=G.y(regionPsi(s[i],A[i]));if(i===0)c.moveTo(x,y);else c.lineTo(x,y);}}
+    c.stroke();
+    c.strokeStyle=rgba(classColor(reg.classes[ci]),dim?0.015:on?0.1:0.04);c.beginPath();
+    for(let k=0;k<n;k++){if(reg.sampleClass[k]!==ci)continue;const s=FC.samples[k];for(let i=Math.max(0,iCut-1);i<A.length;i++){const x=G.x(A[i]/24),y=G.y(regionPsi(s[i],A[i]));if(i===iCut-1)c.moveTo(x,y);else c.lineTo(x,y);}}
     c.stroke();}
+  // CAMS (second opinion): 24-hour mean of hourly PM2.5, converted to PSI
+  const cams=INP.extras&&INP.extras.cams&&INP.extras.cams.pm25;
+  if(cams&&cams.length>24&&state.region==='national'){
+    const pts=[];for(let i=23;i<cams.length;i+=3){let m=0;for(let j=i-23;j<=i;j++)m+=cams[j][1];m/=24;const h=(new Date(cams[i][0])-t0())/3600e3;if(h<-48)continue;pts.push([h/24,HE.psiOf(m)]);}
+    c.strokeStyle=COL['--fire'];c.lineWidth=1.5;c.setLineDash([2,3]);c.beginPath();pts.forEach((p,i)=>{const x=G.x(p[0]),y=G.y(p[1]);if(i===0)c.moveTo(x,y);else c.lineTo(x,y);});c.stroke();c.setLineDash([]);
+  }
   const xn=Math.round(G.x(0))+0.5;c.strokeStyle=rgba(COL['--cyan'],0.6);c.setLineDash([3,3]);c.beginPath();c.moveTo(xn,FL.t);c.lineTo(xn,G.h-FL.b);c.stroke();c.setLineDash([]);
   // measured
   const hist=(INP.obs.psi_hist||[]).filter(x=>x[0]>=-48&&x[1][state.region]!=null);
@@ -552,7 +642,7 @@ function drawFan(){
   if(!state.running){
     const pc=reg.pct;c.lineWidth=1;c.setLineDash([4,3]);c.strokeStyle=COL['--ink-2'];
     ['p5','p95'].forEach(j=>{c.beginPath();pc[j].forEach((v,i)=>{const x=G.x(A[i]/24),y=G.y(v);if(i===0)c.moveTo(x,y);else c.lineTo(x,y);});c.stroke();});
-    c.setLineDash([]);c.lineWidth=2;c.strokeStyle=COL['--ink'];c.beginPath();pc.p50.forEach((v,i)=>{const x=G.x(A[i]/24),y=G.y(v);if(i===0)c.moveTo(x,y);else c.lineTo(x,y);});c.stroke();
+    c.setLineDash([]);c.lineWidth=2;c.strokeStyle=COL['--ink'];c.beginPath();let started=false;pc.p50.forEach((v,i)=>{if(A[i]/24>coreEnd)return;const x=G.x(A[i]/24),y=G.y(v);if(!started){c.moveTo(x,y);started=true;}else c.lineTo(x,y);});c.stroke();
   }
   const xc=G.x(state.t);c.strokeStyle=COL['--cyan'];c.lineWidth=1;c.beginPath();c.moveTo(xc,FL.t);c.lineTo(xc,G.h-FL.b);c.stroke();
   if(!state.running){const i=arrIndex(state.t*24);const v=reg.pct.p50[i];const y=G.y(v);c.fillStyle=COL['--ink'];c.beginPath();c.arc(xc,y,3.5,0,Math.PI*2);c.fill();
@@ -561,6 +651,7 @@ function drawFan(){
   fan.setAttribute('aria-label','Simulated 24-hour PSI for '+regionName()+'. Middle path '+reg.pct.p50[Math.min(4,last)]+' tomorrow and '+reg.pct.p50[last]+' at the end; 90% range at the end '+reg.pct.p5[last]+' to '+reg.pct.p95[last]+'.');
   fanDirty=false;
 }
+function coreEndT(){const d=FC.days.filter(x=>x.tier==='core');return d.length?d[d.length-1].h/24+0.25:6;}
 function arrIndex(h){const A=FC.arrivals_h;let best=0;for(let i=0;i<A.length;i++)if(Math.abs(A[i]-h)<Math.abs(A[best]-h))best=i;return best;}
 let dragFan=false;
 function fanToT(ev){const r=fan.getBoundingClientRect();const G=fanGeom();const t=G.x0+((ev.clientX-r.left)-FL.l)/(G.w-FL.l-FL.r)*(G.x1-G.x0);setT(t);needWarm=true;}
@@ -604,10 +695,11 @@ function renderStories(){
 function renderAnswer(){
   const reg=R();const now=reg.now;const b=now!=null?BANDS[bandOf(now)]:null;const top=reg.classes[topClass()];
   $('eyebrow').textContent='Singapore · '+(state.region==='national'?'highest of 5 regions':REG.find(r=>r[0]===state.region)[1]+' region');
-  const endDay=FC.days[FC.days.length-1].dow;
+  const endDay=reg.clearDayLabel||FC.days[Math.min(5,FC.days.length-1)].dow;
   if(reg.mode==='haze')$('answer').textContent=(b?b.name:'')+' now. '+Math.round(reg.clear)+'% chance it is 100 or below by '+endDay+'.';
   else{const clean=reg.classes.find(c=>c.id==='clean');$('answer').textContent=(b?b.name:'')+' now. '+Math.round(100-(clean?clean.odds:0))+'% chance of PSI above 100 this week.';}
   $('answer2').textContent='Most likely: '+top.name.toLowerCase()+'. '+(top.outcome||'');
+  const se=FC.season;$('answer3').textContent=se?(reg.mode==='haze'?'Season: most likely over around '+se.median+'.':'Rainy season expected around '+se.median+'.'):'';
   $('psiNow').textContent=now!=null?Math.round(now):'–';const pill=$('psiBand');pill.textContent=b?b.name:'';pill.style.background=b?COL.b[bandOf(now)]:'transparent';
   $('nowProv').textContent='Measured · NEA · '+fmtSGT(new Date(INP.obs.time||INP.t0));
   $('fanRegion').textContent=state.region==='national'?'Singapore':REG.find(r=>r[0]===state.region)[1];
@@ -623,12 +715,38 @@ function renderWhy(){
 }
 function renderDays(){
   const box=$('days');box.innerHTML='';const reg=R();const cur=dayIndexAt(state.t);
-  reg.days.forEach((d,i)=>{const row=document.createElement('div');row.className='dayrow'+(cur===i?' cur':'');
+  reg.days.slice(0,6).forEach((d,i)=>{const row=document.createElement('div');row.className='dayrow'+(cur===i?' cur':'');
     const lab=FC.days[i].label;row.innerHTML='<span class="dl"></span><span class="bar" role="img"></span><span class="dm"></span>';row.children[0].textContent=lab;row.children[2].textContent='P50 '+d.p50;
     row.children[1].setAttribute('aria-label',lab+': '+d.bands.map((v,k)=>BANDS[k].name+' '+Math.round(v)+'%').join(', '));
     d.bands.forEach((v,k)=>{if(v<0.5)return;const s=document.createElement('i');s.style.flex=v+' 1 0';s.style.background=COL.b[k];s.title=BANDS[k].name+' '+Math.round(v)+'%';row.children[1].appendChild(s);});
     box.appendChild(row);});
   const lg=$('bandLegend');lg.innerHTML='';BANDS.forEach((b,k)=>{const s=document.createElement('span');s.innerHTML='<i></i>';s.querySelector('i').style.background=COL.b[k];s.append(b.name+' '+BAND_RANGE[k]);lg.appendChild(s);});
+}
+function renderCby(){
+  const reg=R();const box=$('cby'),ax=$('cbyx');box.innerHTML='';ax.innerHTML='';const cb=reg.clearBy||[];
+  $('cbyTitle').textContent='Next '+cb.length+' days';
+  $('cbyHint').textContent=reg.mode==='haze'?'Chance PSI has dropped to 100 or below by each day':'Chance PSI has gone above 100 by each day';
+  box.style.gridTemplateColumns=ax.style.gridTemplateColumns='repeat('+cb.length+',minmax(0,1fr))';
+  box.setAttribute('aria-label',cb.map((v,i)=>FC.days[i].label+' '+Math.round(v)+'%').join(', '));
+  cb.forEach((v,i)=>{const d=document.createElement('div');const b=document.createElement('b');b.textContent=Math.round(v);const bar=document.createElement('i');bar.style.height=Math.max(1,v*0.56)+'px';if(FC.days[i].tier!=='core')bar.className='ext';d.append(b,bar);box.appendChild(d);
+    const l=document.createElement('span');l.textContent=i%2===0?FC.days[i].label.split(' ')[1]:'';ax.appendChild(l);});
+}
+function renderSeason(){
+  const se=FC.season;const card=$('seasonCard');if(!se){card.hidden=true;return;}card.hidden=false;const reg=R();
+  $('seasonLine').textContent=reg.mode==='haze'?'Most likely over around '+se.median+' (8 in 10 chance between '+se.p10+' and '+se.p90+').':'Rains most likely set in around '+se.median+'.';
+  const rows=$('seasonRows');rows.innerHTML='';
+  se.dates.forEach(d=>{const r=document.createElement('div');r.className='srow';r.innerHTML='<span class="lab"></span><span class="bar"><i></i></span><span class="pc"></span>';r.children[0].textContent='by '+d.label;r.querySelector('i').style.width=d.p+'%';r.children[2].textContent=d.p+'%';rows.appendChild(r);});
+  const cl=se.climate||{};const f=(x)=>x==null?'n/a':(x>0?'+':'')+Number(x).toFixed(2);
+  $('seasonMore').innerHTML='';
+  const ps=['"Over" means steady rain has set in over both the Kalimantan and Sumatra fire areas, plus about a week for fires and haze to die down. Haze can still lift earlier when winds change.',
+    'Rain onset, middle estimate: Kalimantan '+se.onset.Kalimantan+', Sumatra '+se.onset.Sumatra+'. '+se.seenInForecast+'% of futures already show it within the '+se.horizonDays+'-day weather forecasts.',
+    'Beyond the forecasts, onset is taken from normal dates and pushed about '+cl.shiftDays+' days later by El Niño (RONI '+f(cl.roni)+', '+(cl.roniPeriod||'')+') and the Indian Ocean Dipole (DMI '+f(cl.dmi)+', '+(cl.dmiPeriod||'')+').'];
+  ps.forEach(t=>{const p=document.createElement('p');p.textContent=t;$('seasonMore').appendChild(p);});
+}
+function renderNews(){
+  const list=$('newsList');list.innerHTML='';const items=(INP.extras&&INP.extras.news)||[];$('newsCard').hidden=!items.length;
+  items.slice(0,6).forEach(n=>{const li=document.createElement('li');const a=document.createElement(n.url?'a':'span');a.textContent=n.title;if(n.url){a.href=n.url;a.target='_blank';a.rel='noopener';}
+    const m=document.createElement('span');m.textContent=(n.domain||'')+(n.time?' · '+fmtSGT(new Date(n.time),true):'');li.append(a,m);list.appendChild(li);});
 }
 function dayIndexAt(t){let best=-1,bd=0.3;FC.days.forEach((d,i)=>{const dd=Math.abs(d.h/24-t);if(dd<bd){bd=dd;best=i;}});return best;}
 function renderMarkers(){
@@ -645,11 +763,15 @@ function renderMarkers(){
 }
 function renderTicks(){const box=$('ticks');box.innerHTML='';const mt=maxT();
   const s=document.createElement('span');s.textContent='Now';s.dataset.t=0;s.style.left='0%';box.appendChild(s);
-  FC.days.forEach(d=>{if(d.h/24>mt)return;const e=document.createElement('span');e.textContent=d.dow;e.dataset.t=d.h/24;e.style.left=(d.h/24/mt*100)+'%';box.appendChild(e);});}
+  FC.days.forEach((d,i)=>{if(d.h/24>mt||d.h/24/mt<0.06)return;if(i>=6&&i%2===0)return;const e=document.createElement('span');e.textContent=i<6?d.dow:d.label.split(' ')[1];e.dataset.t=d.h/24;e.style.left=(d.h/24/mt*100)+'%';box.appendChild(e);});}
+function renderExt(){const z=$('extzone');const mt=maxT();const ce=coreEndT();if(ce>=mt){z.hidden=true;return;}z.hidden=false;z.style.left='calc(8px + '+(ce/mt*100)+'% - '+(16*ce/mt)+'px)';}
 function renderTicker(){
   const items=[];items.push({k:'t',t:fmtSGT(new Date(FC.built)),s:'Twin',d:'run · '+FC.n.toLocaleString('en-US')+' futures from '+FC.members+' weather forecasts'+(FC.anchored?', matched to NEA readings':'')});
   (INP.sources||[]).forEach(s=>items.push({k:s.status==='failed'?'n':'',t:s.time?fmtSGT(new Date(s.time)):'',s:s.name,d:s.status+(s.detail?' · '+s.detail:'')}));
   items.push({k:'',t:'',s:'Hotspots',d:INP.hotspots.length+' in the last 24 h, VIIRS'});
+  const ex=INP.extras||{};
+  (ex.airports||[]).filter(a=>a.icao!=='WSSS').forEach(a=>items.push({k:a.haze?'n':'',t:a.time?fmtSGT(new Date(a.time)):'',s:a.name+' airport',d:(a.vis_km!=null?'visibility '+a.vis_km+' km':'no visibility')+(a.wx?' · '+a.wx:'')}));
+  (ex.news||[]).slice(0,4).forEach(n=>items.push({k:'',t:n.time?fmtSGT(new Date(n.time)):'',s:n.domain||'News',d:n.title}));
   const ss=FC.sourceShare;if(ss)items.push({k:'',t:'',s:'Fire smoke reaching Singapore, next 3 days',d:'Kalimantan '+ss.Kalimantan+'% · Sumatra '+ss.Sumatra+'% · other '+ss.Other+'%'});
   const html=items.map(e=>'<span class="'+e.k+'"><b>'+e.t+'</b>'+esc(e.s)+' · '+esc(e.d)+'</span>').join('');
   $('ticker').innerHTML=html+(reduced?'':html);
@@ -671,7 +793,7 @@ function syncT(){
 }
 function renderLayers(){
   const box=$('layers');box.innerHTML='';
-  [['futures','Air paths'],['smoke','Smoke'],['wind','Wind'],['hot','Hotspots']].forEach(l=>{const b=document.createElement('button');b.type='button';b.className='layer';b.id='layer-'+l[0];b.textContent=l[1];b.setAttribute('aria-pressed',String(state.layers[l[0]]));
+  [['futures','Air paths'],['smoke','Smoke'],['wind','Wind'],['hot','Hotspots'],['air','Airports'],['sat','Satellite']].forEach(l=>{const b=document.createElement('button');b.type='button';b.className='layer';b.id='layer-'+l[0];b.textContent=l[1];b.setAttribute('aria-pressed',String(state.layers[l[0]]));
     b.addEventListener('click',()=>{state.layers[l[0]]=!state.layers[l[0]];b.setAttribute('aria-pressed',String(state.layers[l[0]]));if(l[0]==='wind')initWind();});box.appendChild(b);});
 }
 function renderHeader(){
@@ -680,7 +802,7 @@ function renderHeader(){
   const chip=$('dataChip');chip.textContent=INP.sample?'Sample data':'Live data';chip.classList.toggle('live',!INP.sample);
   document.querySelectorAll('.nMembers').forEach(e=>e.textContent=FC.members);
 }
-function renderAll(){renderHeader();renderRegions();renderAnswer();renderStories();renderWhy();renderDays();renderMarkers();renderTicks();renderTicker();renderShowing();renderRecord();}
+function renderAll(){renderHeader();renderRegions();renderAnswer();renderStories();renderWhy();renderDays();renderCby();renderSeason();renderNews();renderExt();renderMarkers();renderTicks();renderTicker();renderShowing();renderRecord();}
 
 /* ---------- record ---------- */
 function renderRecord(){
@@ -760,7 +882,7 @@ function render(now){
     if(threadsDirty)drawThreads();
     if(fanDirty)drawFan();
   }
-  const c=ctx;c.setTransform(1,0,0,1,0,0);c.drawImage(staticCv,0,0);c.setTransform(V.dpr,0,0,V.dpr,0,0);
+  const c=ctx;c.setTransform(1,0,0,1,0,0);c.drawImage(staticCv,0,0);if(state.layers.sat&&satOK){c.globalAlpha=0.5;c.drawImage(satCv,0,0);c.globalAlpha=1;}c.drawImage(coastCv,0,0);c.setTransform(V.dpr,0,0,V.dpr,0,0);
   if(FC){
     const F=curWind();
     if(state.layers.smoke){
@@ -785,6 +907,12 @@ function render(now){
       for(const h of HOT){const s=P(h.lon,h.lat);const pulse=1+0.18*Math.sin(tSec*3+h.ph);const fresh=1-h.age/30;const r=(0.08+0.06*h.frp)*V.k*Math.sqrt(k)*pulse;c.globalAlpha=clamp((0.3+0.7*k)*(0.5+0.5*fresh),0.1,1);c.drawImage(fireSprite,s[0]-r,s[1]-r,r*2,r*2);}
       c.globalAlpha=1;c.globalCompositeOperation='source-over';
     }
+  }
+  if(FC&&state.layers.air&&INP.extras&&INP.extras.airports){
+    c.font='500 10px '+tok('--mono');c.textAlign='left';
+    for(const a of INP.extras.airports){const s=P(a.lon,a.lat);const col=a.haze?COL['--vunh']:COL['--ink-2'];
+      c.save();c.translate(s[0],s[1]);c.rotate(Math.PI/4);c.strokeStyle=col;c.lineWidth=1.5;c.strokeRect(-4,-4,8,8);c.restore();
+      if(a.icao==='WSSS')continue;const txt=(a.vis_km!=null?a.vis_km+' km':'–')+(a.haze?' haze':'');c.fillStyle='rgba(5,8,12,0.75)';const tw=c.measureText(txt).width;c.fillRect(s[0]+7,s[1]-6,tw+6,13);c.fillStyle=col;c.fillText(txt,s[0]+10,s[1]+4);}
   }
   const sg=P(SG[0],SG[1]);
   if(!reduced){const ph=(tSec%2.2)/2.2;c.strokeStyle=rgba(COL['--cyan'],0.9*(1-ph));c.lineWidth=1.5;c.beginPath();c.arc(sg[0],sg[1],5+ph*26,0,Math.PI*2);c.stroke();}

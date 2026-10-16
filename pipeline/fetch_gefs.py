@@ -1,7 +1,7 @@
 """NOAA GEFS ensemble (31 members, 0.5 degree) cropped to SE Asia via the NOMADS grib filter.
 
 Fetches u/v winds at 925 and 850 hPa and accumulated precipitation for every member,
-every 6 hours out to +150 h, plus 6-hour control forecasts from earlier cycles so the
+every 6 hours to +144 h and every 12 hours to +384 h (16 days), plus 6-hour control forecasts from earlier cycles so the
 back-traces can reach into the past.
 
 Server rules: NOMADS blocks heavy users, so requests are throttled to about one per second.
@@ -16,7 +16,7 @@ from pathlib import Path
 import numpy as np
 
 from net import get
-from config import (WEST, EAST, SOUTH, NORTH, GEFS_MEMBERS, GEFS_STEP_H, GEFS_MAX_H,
+from config import (WEST, EAST, SOUTH, NORTH, GEFS_MEMBERS, GEFS_STEPS, GEFS_MAX_H,
                     GEFS_HISTORY_CYCLES, WORK)
 
 FILTER = "https://nomads.ncep.noaa.gov/cgi-bin/filter_gefs_atmos_0p50a.pl"
@@ -110,7 +110,7 @@ def fetch(log=print, workers=2):
     log(f"  GEFS cycle {cycle:%Y-%m-%d %H}Z")
     base = WORK / "gefs" / cycle.strftime("%Y%m%d%H")
     base.mkdir(parents=True, exist_ok=True)
-    steps = list(range(0, GEFS_MAX_H + 1, GEFS_STEP_H))
+    steps = list(GEFS_STEPS)
     jobs = []
     for m in GEFS_MEMBERS:
         for f in steps:

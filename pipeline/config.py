@@ -13,9 +13,9 @@ WEST, EAST, SOUTH, NORTH = 92.0, 124.0, -10.0, 10.0
 SG_LON, SG_LAT = 103.82, 1.35
 
 # Arrival times (hours relative to t0 = latest NEA reading) for back-trajectories
-ARRIVALS_H = list(range(-18, 139, 6))          # -18 .. 138, 27 values
+ARRIVALS_H = list(range(-18, 139, 6)) + list(range(150, 373, 12))   # 6-hourly to 138 h, then 12-hourly to 366 h
 # Emission-time bins (hours relative to t0), 24 h wide, start values
-EMIS_BINS_H = list(range(-96, 144, 24))         # -96 .. 120, 10 bins (last ends at 144)
+EMIS_BINS_H = list(range(-96, 384, 24))         # -96 .. 360, 20 bins (last ends at 384)
 BACK_HOURS = 96                                 # how far back each particle is traced
 PARTICLES = 300                                 # per member per arrival
 TURB_MS = 2.0                                   # random-walk wind perturbation (m/s)
@@ -25,13 +25,16 @@ FIRE_GRID_DEG = 0.5                             # fire cells
 
 # Weather ensemble (NOAA GEFS, 0.5 degree, from NOMADS grib filter)
 GEFS_MEMBERS = ["c00"] + [f"p{i:02d}" for i in range(1, 31)]
-GEFS_STEP_H = 6
-GEFS_MAX_H = 150
+GEFS_STEPS = list(range(0, 145, 6)) + list(range(156, 385, 12))   # 45 steps out to 16 days
+GEFS_MAX_H = 384
 GEFS_HISTORY_CYCLES = 16                        # past cycles of control analyses (4 days)
 
 # Wind grid shipped to the browser for the map (coarse, int8-quantised)
 WIND_DISPLAY_DEG = 2.0
 WIND_SCALE = 0.25                               # m/s per int8 unit
+
+# Paths drawn on the map: every 12 h for 6 days, then every 24 h
+PATH_ARRIVALS_H = [h for h in range(0, 145, 12)] + [h for h in range(150, 373, 24)]
 
 # Source regions used for attribution and fire evolution
 REGIONS = [

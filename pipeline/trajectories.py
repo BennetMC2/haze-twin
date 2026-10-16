@@ -136,7 +136,8 @@ def footprints(weather, cells, seed=1, path_arrivals=None, log=print):
     M = len(weather["members"])
     A, B, R = len(ARRIVALS_H), len(EMIS_BINS_H), len(REGIONS)
     if path_arrivals is None:
-        path_arrivals = [h for h in ARRIVALS_H if h >= 0 and h % 12 == 0]
+        from config import PATH_ARRIVALS_H
+        path_arrivals = [h for h in PATH_ARRIVALS_H if h in ARRIVALS_H]
     S = np.zeros((M, A, R, B), dtype=np.float32)
     paths = []
     rng = np.random.default_rng(seed)
