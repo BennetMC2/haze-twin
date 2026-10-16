@@ -182,7 +182,17 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 #map{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
 #map.drag{cursor:grabbing}
 .ov{position:absolute;z-index:2}
-.showing{top:12px;left:12px;max-width:min(440px,calc(100% - 200px));background:rgba(14,24,32,.88);border:1px solid var(--line);border-radius:6px;padding:8px 12px;display:flex;flex-direction:column;gap:1px;pointer-events:none}
+.showing{top:12px;left:12px;max-width:min(460px,calc(100% - 200px));max-height:calc(100% - 90px);overflow-y:auto;background:rgba(14,24,32,.92);border:1px solid var(--line);border-radius:6px;padding:8px 12px;display:flex;flex-direction:column;gap:1px}
+.whyday{margin-top:6px;border-top:1px solid var(--line);padding-top:6px}
+.whyday summary{cursor:pointer;color:var(--sky);font-size:14px;font-weight:500;list-style:none;min-height:24px;display:flex;align-items:center;gap:6px}
+.whyday summary::-webkit-details-marker{display:none}
+.whyday summary::before{content:'+';font-size:16px;width:12px}
+.whyday[open] summary::before{content:'–'}
+.whylist{list-style:none;margin:6px 0 2px;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--ink-2);line-height:1.45}
+.whylist li{display:grid;grid-template-columns:78px minmax(0,1fr);gap:8px}
+.whylist li span:first-child{color:var(--ink-3);font-size:13px;padding-top:1px}
+.whylist b{color:var(--ink);font-weight:600}
+
 .showing b{font-size:15px;font-weight:600}
 .showing span{font-size:13.5px;color:var(--ink-2)}
 .tools{top:12px;right:12px;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
@@ -324,7 +334,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 
   <section class="mapcell" id="mapcell" aria-label="Map of fires, smoke and the air reaching Singapore">
     <canvas id="map" aria-hidden="true"></canvas>
-    <div class="ov showing" aria-live="polite"><b id="showing1"></b><span id="showing2"></span></div>
+    <div class="ov showing"><b id="showing1" aria-live="polite"></b><span id="showing2"></span><details class="whyday" id="whyMap" hidden><summary>Why this day looks like this</summary><ul class="whylist" id="whyMapList"></ul></details></div>
     <div class="ov tools">
       <div class="zoom" role="group" aria-label="Zoom">
         <button type="button" id="zIn" aria-label="Zoom in">+</button>
@@ -545,11 +555,12 @@ const _ds=drawStatic;drawStatic=function(){_ds();drawStaticTop();};
 
 /* ---------- satellite imagery (NASA GIBS, NOAA-20 true colour) ---------- */
 const TILES=new Map();let satZ=2;
-function satZoom(){return clamp(Math.ceil(Math.log2(Math.max(1,V.k*V.dpr*180/512))),2,8);}
+// GIBS EPSG:4326 tiles are 512 px; a level-0 tile spans 288 degrees (250 m layer: levels 0-8)
+function satZoom(){return clamp(Math.ceil(Math.log2(Math.max(1,V.k*V.dpr*288/512))),2,8);}
 function satDate(){return new Date(Date.now()-36*3600e3).toISOString().slice(0,10);}
 function loadSat(){
   if(!state.layers.sat)return;
-  const z=satZoom();satZ=z;const size=180/Math.pow(2,z);const date=satDate();
+  const z=satZoom();satZ=z;const size=288/Math.pow(2,z);const date=satDate();
   const lon0=(0-V.ox)/V.k,lon1=(V.w-V.ox)/V.k,lat1=V.oy/V.k,lat0=(V.oy-V.h)/V.k;
   const c0=Math.floor((Math.max(88,lon0)+180)/size),c1=Math.floor((Math.min(128,lon1)+180)/size);
   const r0=Math.floor((90-Math.min(14,lat1))/size),r1=Math.floor((90-Math.max(-14,lat0))/size);
@@ -790,7 +801,7 @@ function renderRegions(){
     b.title=key==='national'?'Highest of the five areas, as NEA reports it':name+' Singapore';
     b.addEventListener('click',()=>{if(state.running)return;state.region=key;state.sel=null;onRegion();});box.appendChild(b);});
 }
-function onRegion(){buildWinds();buildThreads();renderAll();drawThreads();drawFan();needWarm=true;}
+function onRegion(){if(WHY)WHY.cache={};whyMapKey='';buildWinds();buildThreads();renderAll();drawThreads();drawFan();needWarm=true;}
 
 /* 15-day list */
 const AXMAX=400;const ax=(v)=>clamp(v,0,AXMAX)/AXMAX*100;
@@ -917,10 +928,11 @@ function markCurrent(){
 function renderShowing(){
   if(!FC)return;const reg=R();
   const sel=state.sel!==null?cls()[state.sel]:null;
-  if(state.t<0.01){$('showing1').textContent='Now, '+dayName(t0())+', '+clock(new Date(INP.obs.time||INP.t0));$('showing2').textContent=(sel?'Showing outcome: '+plainName(sel)+'. ':'')+'Fires in the last day, today\'s smoke, and the shaded area Singapore\'s air is coming from.';}
+  if(state.t<0.01){$('whyMap').hidden=true;$('showing1').textContent='Now, '+dayName(t0())+', '+clock(new Date(INP.obs.time||INP.t0));$('showing2').textContent=(sel?'Showing outcome: '+plainName(sel)+'. ':'')+'Fires in the last day, today\'s smoke, and the shaded area Singapore\'s air is coming from.';}
   else{const d=new Date(t0().getTime()+Math.round(state.t*8)*3*3600e3);const i=arrIndex(state.t*24);
     $('showing1').textContent='Forecast for '+dayName(d)+', '+clock(d);
     const v=sel&&sel.median.length?sel.median[i]:reg.pct.p50[i];
+    renderWhyMap(i);
     $('showing2').textContent=sel?'Outcome "'+plainName(sel)+'": PSI near '+v+'.':'PSI near '+v+' (likely '+(reg.pct.p25?reg.pct.p25[i]:reg.pct.p5[i])+' to '+(reg.pct.p75?reg.pct.p75[i]:reg.pct.p95[i])+'). Shaded: where that day\'s air comes from.';}
 }
 function renderKey(){
@@ -1030,7 +1042,7 @@ function finishRun(res){
   const off=state.official;res.why={};
   for(const k of HE.NEA_REGIONS)res.why[k]=HE.why(off,res,INP.summary,INP.summary,k);
   res.built=new Date().toISOString();res.prevLabel=off.built;
-  FC=res;state.rerunAt=new Date();endRunUI();
+  FC=res;state.rerunAt=new Date();endRunUI();if(WHY)WHY.cache={};whyMapKey='';
   buildWinds();buildThreads();renderAll();$('statusText').textContent='Rerun on this device at '+clock(state.rerunAt);
   const wc=$('changeCard');wc.classList.remove('flash');void wc.offsetWidth;wc.classList.add('flash');threadsDirty=true;drawFan();needWarm=true;
 }
@@ -1182,6 +1194,58 @@ renderAskSug();
 // premium code: open the site once with ?premium=CODE to save it on this device (?premium=off removes it)
 try{const pc=new URLSearchParams(location.search).get('premium');if(pc){if(pc==='off')localStorage.removeItem('hazePremium');else localStorage.setItem('hazePremium',pc);history.replaceState(null,'',location.pathname);}}catch(e){}
 
+const pctTxt=(v)=>v<1?'<1%':v>99?'>99%':Math.round(v)+'%';
+/* ---------- why a given day looks the way it does ---------- */
+let WHY=null;
+function prepWhy(){
+  const S=HE.decode(INP.S);const M=INP.members.length,A=INP.arrivals_h.length,Rn=INP.regions.length,B=INP.emis_bins_h.length;
+  const rain=HE.decode(INP.rain.data),rT=INP.rain.t_h.length;
+  WHY={S,M,A,Rn,B,rain,rT,cache:{}};
+}
+function whyContrib(sel){
+  const key=String(sel);if(WHY.cache[key])return WHY.cache[key];
+  const {S,M,A,Rn,B}=WHY;const mc=R().memberClass;const w=mc.map(x=>sel===null?x[0]+x[1]+x[2]+x[3]:x[sel]);const tot=w.reduce((a,b)=>a+b,0)||1;
+  const C=new Float64Array(A*Rn);
+  for(let m=0;m<M;m++){const wm=w[m]/tot;if(!wm)continue;for(let a=0;a<A;a++)for(let q=0;q<Rn;q++){let v=0;const off=((m*A+a)*Rn+q)*B;for(let b=0;b<B;b++)v+=S[off+b];C[a*Rn+q]+=wm*v;}}
+  const rainCum=(h,isl)=>{const {rain,rT}=WHY;const th=INP.rain.t_h;const regs=INP.regions.map((g,q)=>[g,q]).filter(([g])=>g.island===isl&&(g.frp0||0)>0);if(!regs.length)return null;const fw=regs.reduce((a,[g])=>a+g.frp0,0);
+    let tv=0;for(let m=0;m<M;m++){const wm=w[m]/tot;if(!wm)continue;let v=0;for(let t=0;t<rT;t++){if(th[t]<=0||th[t]>h)continue;for(const [g,q] of regs)v+=rain[(m*rT+t)*Rn+q]*g.frp0/fw;}tv+=wm*v;}return tv;};
+  return WHY.cache[key]={C,rainCum};
+}
+function whyLines(i){
+  if(!WHY)return [];const reg=R();const sel=state.sel;const W=whyContrib(sel);const {Rn}=WHY;const lines=[];
+  const fd=FC.days[i];const h=fd.h;const AH=INP.arrivals_h;let a=0;AH.forEach((x,k)=>{if(Math.abs(x-h)<Math.abs(AH[a]-h))a=k;});let a0=0;AH.forEach((x,k)=>{if(Math.abs(x)<Math.abs(AH[a0]))a0=k;});
+  const d=reg.days[i];const now=Math.round(reg.now);
+  // headline comparison
+  const diff=d.p50-now;lines.push(['Compared with today','Best guess <b>'+d.p50+'</b>'+(Math.abs(diff)<15?', about the same as today ('+now+').':diff<0?', down from '+now+' today.':', up from '+now+' today.')]);
+  // sources that day
+  const row=[];let tot=0;for(let q=0;q<Rn;q++){const v=W.C[a*Rn+q];row.push([INP.regions[q].name,v]);tot+=v;}
+  row.sort((x,y)=>y[1]-x[1]);
+  if(tot>0){const top=row.filter(r=>r[1]/tot>=0.1).slice(0,3);lines.push(['Smoke from','The smoke reaching Singapore that day would mostly come from '+top.map(r=>'<b>'+esc(r[0])+'</b> ('+Math.round(r[1]/tot*100)+'%)').join(', ')+'.']);}
+  // winds vs today
+  let t0v=0;for(let q=0;q<Rn;q++)t0v+=W.C[a0*Rn+q];
+  if(t0v>0){const ratio=tot/t0v;lines.push(['Winds',ratio>1.25?'Winds point <b>more</b> of the fires\' smoke straight at Singapore than today.':ratio<0.8?'Winds point <b>less</b> of the fires\' smoke at Singapore than today'+(ratio<0.4?', a big shift.':'.'):'Winds point about as much of the fires\' smoke at Singapore as today.']);}
+  const dd=h/24;const g=(INP.signals&&INP.signals.growthShift)||0;const act=Math.pow(0.5,dd/12.6)*Math.exp(g*dd);
+  if(dd>1.5)lines.push(['Fires',act<0.92?'Without heavy rain, fires are expected to burn down slowly: by then roughly <b>'+Math.round(act*100)+'%</b> as active as now in the middle estimate.':'Fires are expected to keep burning at about today\'s level.']);
+  // rain on the fires by then
+  const rk=W.rainCum(h,'Kalimantan'),rs=W.rainCum(h,'Sumatra');
+  const rtxt=(v)=>v==null?null:Math.round(v)+' mm';
+  if(rk!=null||rs!=null){const mx=Math.max(rk||0,rs||0);lines.push(['Rain','By then about '+[rk!=null?'<b>'+rtxt(rk)+'</b> on the Kalimantan fires':null,rs!=null?'<b>'+rtxt(rs)+'</b> on the Sumatra fires':null].filter(Boolean).join(' and ')+' in the middle forecast. '+(mx>100?'That is enough to start dimming peat fires.':mx>35?'That helps a little, but peat fires need more.':'Not enough to dim peat fires.')]);}
+  // how the model gets there
+  const b=FC.blend;if(b){const k=FC.arrivals_h.findIndex(x=>x>=h);const wv=k<0?b.weight[b.weight.length-1]:b.weight[k];if(wv>0.15)lines.push(['Past seasons','This far ahead the forecast leans about <b>'+Math.round(wv*100)+'%</b> on how similar days in past haze seasons played out, because weather forecasts lose detail.']);}
+  // certainty
+  lines.push(['How sure',(i>=coreDays().length?'Less certain: more than 6 days out. ':'')+'Likely '+d.p25+' to '+d.p75+'; anywhere from '+d.p5+' to '+d.p95+' is possible. '+'Chance it is 100 or below: '+pctTxt(d.bands[0]+d.bands[1])+'.']);
+  return lines;
+}
+function fillWhy(ul,lines){ul.innerHTML='';lines.forEach(([k,t])=>{const li=document.createElement('li');li.innerHTML='<span>'+esc(k)+'</span><span>'+t+'</span>';ul.appendChild(li);});}
+let whyMapKey='';
+function renderWhyMap(arrI){
+  const box=$('whyMap');if(!WHY){box.hidden=true;return;}
+  const h=FC.arrivals_h[arrI];let best=0;FC.days.forEach((d,k)=>{if(Math.abs(d.h-h)<Math.abs(FC.days[best].h-h))best=k;});
+  box.hidden=false;box.querySelector('summary').textContent='Why '+FC.days[best].label+' looks like this';
+  const key=best+'|'+state.sel+'|'+state.region;if(key===whyMapKey)return;whyMapKey=key;fillWhy($('whyMapList'),whyLines(best));
+}
+
+
 /* ---------- guided tour ---------- */
 const TOUR=[
   ['cardNow','Start here','Today\'s PSI from NEA, and one sentence on what is most likely to happen next. The odds below it are the other ways it could go.'],
@@ -1225,6 +1289,7 @@ async function boot(){
     COAST=coast;INP=inp;FC=fc;state.official=fc;
     try{REC=await getJSON('data/record.json');}catch(e){REC=null;}
     RINGS=COAST.map(enc=>{const pts=[];let x=0,y=0;for(let i=0;i<enc.length;i+=2){x+=enc[i];y+=enc[i+1];pts.push([x/100,y/100]);}return pts;});
+    try{prepWhy();}catch(e){WHY=null;}
     buildHot();buildWinds();buildThreads();renderAll();layout();initWind();syncT();
     let seen=false;try{seen=localStorage.getItem('hazeTourSeen')==='1';}catch(e){}if(!seen)setTimeout(startTour,900);
   }catch(e){showError('The latest forecast could not be loaded ('+e.message+'). Reload the page to try again.');$('statusText').textContent='No forecast loaded';$('headline').textContent='The latest forecast could not be loaded.';}
