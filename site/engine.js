@@ -141,6 +141,8 @@
     const C = new Float32Array(N * A);            // PM2.5 at each arrival (µg/m³)
     const memb = new Uint16Array(N);
     const share = new Float32Array(N * 3);        // island shares of fire smoke, days 1-3
+    const rshare = new Float32Array(N * R);       // source-region shares, days 1-3
+    const rv = new Float64Array(R);
     const pThalf = new Float32Array(N), pRain = new Float32Array(N);
     const logw = new Float64Array(N);
     const E = new Float64Array(R * B);
@@ -187,12 +189,13 @@
         C[s * A + a] = bg + dsat * (1 - Math.exp(-x / dsat)) + rho * D0 * Math.min(act, 1.6);
       }
       // island shares (days 1-3)
-      let s0 = 0, s1 = 0, s2 = 0;
+      let s0 = 0, s1 = 0, s2 = 0; rv.fill(0);
       for (const a of shareA) {
         const off = base + a * R * B;
-        for (let q = 0; q < R; q++) { let v = 0; for (let b = 0; b < B; b++) v += S[off + q * B + b] * E[q * B + b]; if (isl[q] === 0) s0 += v; else if (isl[q] === 1) s1 += v; else s2 += v; }
+        for (let q = 0; q < R; q++) { let v = 0; for (let b = 0; b < B; b++) v += S[off + q * B + b] * E[q * B + b]; rv[q] += v; if (isl[q] === 0) s0 += v; else if (isl[q] === 1) s1 += v; else s2 += v; }
       }
       const st = s0 + s1 + s2 || 1; share[s * 3] = s0 / st; share[s * 3 + 1] = s1 / st; share[s * 3 + 2] = s2 / st;
+      for (let q = 0; q < R; q++) rshare[s * R + q] = rv[q] / st;
       // likelihood of what NEA measured
       let lw = 0;
       for (const [ai, lo] of pastObs) { const d = (Math.log(C[s * A + ai]) - lo) / 0.35; lw -= 0.5 * d * d; }
@@ -239,7 +242,7 @@
       blend = { analogDays: an.paths.length, years: an.years, weight: Array.from(lam, x => Math.round(x * 100) / 100) };
     }
     if (report) report(0.9);
-    return { N, F, pm24, idx, memb, share, pThalf, pRain, ess, model, blend };
+    return { N, F, pm24, idx, memb, share, rshare, pThalf, pRain, ess, model, blend };
   }
 
   /* ---------- classes (outcome storylines) ---------- */
@@ -314,13 +317,13 @@
         const b = [0, 0, 0, 0, 0]; const v = dayVals[k];
         for (let s = 0; s < N; s++) b[bandOf(v[s])]++;
         const sub = []; for (let s = 0; s < N; s += stride) sub.push(v[s]); const sorted = Float32Array.from(sub).sort();
-        return { bands: b.map(x => Math.round(x / N * 1000) / 10), p5: Math.round(quantile(sorted, 0.05)), p50: Math.round(quantile(sorted, 0.5)), p95: Math.round(quantile(sorted, 0.95)) };
+        return { bands: b.map(x => Math.round(x / N * 1000) / 10), p5: Math.round(quantile(sorted, 0.05)), p25: Math.round(quantile(sorted, 0.25)), p50: Math.round(quantile(sorted, 0.5)), p75: Math.round(quantile(sorted, 0.75)), p95: Math.round(quantile(sorted, 0.95)) };
       });
-      const pct = { p5: [], p50: [], p95: [] };
+      const pct = { p5: [], p25: [], p50: [], p75: [], p95: [] };
       for (let f = 0; f < F; f++) {
         let nn = 0; for (let s = 0; s < N; s += stride) psiAll[nn++] = regionPsi(sim, s, f, rr);
         const sorted = Float32Array.from(psiAll.subarray(0, nn)).sort();
-        pct.p5.push(Math.round(quantile(sorted, 0.05))); pct.p50.push(Math.round(quantile(sorted, 0.5))); pct.p95.push(Math.round(quantile(sorted, 0.95)));
+        pct.p5.push(Math.round(quantile(sorted, 0.05))); pct.p25.push(Math.round(quantile(sorted, 0.25))); pct.p75.push(Math.round(quantile(sorted, 0.75))); pct.p50.push(Math.round(quantile(sorted, 0.5))); pct.p95.push(Math.round(quantile(sorted, 0.95)));
       }
       let clearCount = 0; for (let s = 0; s < N; s++) if (dayVals[nC - 1][s] <= 100.5) clearCount++;
       const by = days.map(() => 0); for (let s = 0; s < N; s++) if (firstAll[s] > 0) for (let d = firstAll[s] - 1; d < days.length; d++) by[d]++;
@@ -377,6 +380,8 @@
       out.regions[reg] = { now: now, mode, factor: model.regRatio[rr], clear: Math.round(clearCount / N * 1000) / 10, clearDayLabel: days[nC - 1].dow, clearBy, days: dayStats, pct, classes, memberClass: mw, sampleClass };
     }
     const shares = [0, 0, 0]; for (let s = 0; s < N; s++) for (let k = 0; k < 3; k++) shares[k] += sim.share[sim.idx[s] * 3 + k];
+    { const R = model.R, rs = new Float64Array(R); for (let s = 0; s < N; s++) { const j = sim.idx[s]; for (let q = 0; q < R; q++) rs[q] += sim.rshare[j * R + q]; }
+      out.sourceRegions = model.inputs.regions.map((g, q) => ({ id: g.id, name: g.name, island: g.island, share: Math.round(rs[q] / N * 1000) / 10 })).sort((x, y) => y.share - x.share); }
     out.sourceShare = { Sumatra: Math.round(shares[0] / N * 100), Kalimantan: Math.round(shares[1] / N * 100), Other: Math.round(shares[2] / N * 100) };
     return out;
   }
