@@ -1,0 +1,129 @@
+== GEFS pds 2019-09-15 00z listing
+<?xml version="1.0" encoding="UTF-8"?>
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-pds</Name><Prefix>gefs.20190915/00/</Prefix><KeyCount>2</KeyCount><MaxKeys>1000</MaxKeys><Delimiter>/</Delimiter><IsTruncated>false</IsTruncated><CommonPrefixes><Prefix>gefs.20190915/00/pgrb2a/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>gefs.20190915/00/pgrb2b/</Prefix></CommonPrefixes></ListBucketResult>
+
+== GEFS pds 2019 pgrb2ap5 listing
+<?xml version="1.0" encoding="UTF-8"?>
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-pds</Name><Prefix>gefs.20190915/00/pgrb2ap5/gep01</Prefix><KeyCount>0</KeyCount><MaxKeys>5</MaxKeys><IsTruncated>false</IsTruncated></ListBucketResult>
+
+== GEFS pds 2019 pgrb2a listing
+<?xml version="1.0" encoding="UTF-8"?>
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-pds</Name><Prefix>gefs.20190915/00/pgrb2a/gep01</Prefix><NextContinuationToken>13S9xMRVEARYB+cgnI9UTPtHnpwPr4MKY+++xFPISvDlXHFDXyFw1Gkeogy6zitpk3IFC3iswhmr7QTLBRYHwNcaK81OTQEH3</NextContinuationToken><KeyCount>5</KeyCount><MaxKeys>5</MaxKeys><IsTruncated>true</IsTruncated><Contents><Key>gefs.20190915/00/pgrb2a/gep01.t00z.pgrb2aanl</Key><LastModified>2019-09-15T04:35:24.000Z</LastModified><ETag>&quot;28c94f385fa5ed3bd32c298d926ae5be&quot;</ETag><Size>3938788</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20190915/00/pgrb2a/gep01.t00z.pgrb2aanl.idx</Key><LastModified>2024-04-30T22:28:30.000Z</LastModified><ETag>&quot;85fad50520a0461110e3939a92b1ca1f&quot;</ETag><Size>2915</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20190915/00/pgrb2a/gep01.t00z.pgrb2af00</Key><LastModified>2019-09-15T04:35:41.000Z</LastModified><ETag>&quot;7f34c14dbd95bfe08aa06d9c2181bda2&quot;</ETag><Size>4236624</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20190915/00/pgrb2a/gep01.t00z.pgrb2af00.idx</Key><LastModified>2024-04-30T22:28:30.000Z</LastModified><ETag>&quot;4c97ea2fa2884cff9966ac4465506fe4&quot;</ETag><Size>3411</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20190915/00/pgrb2a/gep01.t00z.pgrb2af06</Key><LastModified>2019-09-15T04:35:56.000Z</LastModified><ETag>&quot;4326a09f7f5ab7e5a19daa2f8a03c6dc&quot;</ETag><Size>4285808</Size><StorageClass>STANDARD</StorageClass></Contents></ListBucketResult>
+
+== GEFS pds 2023-09-20 00z listing
+<?xml version="1.0" encoding="UTF-8"?>
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-pds</Name><Prefix>gefs.20230920/00/atmos/</Prefix><KeyCount>5</KeyCount><MaxKeys>1000</MaxKeys><Delimiter>/</Delimiter><IsTruncated>false</IsTruncated><CommonPrefixes><Prefix>gefs.20230920/00/atmos/bufr/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>gefs.20230920/00/atmos/init/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>gefs.20230920/00/atmos/pgrb2ap5/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>gefs.20230920/00/atmos/pgrb2bp5/</Prefix></CommonPrefixes><CommonPrefixes><Prefix>gefs.20230920/00/atmos/pgrb2sp25/</Prefix></CommonPrefixes></ListBucketResult>
+
+== GEFS pds 2023 pgrb2ap5
+<?xml version="1.0" encoding="UTF-8"?>
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-pds</Name><Prefix>gefs.20230920/00/atmos/pgrb2ap5/gep01</Prefix><NextContinuationToken>1CV7sg5zP2XAtK5kvjxKBHyBPtr3mpA88BUH/40Vojy31qk/zlS08dufUo7jf3FHa0yA1Kpf4faYqLzQ1Ggs4/kYyN/1IsQSVJFIJ2uSPm8pYel281+nRkQ==</NextContinuationToken><KeyCount>5</KeyCount><MaxKeys>5</MaxKeys><IsTruncated>true</IsTruncated><Contents><Key>gefs.20230920/00/atmos/pgrb2ap5/gep01.t00z.pgrb2a.0p50.f000</Key><LastModified>2023-09-20T03:47:26.000Z</LastModified><ETag>&quot;30738cf2d254bb4545b4b80d0d80a39d&quot;</ETag><Size>14381644</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20230920/00/atmos/pgrb2ap5/gep01.t00z.pgrb2a.0p50.f000.idx</Key><LastModified>2023-09-20T03:47:25.000Z</LastModified><ETag>&quot;f7aad725379045dbecb2cf003cd050fb&quot;</ETag><Size>3448</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20230920/00/atmos/pgrb2ap5/gep01.t00z.pgrb2a.0p50.f003</Key><LastModified>2023-09-20T03:48:28.000Z</LastModified><ETag>&quot;df922ab0a57d9a17b08f0c6d545ee674&quot;</ETag><Size>16062044</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20230920/00/atmos/pgrb2ap5/gep01.t00z.pgrb2a.0p50.f003.idx</Key><LastModified>2023-09-20T03:47:30.000Z</LastModified><ETag>&quot;719179d4250b1750e12822ce9dcd6ac2&quot;</ETag><Size>4953</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20230920/00/atmos/pgrb2ap5/gep01.t00z.pgrb2a.0p50.f006</Key><LastModified>2023-09-20T03:49:29.000Z</LastModified><ETag>&quot;e90e672c273d84bac5ed8cc9c9121ca7&quot;</ETag><Size>16118766</Size><StorageClass>STANDARD</StorageClass></Contents></ListBucketResult>
+
+== GEFS pds 2015 listing
+<?xml version="1.0" encoding="UTF-8"?>
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-pds</Name><Prefix>gefs.2015</Prefix><KeyCount>0</KeyCount><MaxKeys>3</MaxKeys><IsTruncated>false</IsTruncated></ListBucketResult>
+
+== GEFS pds earliest
+<?xml version="1.0" encoding="UTF-8"?>
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>noaa-gefs-pds</Name><Prefix></Prefix><NextContinuationToken>1OdglmgFnW2sB/cPE+MPMESIF89s/lJ+os/ZstXSNGyDVO1kHQAZ+NyoQ97Sdr3mW2pZEFWFDUwayb3U/UW/sqxNHnyl8E1xI</NextContinuationToken><KeyCount>3</KeyCount><MaxKeys>3</MaxKeys><IsTruncated>true</IsTruncated><Contents><Key>gefs.20170101/00/gec00.t00z.pgrb2aanl</Key><LastModified>2018-08-31T23:28:07.000Z</LastModified><ETag>&quot;eae65256a0dc8cf46d1ba8b6177c5835&quot;</ETag><Size>3344447</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20170101/00/gec00.t00z.pgrb2aanl.idx</Key><LastModified>2024-04-30T20:28:51.000Z</LastModified><ETag>&quot;5e7e336791d548fbb2b8d3047ad00842&quot;</ETag><Size>3411</Size><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>gefs.20170101/00/gec00.t00z.pgrb2af000</Key><LastModified>2018-08-31T23:27:36.000Z</LastModified><ETag>&quot;682c85478cfc1160c126f272c1837bcd&quot;</ETag><Size>3690334</Size><StorageClass>STANDARD</StorageClass></Contents></ListBucketResult>
+
+== NEA psi date 2019-09-15
+{"code":17,"name":"REAL_TIME_API_DATA_NOT_FOUND","data":null,"errorMsg":"Data not found"}
+
+== NEA pm25 date 2019-09-15
+{"code":0,"data":{"regionMetadata":[{"name":"west","labelLocation":{"latitude":1.35735,"longitude":103.7}},{"name":"east","labelLocation":{"latitude":1.35735,"longitude":103.94}},{"name":"central","labelLocation":{"latitude":1.35735,"longitude":103.82}},{"name":"south","labelLocation":{"latitude":1.29587,"longitude":103.82}},{"name":"north","labelLocation":{"latitude":1.41803,"longitude":103.82}}],"items":[{"date":"2019-09-15","updatedTimestamp":"2024-07-18T09:51:10+08:00","timestamp":"2019-09-15T23:00:00+08:00","readings":{"pm25_one_hourly":{"west":59,"east":25,"central":24,"south":39,"north":24}}},{"date":"2019-09-15","updatedTimestamp":"2024-07-18T09:51:10+08:00","timestamp":"2019-09-15T22:00:00+08:00","readings":{"pm25_one_hourly":{"west":63,"east":23,"central":36,"south":40,"north":31}}},{"date":"2019-09-15","updatedTimestamp":"2024-07-18T09:51:09+08:00","timestamp":"2019-09-15T21:00:00+08:00","readings":{"pm25_one_hourly":{"west":51,"east":25,"central":47,"south":64,"north":44}}},{"date":"2019-09-15","updatedTimestamp":"2024-07-18T09:51:09+08:00","timestamp":"2019-09-15T20:00:00+08:00","readings":{"pm25_one_hourly":{"west":61,"east":53,"central":50,"south":71,"north":54}}},{"date":"2019-09-15","updatedTimestamp":"2024-07-18T09:51:09+08:00","timestamp":"2019-09-15T19:00:00+08:00","readings":{"pm25_one_hourly":{"west":64,"east":61,"central":47,"south":56,"north":45}}},{"date":"2019-09-15","updatedTimestamp":"2024-07-18T09:51:08+08:00","timestamp":"2019-09-15T18:00:00+08:0
+
+== NEA psi date 2015-09-25
+{"code":17,"name":"REAL_TIME_API_DATA_NOT_FOUND","data":null,"errorMsg":"Data not found"}
+
+== NEA v1 psi 2015-09-25
+{"message":"Internal Server Error"}
+
+== FIRMS availability
+data_id,min_date,max_date
+MODIS_NRT,2026-08-01,2026-10-16
+MODIS_SP,2000-11-01,2026-07-31
+VIIRS_NOAA20_NRT,2026-07-01,2026-10-16
+VIIRS_NOAA20_SP,2018-04-01,2026-06-30
+VIIRS_NOAA21_SP,2023-03-01,2026-06-30
+VIIRS_NOAA21_NRT,2024-01-17,2026-10-16
+VIIRS_SNPP_NRT,2026-07-01,2026-10-16
+VIIRS_SNPP_SP,2012-01-20,2026-06-30
+LANDSAT_NRT,2022-06-20,2026-10-16
+GOES_NRT,2022-08-09,2026-10-16
+BA_MODIS,2000-11-01,2026-07-01
+BA_VIIRS,2012-03-01,2026-07-01
+
+== FIRMS SP 2019-09-15
+latitude,longitude,bright_ti4,scan,track,acq_date,acq_time,satellite,instrument,confidence,version,bright_ti5,frp,daynight,type
+-7.84095,114.24708,334.83,0.4,0.44,2019-09-15,532,N,VIIRS,n,2,301.26,2.78,D,0
+-7.75348,110.92933,332.01,0.33,0.56,2019-09-15,532,N,VIIRS,n,2,298.16,3.49,D,0
+-7.74569,113.63983,330.05,0.44,0.46,2019-09-15,532,N,VIIRS,n,2,296.27,1.98,D,0
+-7.694,113.85335,345.51,0.42,0.45,2019-09-15,532,N,VIIRS,n,2,298.68,3.92,D,0
+-7.60641,112.74322,334.16,0.5,0.49,2019-09-15,532,N,VIIRS,n,2,300.55,5,D,0
+-7.57979,107.67694,332.93,0.55,0.68,2019-09-15,532,N,VIIRS,n,2,293.88,4.25,D,0
+-7.40
+
+== Open-Meteo archive
+{"latitude":-2.003515,"longitude":113.00159,"generationtime_ms":0.18680095672607422,"utc_offset_seconds":0,"timezone":"GMT","timezone_abbreviation":"GMT","elevation":12.0,"daily_units":{"time":"iso8601","precipitation_sum":"mm"},"daily":{"time":["2019-08-01","2019-08-02","2019-08-03"],"precipitation_sum":[0.50,0.70,0.00]}}
+
+== GEFS idx sample 2019
+<?xml version="1.0" encoding="UTF-8"?>
+<Error><Code>NoSuchKey</Code><Message>The specified key does not exist.</Message><Key>gefs.20190915/00/pgrb2ap5/gep01.t00z.pgrb2a.0p50.f024.idx</Key><RequestId>YQYH0BWD16Z9XYDV</RequestId><HostId>bJ5g8aKh08cGtTSA9CSvowgdRCtd6ZyhYXxN6gncevPITdT7fmac1ykR9k6eJoAfjTekL267bIs=</HostId></Error>
+
+== GEFS idx sample 2023
+1:0:d=2023092000:HGT:10 mb:24 hour fcst:ENS=+1
+2:199498:d=2023092000:TMP:10 mb:24 hour fcst:ENS=+1
+3:313846:d=2023092000:RH:10 mb:24 hour fcst:ENS=+1
+4:378301:d=2023092000:UGRD:10 mb:24 hour fcst:ENS=+1
+5:517382:d=2023092000:VGRD:10 mb:24 hour fcst:ENS=+1
+6:649029:d=2023092000:HGT:50 mb:24 hour fcst:ENS=+1
+7:859889:d=2023092000:TMP:50 mb:24 hour fcst:ENS=+1
+8:973202:d=2023092000:RH:50 mb:24 hour fcst:ENS=+1
+9:1066414:d=2023092000:UGRD:50 mb:24 hour fcst:ENS=+1
+10:1305667:d=2023092000:VGRD:50 mb:24 hour fcst:ENS=+1
+11:1545828:d=2023092000:HGT:100 mb:24 hour fcst:ENS=+1
+12:1755085:d=2023092000:TMP:100 mb:24 hour fcst:ENS=+1
+13:1867896:d=2023092000:RH:100 mb:24 hour fcst:ENS=+1
+14:2017134:d=2023092000:UGRD:100 mb:24 hour fcst:ENS=+1
+15:2260663:d=2023092000:VGRD:100 mb:24 hour fcst:ENS=+1
+16:2505787:d=2023092000:HGT:200 mb:24 hour fcst:ENS=+1
+17:2715642:d=2023092000:TMP:200 mb:24 hour fcst:ENS=+1
+18:2829276:d=2023092000:RH:200 mb:24 hour fcst:ENS=+1
+19:3040776:d=2023092000:UGRD:200 mb:24 hour fcst:ENS=+1
+20:3201021:d=2023092000:VGRD:200 mb:24 hour fcst:ENS=+1
+21:3363522:d=2023092000:HGT:250 mb:24 hour fcst:ENS=+1
+22:3576305:d=2023092000:TMP:250 mb:24 hour fcst:ENS=+1
+23:3688958:d=2023092000:RH:250 mb:24 hour fcst:ENS=+1
+24:3918369:d=2023092000:UGRD:250 mb:24 hour fcst:ENS=+1
+25:4083856:d=2023092000:VGRD:250 mb:24 hour fcst:ENS=+1
+26:4255157:d=2023092000:HGT:300 mb:24 hour fcst:ENS=+1
+27:4468217:d=2023092000:UGRD:300 mb:24 hour fcst:ENS=+1
+28:4639856:d=2023092000:VGRD:300 mb:24 hour fcst:ENS=+1
+29:4818646:d=2023092000:UGRD:400 mb:24 hour fcst:ENS=+1
+30:4985627:d=2023092000:VGRD:400 mb:24 hour fcst:ENS=+1
+31:5159461:d=2023092000:HGT:500 mb:24 hour fcst:ENS=+1
+32:5397023:d=2023092000:TMP:500 mb:24 hour fcst:ENS=+1
+33:5515924:d=2023092000:RH:500 mb:24 hour fcst:ENS=+1
+34:5752969:d=2023092000:UGRD:500 mb:24 hour fcst:ENS=+1
+35:6017927:d=2023092000:VGRD:500 mb:24 hour fcst:ENS=+1
+36:6289608:d=2023092000:HGT:700 mb:24 hour fcst:ENS=+1
+37:6537026:d=2023092000:TMP:700 mb:24 hour fcst:ENS=+1
+38:6662162:d=2023092000:RH:700 mb:24 hour fcst:ENS=+1
+39:6903258:d=2023092000:UGRD:700 mb:24 hour fcst:ENS=+1
+40:7167614:d=2023092000:VGRD:700 mb:24 hour fcst:ENS=+1
+41:7436988:d=2023092000:HGT:850 mb:24 hour fcst:ENS=+1
+42:7692990:d=2023092000:TMP:850 mb:24 hour fcst:ENS=+1
+43:7832740:d=2023092000:RH:850 mb:24 hour fcst:ENS=+1
+44:8079540:d=2023092000:VVEL:850 mb:24 hour fcst:ENS=+1
+45:8390891:d=2023092000:UGRD:850 mb:24 hour fcst:ENS=+1
+46:8659687:d=2023092000:VGRD:850 mb:24 hour fcst:ENS=+1
+47:8935091:d=2023092000:HGT:925 mb:24 hour fcst:ENS=+1
+48:9200048:d=2023092000:TMP:925 mb:24 hour fcst:ENS=+1
+49:9341368:d=2023092000:RH:925 mb:24 hour fcst:ENS=+1
+50:9580005:d=2023092000:UGRD:925 mb:24 hour fcst:ENS=+1
+51:9848643:d=2023092000:VGRD:925 mb:24 hour fcst:ENS=+1
+52:10123078:d=2023092000:TMP:1000 mb:24 hour fcst:ENS=+1
+53:10261071:d=2023092000:RH:1000 mb:24 hour fcst:ENS=+1
+54:10483551:d=2023092000:UGRD:1000 mb:24 hour fcst:ENS=+1
+55:10753234:d=2023092000:VGRD:1000 mb:24 h
+
