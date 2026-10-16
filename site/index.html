@@ -81,6 +81,22 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .askout .q{color:var(--ink);font-weight:600}
 .askout p{margin:0}
 .askout .by{font-size:12px;color:var(--ink-3)}
+.callname{display:flex;flex-direction:column;gap:4px;font-size:13.5px;color:var(--ink-2);max-width:280px}
+.callname input{min-height:36px;border:1px solid var(--line-hi);border-radius:5px;background:var(--bg);color:var(--ink);font:inherit;font-size:15px;padding:0 10px}
+.calls{display:flex;flex-direction:column;gap:8px}
+.callrow{display:grid;grid-template-columns:74px minmax(0,1fr);gap:10px;align-items:center}
+.callrow .cd{font-size:14px;color:var(--ink-2)}
+.callrow .cd b{color:var(--ink)}
+.callbtns{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.callbtns button{border:1px solid var(--line);border-bottom:3px solid var(--c);border-radius:5px;background:transparent;cursor:pointer;padding:5px 2px;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:44px}
+.callbtns button span{font-size:12px;color:var(--ink-2);white-space:nowrap}
+.callbtns button small{font-size:11px;color:var(--ink-3)}
+.callbtns button[aria-pressed="true"]{background:color-mix(in srgb,var(--c) 28%,transparent);border-color:var(--c)}
+.callbtns button[aria-pressed="true"] span{color:var(--ink);font-weight:600}
+.callbtns button:disabled{opacity:.5;cursor:default}
+.board li.note{list-style:none;margin-left:-22px}
+.board{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.board b{font-family:var(--num)}
 .gtip{position:fixed;z-index:60;pointer-events:none;background:#0A141B;border:1px solid var(--line-hi);border-radius:6px;padding:7px 10px;font-size:13px;color:var(--ink-2);display:flex;flex-direction:column;gap:1px;max-width:260px;box-shadow:0 6px 20px rgba(0,0,0,.4)}
 .gtip[hidden]{display:none}
 .gtip .gt1{color:var(--ink);font-weight:600}
@@ -328,6 +344,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     </div>
     <div class="actions" id="actions">
       <button class="btn" id="btnTour" type="button">Take the tour</button>
+      <button class="btn" id="btnCall" type="button">Make your call</button>
       <button class="btn" id="btnRecord" type="button">Track record</button>
       <button class="btn" id="btnHow" type="button">How it works</button>
       <button class="btn primary" id="btnRerun" type="button" aria-busy="false" title="Run 100,000 futures again on this device with NEA's latest reading">Rerun</button>
@@ -438,6 +455,17 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
   </aside>
 </div>
 
+<dialog id="dlgCall" aria-labelledby="callTitle">
+  <div class="dlghead"><h2 id="callTitle">Make your call</h2><button class="btn" type="button" data-close>Close</button></div>
+  <div class="dlgbody">
+    <p>Pick the NEA band for each day. Calls close at midnight before the day. Each day is scored against NEA's 24-hour PSI at noon.</p>
+    <label class="callname">Your name on the leaderboard <input id="callName" maxlength="24" placeholder="Anonymous"></label>
+    <div class="calls" id="callRows"></div>
+    <p class="note" id="callNote"></p>
+    <h3>Leaderboard</h3>
+    <ol class="board" id="board"><li class="note">Loading…</li></ol>
+  </div>
+</dialog>
 <dialog id="dlgRecord" aria-labelledby="recTitle">
   <div class="dlghead"><h2 id="recTitle">How accurate is it?</h2><button class="btn" type="button" data-close>Close</button></div>
   <div class="dlgbody" id="recBody"></div>
@@ -1351,6 +1379,40 @@ fan.addEventListener('pointermove',ev=>{if(!FC||dragFan)return;const r=fan.getBo
   else{const i=arrIndex(t*24);const d=new Date(t0().getTime()+FC.arrivals_h[i]*3600e3);const pc=reg.pct;html='<b class="gt1">'+dayName(d)+', '+clock(d)+'</b><span>Best guess <b>'+pc.p50[i]+'</b> ('+bandWord(pc.p50[i])+')</span>'+(pc.p25?'<span>Likely '+pc.p25[i]+'–'+pc.p75[i]+'</span>':'')+'<span>Possible '+pc.p5[i]+'–'+pc.p95[i]+'</span>';}
   showTip(html,ev.clientX,ev.clientY);});
 fan.addEventListener('pointerleave',()=>{gtip.hidden=true;});
+
+
+/* ---------- make your call ---------- */
+const CALL_URL=AI_URL?AI_URL.replace(/\/$/,''):'';
+const SHORT=['Good','Moderate','Unhealthy','V. unhealthy','Hazardous'];
+function callUid(){let u='';try{u=localStorage.getItem('hazeUid')||'';if(!u){u=Math.random().toString(36).slice(2,12)+Date.now().toString(36);localStorage.setItem('hazeUid',u);}}catch(e){u=u||'guest'+Math.random().toString(36).slice(2,8);}return u;}
+function sgDate(iso){return sgt(new Date(iso)).toISOString().slice(0,10);}
+async function openCalls(){
+  $('dlgCall').showModal();try{$('callName').value=localStorage.getItem('hazeName')||'';}catch(e){}
+  const reg=R();const days=FC.days.slice(0,7).map((d,i)=>({d,i,date:sgDate(d.iso)}));
+  let server={};$('callNote').textContent='';
+  if(CALL_URL){try{const r=await fetch(CALL_URL+'/calls?uid='+callUid()+'&days='+days.map(x=>x.date).join(','));server=await r.json();if(!r.ok&&!server.error)server={error:'unavailable'};}catch(e){server={error:'unavailable'};}}
+  if(!CALL_URL||server.error)$('callNote').textContent='Calls can\'t be saved right now. You can still see the twin\'s odds.';
+  const box=$('callRows');box.innerHTML='';
+  days.forEach(({d,i,date})=>{const st=server[date]||{counts:[0,0,0,0,0],mine:null};const tot=st.counts.reduce((a,b)=>a+b,0);
+    const row=document.createElement('div');row.className='callrow';row.innerHTML='<span class="cd"><b>'+esc(d.dow)+'</b> '+esc(d.label.split(' ')[1])+'</span><div class="callbtns"></div>';
+    const bt=row.querySelector('.callbtns');
+    BANDS.forEach((b,k)=>{const btn=document.createElement('button');btn.type='button';btn.style.setProperty('--c',COL.b[k]);btn.setAttribute('aria-pressed',String(st.mine===k));
+      const tw=reg.days[i].bands[k];btn.innerHTML='<span>'+SHORT[k]+'</span><small>Twin '+pctTxt(tw)+(tot?' · People '+Math.round(st.counts[k]/tot*100)+'%':'')+'</small>';
+      btn.dataset.tip=d.label+': '+b.name+'|Twin: <b>'+pctTxt(tw)+'</b>'+(tot?'|People: <b>'+Math.round(st.counts[k]/tot*100)+'%</b> of '+tot+' calls':'|No calls from people yet');
+      btn.disabled=!CALL_URL||!!server.error;
+      btn.addEventListener('click',async()=>{let name='';try{name=$('callName').value.trim();localStorage.setItem('hazeName',name);}catch(e){}
+        bt.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===btn)));
+        try{const r=await fetch(CALL_URL+'/calls',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid:callUid(),name:name,day:date,band:k})});const js=await r.json();$('callNote').textContent=js.ok?'Saved: '+d.label+', '+b.name+'.':(js.error||'Not saved.');}catch(e){$('callNote').textContent='Not saved. Check your connection and try again.';}});
+      bt.appendChild(btn);});
+    box.appendChild(row);});
+  const bd=$('board');bd.innerHTML='<li class="note">Loading…</li>';
+  if(CALL_URL){try{const r=await fetch(CALL_URL+'/leaderboard');const js=await r.json();bd.innerHTML='';
+      if(!js.top||!js.top.length){bd.innerHTML='<li class="note">No days scored yet. The first scores appear the day after the first calls.</li>';}
+      else js.top.forEach(x=>{const li=document.createElement('li');li.innerHTML='<span></span> · <b>'+x.right+' of '+x.total+'</b> right';li.firstChild.textContent=x.n;bd.appendChild(li);});}
+    catch(e){bd.innerHTML='<li class="note">Leaderboard unavailable right now.</li>';}}
+  else bd.innerHTML='<li class="note">Leaderboard unavailable right now.</li>';
+}
+$('btnCall').addEventListener('click',()=>{if(FC)openCalls();});
 
 /* ---------- guided tour ---------- */
 const TOUR=[
