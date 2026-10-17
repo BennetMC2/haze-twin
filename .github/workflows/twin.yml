@@ -56,6 +56,7 @@ jobs:
           FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
           OPENAQ_API_KEY: ${{ secrets.OPENAQ_API_KEY }}
           ECMWF_ENS: "0"
+          ECMWF_AIFS: "0"
           DATAGOVSG_API_KEY: ${{ secrets.DATAGOVSG_API_KEY }}
         run: |
           set -o pipefail
