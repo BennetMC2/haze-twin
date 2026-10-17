@@ -1746,7 +1746,7 @@ $('btnShare').addEventListener('click',shareForecast);
 const COFFEE_URL='https://ko-fi.com/bennetmc';if(COFFEE_URL){$('btnCoffee').href=COFFEE_URL;$('btnCoffee').hidden=false;}
 async function initCities(){
   let idx=null;try{idx=await getJSON('data/cities/index.json');}catch(e){}
-  const sel=$('citySel');(idx&&idx.cities||[]).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;sel.appendChild(o);});
+  const sel=$('citySel');(idx&&idx.cities||[]).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name+' (preview)';sel.appendChild(o);});
   sel.addEventListener('change',()=>loadPlace(sel.value));
   let want=null;try{want=new URL(location.href).searchParams.get('city')||localStorage.getItem('hazeCity');}catch(e){}
   if(want&&want!=='sg'&&idx&&(idx.cities||[]).some(c=>c.id===want))loadPlace(want,true);

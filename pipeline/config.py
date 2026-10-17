@@ -60,7 +60,7 @@ CITIES = [
     {"id": "kl", "name": "Kuala Lumpur", "country": "Malaysia", "lon": 101.69, "lat": 3.14},
     {"id": "penang", "name": "Penang", "country": "Malaysia", "lon": 100.33, "lat": 5.41},
     {"id": "jb", "name": "Johor Bahru", "country": "Malaysia", "lon": 103.76, "lat": 1.49},
-    {"id": "jakarta", "name": "Jakarta", "country": "Indonesia", "lon": 106.85, "lat": -6.21},
+    # Jakarta left out: its air is mostly local city pollution, which the twin does not model.
 ]
 
 # NEA regions
