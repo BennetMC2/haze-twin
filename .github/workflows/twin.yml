@@ -82,6 +82,7 @@ jobs:
           cp run.log site/data/run-log.txt
           cp history/replay/summary.json site/data/replay.json 2>/dev/null || true
           cp history/learn/log.json site/data/learn.json 2>/dev/null || true
+          SITE_URL="${{ vars.SITE_URL }}" python tools/build_static.py || echo "static copies failed"
           python tools/fetch_aq.py site/data/aq.json || true
           node engine/run_city.js --n 60000 2>&1 | tee -a run.log || true
           mkdir -p .work/fonts

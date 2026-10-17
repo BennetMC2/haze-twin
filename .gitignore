@@ -5,3 +5,9 @@ site/data/*
 !site/data/coast.json
 node_modules/
 .DS_Store
+
+# written by tools/build_static.py in the workflows
+site/latest.md
+site/llms.txt
+site/robots.txt
+site/sitemap.xml

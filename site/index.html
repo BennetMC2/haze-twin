@@ -3,20 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src 'self' data: blob: https://gibs.earthdata.nasa.gov; connect-src 'self' https://api-open.data.gov.sg https://haze-ask.healthid-cloudflare.workers.dev; worker-src blob:; base-uri 'self'; form-action 'self'">
-<title>Haze Twin</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src 'self' data: blob: https://gibs.earthdata.nasa.gov; connect-src 'self' https://cloudflareinsights.com https://api-open.data.gov.sg https://haze-ask.healthid-cloudflare.workers.dev; worker-src blob:; base-uri 'self'; form-action 'self'">
+<title>Singapore Haze Prediction Model: PSI odds for the next 15 days</title>
 <meta name="haze-ai" content="https://haze-ask.healthid-cloudflare.workers.dev/">
-<meta name="description" content="When will Singapore's haze get better? Day-by-day PSI odds for the next 15 days, and where the smoke comes from. Updated every hour. Independent model, not an official NEA forecast.">
+<meta name="description" content="Singapore haze forecast: odds the 24-hour PSI is above 100, 200 or 300 each day for the next 15 days, when the haze will end, and where the smoke comes from. Updated hourly. Independent model, not an official NEA forecast.">
+<link rel="canonical" href="https://bennetmc2.github.io/haze-twin/">
+<script type="application/ld+json" id="ld">{}</script>
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Haze Twin">
-<meta property="og:title" content="Haze Twin: when will Singapore's haze get better?">
+<meta property="og:site_name" content="Singapore Haze Prediction Model">
+<meta property="og:title" content="Singapore Haze Prediction Model: when will the haze get better?">
 <meta property="og:description" content="Day-by-day PSI odds for the next 15 days, and where the smoke comes from. Updated every hour.">
 <meta property="og:url" content="https://bennetmc2.github.io/haze-twin/">
 <meta property="og:image" content="https://bennetmc2.github.io/haze-twin/data/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Haze Twin: when will Singapore's haze get better?">
+<meta name="twitter:title" content="Singapore Haze Prediction Model: when will the haze get better?">
 <meta name="twitter:image" content="https://bennetmc2.github.io/haze-twin/data/og.png">
 <meta name="theme-color" content="#0E1820">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230E1820'/%3E%3Ccircle cx='32' cy='28' r='13' fill='%23E9813A'/%3E%3Crect x='10' y='36' width='44' height='5' rx='2.5' fill='%23A9B9C3'/%3E%3Crect x='16' y='45' width='32' height='5' rx='2.5' fill='%237F929F'/%3E%3C/svg%3E">
@@ -43,8 +45,8 @@ a{color:var(--sky)}
 :focus-visible{outline:2px solid var(--sky);outline-offset:2px}
 .num{font-family:var(--num);font-variant-numeric:tabular-nums}
 
-.app{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto;max-width:1600px;margin:0 auto;
-  grid-template-areas:"top top" "map map" "time time" "left right";gap:12px;padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px))}
+.app{display:grid;grid-template-columns:minmax(340px,410px) minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto;max-width:1680px;margin:0 auto;
+  grid-template-areas:"top top top" "hero map map" "hero time time" "left right right";gap:12px;padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px))}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:6px}
 
 /* top bar */
@@ -68,6 +70,17 @@ a{color:var(--sky)}
 /* columns */
 .col{min-height:0;overflow:visible;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;scrollbar-color:var(--line-hi) transparent}
 .left{grid-area:left}.right{grid-area:right}
+.hero{grid-area:hero;max-height:calc(100vh - 96px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line-hi) transparent}
+.morecue{position:absolute;left:50%;bottom:58px;transform:translateX(-50%);z-index:6;border:1px solid var(--line-hi);background:rgba(14,24,32,.88);color:var(--ink);border-radius:999px;padding:8px 16px;font:inherit;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;animation:bob 2.2s ease-in-out infinite}
+.morecue svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+.morecue[hidden]{display:none}
+@keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,5px)}}
+.play.attn{background:var(--sky);color:#06121a;border-color:var(--sky);animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(108,190,230,.55)}70%{box-shadow:0 0 0 10px rgba(108,190,230,0)}100%{box-shadow:0 0 0 0 rgba(108,190,230,0)}}
+.playhint{position:absolute;left:12px;bottom:calc(100% + 8px);background:var(--sky);color:#06121a;font-size:13px;font-weight:600;padding:6px 10px;border-radius:6px;white-space:nowrap;animation:bob2 2.2s ease-in-out infinite;pointer-events:none;z-index:7}
+.playhint::after{content:'';position:absolute;left:28px;top:100%;border:6px solid transparent;border-top-color:var(--sky)}
+@keyframes bob2{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@media (prefers-reduced-motion: reduce){.morecue,.play.attn,.playhint{animation:none}}
 .card{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
 h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .note{margin:0;font-size:13px;color:var(--ink-3)}
@@ -98,6 +111,10 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .citypick select{font:inherit;font-size:14px;color:var(--ink);background:var(--raise);border:1px solid var(--line-hi);border-radius:6px;padding:6px 28px 6px 10px;min-height:34px;cursor:pointer}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .app.city .regions,.app.city #psiLine{display:none}
+.inwords{grid-column:1/-1;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.inwords h2{margin:0;font-size:17px}.inwords ul{margin:0;padding-left:18px;color:var(--ink-2);display:flex;flex-direction:column;gap:4px}
+.inwords p{margin:0;color:var(--ink-2);max-width:80ch}
+@media (max-width:1100px){.inwords{order:6}}
 .oddsflow{grid-column:1/-1;display:flex;flex-direction:column;gap:14px;padding:16px 18px;min-width:0}
 .oddsflow h2{margin:0;font-size:17px}
 .oddsflow .ohead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
@@ -339,6 +356,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 
 /* time strip */
 .time{grid-area:time;padding:10px 12px;display:flex;align-items:stretch;gap:10px;min-width:0}
+.time{position:relative}
 .play{flex:none;min-width:92px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
 .play svg{width:12px;height:12px;fill:currentColor}
 .daystrip{flex:1 1 auto;min-width:0;display:flex;gap:4px;overflow-x:auto;scrollbar-width:thin;position:relative}
@@ -391,7 +409,8 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
   body{overflow:auto}
   .app{height:auto;display:flex;flex-direction:column}
   .col{overflow:visible}
-  .left{order:1}.mapcell{order:2;height:64vh;min-height:420px}.time{order:3}.right{order:4}
+  .hero{order:1;max-height:none;overflow:visible}.mapcell{order:2;height:64vh;min-height:420px}.time{order:3}.left{order:4}.right{order:5}
+  .morecue{display:none}
   .showing{max-width:calc(100% - 80px)}
 }
 @media (max-width:560px){
@@ -414,7 +433,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 <div class="app" id="app">
 
   <header class="top">
-    <div class="brand">Haze Twin<span id="brandSub">Odds for Singapore's haze over the next 15 days</span></div>
+    <div class="brand">Singapore Haze Prediction Model<span id="brandSub">Odds for Singapore's haze over the next 15 days</span></div>
     <label class="citypick"><span class="vh">Home city</span><select id="citySel" aria-label="Home city"><option value="sg">Singapore</option></select></label>
     <div class="status" role="status" aria-live="polite">
       <span class="live" id="liveDot"><i></i><span id="statusText">Loading the latest forecast…</span></span>
@@ -437,7 +456,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     <div class="learn" id="recBody"></div>
   </section>
 
-  <aside class="col left" aria-label="Summary">
+  <aside class="col hero" aria-label="Forecast summary">
     <section class="panel card" id="cardNow" tabindex="-1">
       <div class="degraded" id="degNow" hidden></div>
       <h1 class="headline" id="headline">Loading…</h1>
@@ -461,6 +480,9 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
       <p class="note" id="camsWarn" hidden></p>
       <p class="note" id="cityNote" hidden></p>
     </section>
+  </aside>
+
+  <aside class="col left" aria-label="Day by day">
 
     <section class="panel card" id="cardDays" aria-labelledby="daysTitle">
       <div class="head"><h2 id="daysTitle">Next 15 days</h2><span class="note">24-hour PSI</span></div>
@@ -481,6 +503,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 
   <section class="mapcell" id="mapcell" aria-label="Map of fires, smoke and the air reaching Singapore">
     <canvas id="map" aria-hidden="true"></canvas>
+    <button type="button" class="morecue" id="moreCue"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5"/></svg>Scroll for the 15-day forecast and odds</button>
     <div class="ov showing"><div class="cases seg" role="group" aria-label="Which case to show" id="cases"><button type="button" data-case="best">Best case</button><button type="button" data-case="likely" aria-pressed="true">Most likely</button><button type="button" data-case="worst">Worst case</button></div><b id="showing1" aria-live="polite"></b><span id="showing2"></span><details class="whyday" id="whyMap" hidden><summary>Why this day looks like this</summary><ul class="whylist" id="whyMapList"></ul></details></div>
     <div class="ov tools">
       <div class="zoom" role="group" aria-label="Zoom">
@@ -499,7 +522,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
   </section>
 
   <section class="time panel" id="timebar" aria-label="Choose a day to show on the map">
-    <button class="btn play" id="btnPlay" type="button"><svg viewBox="0 0 12 12" aria-hidden="true"><path id="playIcon" d="M2 1l9 5-9 5z"/></svg><span id="playText">Play</span></button>
+    <button class="btn play" id="btnPlay" type="button"><svg viewBox="0 0 12 12" aria-hidden="true"><path id="playIcon" d="M2 1l9 5-9 5z"/></svg><span id="playText">Play the forecast</span></button><span class="playhint" id="playHint">Play to watch the next 15 days unfold</span>
     <div class="daystrip" id="daystrip"></div>
   </section>
 
@@ -562,13 +585,15 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     <div class="chart-wrap"><table class="otab" id="oddsTable"></table></div>
     <details class="more"><summary>More on these odds</summary><p class="note" id="oddsRel">Each % is the share of the 100,000 simulated futures where it happens. "Above 300" and "above 200" are checked at every simulated time step (every 6 hours to day 6, every 12 hours after), using the 24-hour average PSI. Beyond day 6 the ranges are wider. In the replays of 2015, 2019 and 2023, "above 300 within 6 days" was too high: on all 5 occasions it gave 30% or more, PSI did not go above 300. When "above 200" was given 60% or more, it happened about 4 times in 10.</p></details>
   </section>
+
+  <!--STATIC-START--><!--STATIC-END-->
 </div>
 
 
 <dialog id="dlgHow" aria-labelledby="howTitle">
   <div class="dlghead"><h2 id="howTitle">How it works</h2><button class="btn" type="button" data-close>Close</button></div>
   <div class="dlgbody">
-    <p>Haze Twin is a computer model of the region's fires, smoke and winds. It simulates 100,000 versions of the next 15 days and counts how often each outcome happens.</p>
+    <p>The Singapore Haze Prediction Model is a computer model of the region's fires, smoke and winds. It simulates 100,000 versions of the next 15 days and counts how often each outcome happens.</p>
     <ol class="steps">
       <li>Every six hours it takes in Singapore's PSI from NEA, fire hotspots seen by NASA satellites, and <span class="nMembers">31</span> weather forecasts (NOAA GEFS, plus 25 forecasts from ECMWF's AI weather model, AIFS, when its download succeeds). Every hour in between, it reruns the odds with NEA's latest reading.</li>
       <li>For each weather forecast it traces the air arriving in Singapore back up to four days. Where that air passed over fires, it picks up smoke.</li>
@@ -1027,8 +1052,8 @@ function renderBestDay(){
 async function shareForecast(){
   const reg=R();const strip=reg.days.slice(0,6).map((d,i)=>FC.days[i].dow+' '+Math.round(d.bands[2]+d.bands[3]+d.bands[4])+'%').join(', ');
   const url=location.origin+location.pathname+(CITY?'?city='+CITY.id:'');
-  const text=PLACE()+' haze: '+$('headline').textContent+' Chance PSI above 100: '+strip+'. (Haze Twin, independent model, made '+dshort(FC.days[0])+')';
-  try{if(navigator.share){await navigator.share({title:'Haze Twin',text,url});return;}}catch(e){if(e&&e.name==='AbortError')return;}
+  const text=PLACE()+' haze: '+$('headline').textContent+' Chance PSI above 100: '+strip+'. (Singapore Haze Prediction Model, independent, made '+dshort(FC.days[0])+')';
+  try{if(navigator.share){await navigator.share({title:'Singapore Haze Prediction Model',text,url});return;}}catch(e){if(e&&e.name==='AbortError')return;}
   try{await navigator.clipboard.writeText(text+' '+url);$('shareNote').textContent='Copied to clipboard.';}catch(e){$('shareNote').textContent=url;}
 }
 function renderRegions(){
@@ -1408,7 +1433,14 @@ function showError(msg){const e=$('errbox');e.textContent=msg;e.hidden=false;set
 /* ---------- time ---------- */
 function setT(t){state.t=clamp(t,0,maxT());syncT();}
 function syncT(){markCurrent();renderShowing();fanDirty=true;threadsDirty=true;}
-function stopPlay(){state.playing=false;$('playText').textContent='Play';$('playIcon').setAttribute('d','M2 1l9 5-9 5z');document.querySelectorAll('.dchip .prog').forEach(p=>p.style.width='0');}
+function stopPlay(){state.playing=false;$('playText').textContent='Play the forecast';$('playIcon').setAttribute('d','M2 1l9 5-9 5z');document.querySelectorAll('.dchip .prog').forEach(p=>p.style.width='0');}
+// draw the eye to Play until it has been used once
+(function(){let used=false;try{used=localStorage.getItem('hazePlayed')==='1';}catch(e){}
+  if(!used)$('btnPlay').classList.add('attn');else $('playHint').hidden=true;
+  $('btnPlay').addEventListener('click',()=>{$('btnPlay').classList.remove('attn');$('playHint').hidden=true;try{localStorage.setItem('hazePlayed','1');}catch(e){}});})();
+// "more below" cue on the map: scrolls to the forecast cards, hides once the page has been scrolled
+$('moreCue').addEventListener('click',()=>{const t=$('cardDays')||$('timebar');t.scrollIntoView({behavior:'smooth',block:'start'});});
+window.addEventListener('scroll',()=>{$('moreCue').hidden=window.scrollY>120;},{passive:true});
 $('btnPlay').addEventListener('click',()=>{if(!FC)return;if(state.playing){stopPlay();return;}
   const ce=coreEndT();if(state.t>=maxT()-0.05)setT(0);state.playEnd=state.t<ce-0.1?ce:maxT();
   warmSmoke();state.playing=true;$('playText').textContent='Pause';$('playIcon').setAttribute('d','M2 1h3v10H2zM7 1h3v10H7z');});
@@ -1743,7 +1775,7 @@ async function loadPlace(id,quiet){
     else{const base='data/cities/'+encodeURIComponent(id)+'/';const [inp,fc]=await Promise.all([getJSON(base+'inputs.json'),getJSON(base+'forecast.json')]);
       INP=inp;FC=fc;CITY=inp.city;SG=inp.receptor||SGC;}
     state.official=FC;state.region='national';$('app').classList.toggle('city',!!CITY);
-    $('brandSub').textContent='Odds for '+PLACEP()+' haze over the next 15 days';document.title='Haze Twin: '+PLACE()+' haze odds';
+    $('brandSub').textContent='Odds for '+PLACEP()+' haze over the next 15 days';document.title=(CITY?PLACE()+' haze odds: ':'')+'Singapore Haze Prediction Model';
     if(WHY)WHY.cache={};whyMapKey='';try{prepWhy();}catch(e){WHY=null;}
     selectLikely();buildHot();buildWinds();buildThreads();renderAll();layout();syncT();syncCases();needWarm=true;threadsDirty=true;
     try{localStorage.setItem('hazeCity',id);}catch(e){}
@@ -1753,6 +1785,7 @@ async function loadPlace(id,quiet){
 }
 $('btnShare').addEventListener('click',shareForecast);
 // support link: set COFFEE_URL to switch the button on
+const CF_BEACON='';if(CF_BEACON){const sc=document.createElement('script');sc.defer=true;sc.src='https://static.cloudflareinsights.com/beacon.min.js';sc.setAttribute('data-cf-beacon',JSON.stringify({token:CF_BEACON}));document.head.appendChild(sc);}
 const COFFEE_URL='https://ko-fi.com/bennetmc';if(COFFEE_URL){$('btnCoffee').href=COFFEE_URL;$('btnCoffee').hidden=false;}
 async function initCities(){
   let idx=null;try{idx=await getJSON('data/cities/index.json');}catch(e){}

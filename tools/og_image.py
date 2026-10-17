@@ -34,7 +34,7 @@ for i in range(60, 0, -1):
     md.ellipse([180 - i * 9, 330 - i * 6, 180 + i * 9, 330 + i * 6], fill=int(70 * (1 - i / 60)))
 im = Image.composite(glow, im, mask)
 d = ImageDraw.Draw(im)
-d.text((60, 52), "Haze Twin", font=font("Barlow-Bold.ttf", 46), fill="#E8EEF1")
+d.text((60, 52), "Singapore Haze Prediction Model", font=font("Barlow-Bold.ttf", 40), fill="#E8EEF1")
 d.text((60, 108), "Singapore haze forecast", font=font("Barlow-Medium.ttf", 30), fill="#A9B9C3")
 d.text((60, 190), str(now), font=font("BarlowSemiCondensed-Bold.ttf", 190), fill="#E8EEF1")
 f = font("Barlow-SemiBold.ttf", 34)

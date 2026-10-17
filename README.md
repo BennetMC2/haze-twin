@@ -1,4 +1,6 @@
-# Haze Twin
+# Singapore Haze Prediction Model
+
+(Repository name: haze-twin.)
 
 Odds for Singapore's haze over the next 15 days, and an estimate of when the haze season will end. Built on a computer model (a "digital twin") of the fires, smoke and winds across Southeast Asia.
 
