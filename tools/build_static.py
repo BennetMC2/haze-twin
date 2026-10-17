@@ -96,7 +96,7 @@ def build():
            "</section>"]
     ld = {"@context": "https://schema.org", "@graph": [
         {"@type": "WebApplication", "name": NAME, "url": URL, "applicationCategory": "WeatherApplication", "operatingSystem": "Any",
-         "description": "Odds for Singapore's haze (24-hour PSI) over the next 15 days, when it will end, and where the smoke comes from. Independent model, updated hourly.",
+         "description": "Odds for Singapore's haze (24-hour PSI) for the next 15 days and week by week to the end of the year, when it will end, and where the smoke comes from. Independent model, updated hourly.",
          "offers": {"@type": "Offer", "price": "0", "priceCurrency": "SGD"}},
         {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faq]}]}
 

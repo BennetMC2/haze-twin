@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src 'self' data: blob: https://gibs.earthdata.nasa.gov; connect-src 'self' https://cloudflareinsights.com https://api-open.data.gov.sg https://haze-ask.healthid-cloudflare.workers.dev; worker-src blob:; base-uri 'self'; form-action 'self'">
-<title>Singapore Haze Prediction Model: PSI odds for the next 15 days</title>
+<title>Singapore Haze Prediction Model: PSI odds to the end of the year</title>
 <meta name="haze-ai" content="https://haze-ask.healthid-cloudflare.workers.dev/">
-<meta name="description" content="Singapore haze forecast: odds the 24-hour PSI is above 100, 200 or 300 each day for the next 15 days, when the haze will end, and where the smoke comes from. Updated hourly. Independent model, not an official NEA forecast.">
+<meta name="description" content="Singapore haze forecast: odds the 24-hour PSI is above 100, 200 or 300 each day for the next 15 days, week by week to the end of the year, when the haze will end, and where the smoke comes from. Updated hourly. Independent model, not an official NEA forecast.">
 <link rel="canonical" href="https://bennetmc2.github.io/haze-twin/">
 <script type="application/ld+json" id="ld">{}</script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Singapore Haze Prediction Model">
 <meta property="og:title" content="Singapore Haze Prediction Model: when will the haze get better?">
-<meta property="og:description" content="Day-by-day PSI odds for the next 15 days, and where the smoke comes from. Updated every hour.">
+<meta property="og:description" content="PSI odds day by day for 15 days and week by week to the end of the year, and where the smoke comes from. Updated every hour.">
 <meta property="og:url" content="https://bennetmc2.github.io/haze-twin/">
 <meta property="og:image" content="https://bennetmc2.github.io/haze-twin/data/og.png">
 <meta property="og:image:width" content="1200">
@@ -1867,7 +1867,7 @@ async function loadPlace(id,quiet){
     else{const base='data/cities/'+encodeURIComponent(id)+'/';const [inp,fc]=await Promise.all([getJSON(base+'inputs.json'),getJSON(base+'forecast.json')]);
       INP=inp;FC=fc;CITY=inp.city;SG=inp.receptor||SGC;}
     state.official=FC;state.region='national';$('app').classList.toggle('city',!!CITY);
-    $('brandSub').textContent='Odds for '+PLACEP()+' haze, to the end of the year';document.title=(CITY?PLACE()+' haze odds: ':'')+'Singapore Haze Prediction Model';
+    $('brandSub').textContent='Odds for '+PLACEP()+' haze, to the end of the year';document.title=(CITY?PLACE()+' haze odds: ':'')+'Singapore Haze Prediction Model: PSI odds to the end of the year';
     if(WHY)WHY.cache={};whyMapKey='';try{prepWhy();}catch(e){WHY=null;}
     selectLikely();buildHot();buildWinds();buildThreads();renderAll();layout();syncT();syncCases();needWarm=true;threadsDirty=true;
     try{localStorage.setItem('hazeCity',id);}catch(e){}
