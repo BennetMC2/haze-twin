@@ -349,9 +349,17 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .ky-st{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--ink)}
 .tip{z-index:3;pointer-events:none;background:var(--panel);border:1px solid var(--line-hi);border-radius:5px;padding:6px 9px;font-size:13px;max-width:240px;transform:translate(12px,-50%)}
 .tip b{display:block;font-weight:600}
-.runbox{left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(14,24,32,.94);border:1px solid var(--sky);border-radius:6px;padding:14px 20px;text-align:center;pointer-events:none}
-.runbox b{font-family:var(--num);font-size:22px;font-weight:600;display:block}
-.runbox span{font-size:13px;color:var(--ink-2)}
+.runbox{left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(10,19,26,.95);border:1px solid var(--sky);border-radius:8px;padding:16px 20px;pointer-events:none;width:min(440px,calc(100% - 32px));display:flex;flex-direction:column;gap:10px;box-shadow:0 10px 40px rgba(0,0,0,.45)}
+.errbox.okmsg{border-color:var(--sD)}
+.rbh{font-weight:600;font-size:15px}
+.rsteps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px;font-size:13.5px;color:var(--ink-3)}
+.rsteps li{display:flex;gap:8px;align-items:baseline}
+.rsteps li::before{content:'';flex:none;width:9px;height:9px;border-radius:50%;border:1.5px solid var(--ink-3);transform:translateY(1px)}
+.rsteps li.on{color:var(--ink)}.rsteps li.on::before{border-color:var(--sky);background:var(--sky);animation:pulse 1.2s ease-in-out infinite}
+.rsteps li.ok{color:var(--ink-2)}.rsteps li.ok::before{border-color:var(--sD);background:var(--sD)}
+.rcount{display:flex;align-items:baseline;gap:6px}.rcount b{font-family:var(--num);font-size:24px;font-weight:600}.rcount span{font-size:13px;color:var(--ink-2)}
+.rbar{height:4px;border-radius:2px;background:var(--line);overflow:hidden}.rbar i{display:block;height:100%;width:0;background:var(--sky)}
+.rex{font-size:12.5px;color:var(--ink-2);min-height:3.2em;font-family:var(--num)}
 .errbox{left:50%;bottom:60px;transform:translateX(-50%);max-width:80%;background:var(--panel);border:1px solid var(--vunh);border-radius:6px;padding:10px 14px;font-size:14px}
 
 /* time strip */
@@ -517,7 +525,19 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     <div class="ov key" id="key"></div>
     <div class="ov explainer" id="explainer" hidden role="dialog" aria-labelledby="exTitle"></div>
     <div class="ov tip" id="tip" hidden></div>
-    <div class="ov runbox" id="runbox" hidden><b id="runCount">0</b><span id="runSub">futures run on this device</span></div>
+    <div class="ov runbox" id="runbox" hidden role="status" aria-live="polite">
+      <div class="rbh">Running the model on your device</div>
+      <ol class="rsteps" id="runSteps">
+        <li data-s="0">Fetching NEA's latest reading</li>
+        <li data-s="1">Loading the weather forecasts and air paths</li>
+        <li data-s="2">Monte Carlo: simulating possible next 15 days</li>
+        <li data-s="3">Weighting futures by how well they match the reading</li>
+        <li data-s="4">Counting outcomes into odds and storylines</li>
+      </ol>
+      <div class="rcount"><b id="runCount">0</b> <span id="runSub">of 100,000 futures</span></div>
+      <div class="rbar"><i id="runBar"></i></div>
+      <div class="rex" id="runEx"></div>
+    </div>
     <div class="ov errbox" id="errbox" hidden></div>
   </section>
 
@@ -1397,14 +1417,17 @@ async function latestNEA(){
 }
 // first view loads the forecast and a light copy of the inputs; the footprints (about 1 MB) come after
 let FULLP=null;
-function ensureFull(){if(!INP||INP.S)return Promise.resolve();if(!FULLP)FULLP=getJSON(CITY?'data/cities/'+CITY.id+'/inputs.json':'data/inputs.json').then(full=>{if(full.t0===INP.t0){INP.S=full.S;}try{prepWhy();}catch(e){WHY=null;}renderShowing();}).catch(()=>{}).finally(()=>{FULLP=null;});return FULLP;}
+function ensureFull(){if(!INP||INP.S)return Promise.resolve();if(!FULLP)FULLP=getJSON(CITY?'data/cities/'+CITY.id+'/inputs.json':'data/inputs.json').then(full=>{if(full.t0===INP.t0){INP.S=full.S;}else if(full.S&&full.members){INP=full;}try{prepWhy();}catch(e){WHY=null;}renderShowing();}).catch(()=>{}).finally(()=>{FULLP=null;});return FULLP;}
 async function rerun(){
   if(state.running||!INP)return;
   state.running=true;state.runFrac=0;state.official=state.official||FC;
   $('btnRerun').setAttribute('aria-busy','true');$('btnRerun').textContent='Running…';$('runbox').hidden=false;$('liveDot').classList.add('run');
-  await ensureFull();
+  runStep(0);runExamples(true);runT0=performance.now();prevOdds={};try{stories().forEach(c=>prevOdds[c.id]=c.odds);}catch(e){}
   const live=CITY?null:await latestNEA();   // NEA readings are Singapore's; a city reruns on its own last reading
-  $('runSub').textContent=live?'futures, using NEA\'s '+clock(new Date(live.time))+' reading':'futures, using the readings from the last update';
+  runStep(0,live?'NEA reading: PSI '+Math.round(live.psi_now.national)+' at '+clock(new Date(live.time)):CITY?'Using the latest reading for '+PLACE():'NEA not reachable: using the last update\'s reading');
+  runStep(1);await ensureFull();
+  runStep(1,'Loaded '+INP.members.length+' weather forecasts, the air paths to '+PLACE()+' and '+INP.regions.length+' fire regions');
+  runStep(2);
   // the new reading is compared with the simulated air at the time it was taken, not at the model's start
   const obs=live?{psi_now:live.psi_now,pm24_now:live.pm24_now,pm24_h:(new Date(live.time)-new Date(INP.t0))/3600e3}:{};
   const seed=Math.floor(Math.random()*1e9);const t0r=performance.now();const minMs=reduced?0:2200;
@@ -1418,16 +1441,33 @@ async function rerun(){
     setTimeout(()=>{try{done(HE.run(INP,{n:30000,seed:seed,obs:obs}));}catch(err){failRun(String(err));}},50);
   }
 }
-function endRunUI(){state.running=false;state.runFrac=1;$('btnRerun').setAttribute('aria-busy','false');$('btnRerun').textContent='Rerun';$('runbox').hidden=true;$('liveDot').classList.remove('run');}
+// the rerun panel: real steps, a live count, and a few of the futures as they would be drawn
+let RUNSTEP=-1,RUNEX=null,runT0=0,prevOdds=null;
+function runStep(i,doneText){const lis=document.querySelectorAll('#runSteps li');
+  if(doneText!=null){const li=lis[i];if(li){li.className='ok';li.textContent=doneText;}return;}
+  RUNSTEP=i;lis.forEach((li,k)=>{if(k<i){if(li.className!=='ok')li.className='ok';}else li.className=k===i?'on':'';});}
+function runExamples(start){
+  if(RUNEX){clearInterval(RUNEX);RUNEX=null;}$('runEx').innerHTML='';if(!start||!FC||!FC.samples||!FC.samples.length)return;
+  const ms=(INP&&INP.members)||[];const nA=ms.filter(n=>/^a/.test(n)).length,nG=ms.length-nA;const lines=[];
+  const tick=()=>{const k=Math.floor(Math.random()*FC.samples.length);const m=FC.sampleMember?FC.sampleMember[k]:null;const name=m!=null?ms[m]||'':'';
+    const di=Math.min(FC.days.length-1,1+Math.floor(Math.random()*6));let ai=FC.arrivals_h.findIndex(h=>h>=FC.days[di].h);if(ai<0)ai=FC.arrivals_h.length-1;
+    const num=parseInt(name.slice(1),10)||0;const src=/^a/.test(name)?'ECMWF AI weather '+(num+1)+'/'+nA:'NOAA weather '+(num+1)+'/'+nG;
+    lines.unshift('#'+(Math.floor(Math.random()*100000)+1).toLocaleString('en-US')+' · '+src+' · '+dshort(FC.days[di])+': PSI '+Math.round(HE.psiOf(FC.samples[k][ai])));
+    lines.length=Math.min(lines.length,3);$('runEx').innerHTML=lines.map((l,i)=>'<div style="opacity:'+(1-i*.3)+'">'+esc(l)+'</div>').join('');};
+  tick();RUNEX=setInterval(tick,220);}
+function endRunUI(){runExamples(false);state.running=false;state.runFrac=1;$('btnRerun').setAttribute('aria-busy','false');$('btnRerun').textContent='Rerun';$('runbox').hidden=true;$('liveDot').classList.remove('run');}
 function failRun(msg){endRunUI();showError('Rerun stopped: '+msg+'. The forecast from the last update is still shown.');}
 function finishRun(res){
   const off=state.official;res.why={};
   for(const k of HE.NEA_REGIONS)res.why[k]=HE.why(off,res,INP.summary,INP.summary,k);
   res.built=new Date().toISOString();res.prevLabel=off.built;
-  FC=res;state.rerunAt=new Date();state.sel=topClass();endRunUI();if(WHY)WHY.cache={};whyMapKey='';
+  FC=res;state.rerunAt=new Date();state.sel=topClass();endRunUI();
+  {const cs=stories();const top=cs[topClass()];const was=prevOdds&&prevOdds[top.id];
+   showNote('Done: 100,000 futures in '+((performance.now()-runT0)/1000).toFixed(1)+'s. Most likely: '+plainName(top)+', '+Math.round(top.odds)+'%'+(was!=null?' (was '+Math.round(was)+'%)':'')+'.');}if(WHY)WHY.cache={};whyMapKey='';
   buildWinds();buildThreads();renderAll();$('statusText').textContent='Rerun on this device at '+clock(state.rerunAt);
   const wc=$('changeCard');wc.classList.remove('flash');void wc.offsetWidth;wc.classList.add('flash');threadsDirty=true;drawFan();needWarm=true;
 }
+function showNote(msg){const e=$('errbox');e.textContent=msg;e.classList.add('okmsg');e.hidden=false;setTimeout(()=>{e.hidden=true;e.classList.remove('okmsg');},7000);}
 function showError(msg){const e=$('errbox');e.textContent=msg;e.hidden=false;setTimeout(()=>{e.hidden=true;},8000);}
 
 /* ---------- time ---------- */
@@ -1454,7 +1494,10 @@ function render(now){
     if(state.playing){state.t=Math.min(state.playEnd,state.t+dt*0.3);syncT();if(state.t>=state.playEnd)stopPlay();}
     if(needWarm&&!state.playing){warmSmoke();needWarm=false;}
     if(!reduced)stepSmoke(dt*(state.playing?0.3:0.05),state.t,F);
-    if(state.running){state.runFrac=Math.min(state.runTarget||0,state.runFrac+dt/2.2);$('runCount').textContent=Math.round(state.runFrac*100000).toLocaleString('en-US');threadsDirty=true;fanDirty=true;}
+    if(state.running){state.runFrac=Math.min(state.runTarget||0,state.runFrac+dt/2.2);const sim=Math.min(1,state.runFrac/0.85);
+      $('runCount').textContent=Math.round(sim*100000).toLocaleString('en-US');$('runBar').style.width=(state.runFrac*100).toFixed(1)+'%';
+      if(RUNSTEP>=2){const want=state.runFrac>=0.9?4:state.runFrac>=0.85?3:2;if(want!==RUNSTEP)runStep(want);}
+      threadsDirty=true;fanDirty=true;}
     if(threadsDirty)drawThreads();
     if(fanDirty)drawFan();
   }
