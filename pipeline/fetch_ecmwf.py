@@ -1,4 +1,6 @@
-"""ECMWF IFS ensemble (51 forecasts) from ECMWF open data, cropped to SE Asia.
+"""ECMWF ensembles from ECMWF open data, cropped to SE Asia:
+  ifs       the physics ensemble (50 perturbed forecasts) to +240 h
+  aifs-ens  ECMWF's machine-learned ensemble (AIFS ENS, 50 forecasts) to +360 h
 
 Open data, CC-BY-4.0, no key. Global 0.25° fields are downloaded for u/v at 850 hPa and total
 precipitation every 12 hours to +240 h from the latest 00 or 12 UTC run, then cropped and thinned to
@@ -15,6 +17,7 @@ import numpy as np
 from config import WEST, EAST, SOUTH, NORTH, WORK
 
 STEPS = list(range(0, 241, 12))
+STEPS_BY_MODEL = {"ifs": STEPS, "aifs-ens": list(range(0, 361, 12))}
 DIR = WORK / "ecmwf"
 
 
@@ -61,14 +64,15 @@ def _decode(path, want):
     return out, lats, lons
 
 
-def fetch(log=print):
+def fetch(log=print, model="ifs"):
+    steps = STEPS_BY_MODEL[model]
     from ecmwf.opendata import Client
     client = None
     run = None
-    for src in ("ecmwf", "azure", "aws"):
+    for src in ("aws", "azure", "ecmwf"):   # the cloud mirrors are much faster from GitHub's runners
         try:
-            c = Client(source=src, model="ifs", resol="0p25", maximum_retries=3, retry_after=15)
-            run = c.latest(type="pf", stream="enfo", step=240, param="tp")
+            c = Client(source=src, model=model, resol="0p25", maximum_retries=3, retry_after=15)
+            run = c.latest(type="pf", stream="enfo", step=steps[-1], param="tp")
             client = c
             break
         except Exception as e:
@@ -77,14 +81,14 @@ def fetch(log=print):
         raise RuntimeError("no ECMWF open-data source reachable")
     run = run.replace(tzinfo=timezone.utc)
     DIR.mkdir(parents=True, exist_ok=True)
-    cache = DIR / f"ens_{run:%Y%m%d%H}.npz"
+    cache = DIR / f"{model}_{run:%Y%m%d%H}.npz"
     if cache.exists():
         z = np.load(cache)
-        log(f"  ECMWF ENS {run:%Y-%m-%d %H}Z from cache")
-        return {"run": run, "steps": list(z["steps"]), "lats": z["lats"], "lons": z["lons"], "U": z["U"], "V": z["V"], "R": z["R"]}
-    log(f"  ECMWF ENS {run:%Y-%m-%d %H}Z: downloading u/v 850 hPa and rain, 51 members, {len(STEPS)} steps")
-    pl, sfc = DIR / "pl.grib2", DIR / "sfc.grib2"
-    base = dict(date=run.strftime("%Y%m%d"), time=run.hour, stream="enfo", type="pf", step=STEPS)
+        log(f"  ECMWF {model} {run:%Y-%m-%d %H}Z from cache")
+        return {"model": model, "run": run, "steps": list(z["steps"]), "lats": z["lats"], "lons": z["lons"], "U": z["U"], "V": z["V"], "R": z["R"]}
+    log(f"  ECMWF {model} {run:%Y-%m-%d %H}Z: downloading u/v 850 hPa and rain, 50 members, {len(steps)} steps")
+    pl, sfc = DIR / f"{model}_pl.grib2", DIR / f"{model}_sfc.grib2"
+    base = dict(date=run.strftime("%Y%m%d"), time=run.hour, stream="enfo", type="pf", step=steps)
     client.retrieve(**base, levtype="pl", levelist=[850], param=["u", "v"], target=str(pl))
     client.retrieve(**base, levtype="sfc", param=["tp"], target=str(sfc))
     uv, lats, lons = _decode(pl, {"u", "v"})
@@ -94,29 +98,29 @@ def fetch(log=print):
             os.remove(p)
         except OSError:
             pass
-    M, T = 50, len(STEPS)
+    M, T = 50, len(steps)
     ny, nx = len(lats), len(lons)
     U = np.full((M, T, ny, nx), np.nan, np.float32)
     V = np.full_like(U, np.nan)
     R = np.zeros_like(U)
     for m in range(M):
         prev = None
-        for ti, st in enumerate(STEPS):
+        for ti, st in enumerate(steps):
             if ("u", m, st) in uv:
                 U[m, ti] = uv[("u", m, st)]
                 V[m, ti] = uv[("v", m, st)]
             acc = tp.get(("tp", m, st))
             if acc is not None:
                 if prev is not None and ti > 0:
-                    hrs = STEPS[ti] - STEPS[ti - 1]
+                    hrs = steps[ti] - steps[ti - 1]
                     R[m, ti] = np.maximum(acc - prev, 0) * 1000.0 / hrs * 6.0      # mm per 6 h
                 prev = acc
     from fetch_gefs import _fill
     _fill(U)
     _fill(V)
-    np.savez_compressed(cache, steps=np.array(STEPS), lats=lats, lons=lons, U=U, V=V, R=R)
+    np.savez_compressed(cache, steps=np.array(steps), lats=lats, lons=lons, U=U, V=V, R=R)
     log(f"  ECMWF: {int((~np.isnan(U[:, :, 0, 0])).sum())}/{M * T} member-steps decoded")
-    return {"run": run, "steps": STEPS, "lats": lats, "lons": lons, "U": U, "V": V, "R": R}
+    return {"model": model, "run": run, "steps": steps, "lats": lats, "lons": lons, "U": U, "V": V, "R": R}
 
 
 def merge(weather, ens, t0, log=print):
@@ -145,7 +149,8 @@ def merge(weather, ens, t0, log=print):
             V[k, ti] = ens["V"][k, j - 1] * (1 - w) + ens["V"][k, j] * w
             R[k, ti] = ens["R"][k, j]
     out = dict(weather)
-    out["members"] = list(weather["members"]) + [f"e{k:02d}" for k in range(Me)]
+    pre = "a" if ens.get("model") == "aifs-ens" else "e"
+    out["members"] = list(weather["members"]) + [f"{pre}{k:02d}" for k in range(Me)]
     out["u"] = np.concatenate([weather["u"], U])
     out["v"] = np.concatenate([weather["v"], V])
     out["rain"] = np.concatenate([weather["rain"], R])
