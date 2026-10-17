@@ -1,54 +1,62 @@
-[02:16:45] NEA readings
-[02:17:13]   NEA: 179 PSI hours, 179 24-h PM2.5 hours, 179 1-h PM2.5 hours
-[02:17:13] FIRMS hotspots
-[02:25:43]   FIRMS VIIRS_NOAA21_NRT: failed: GET failed for https://firms.modaps.eosdis.nasa.gov/api/area/csv/***/VIIRS_NOAA21_NRT/92,-10,124,10/2: HTTPSConnectionPo
-[02:34:13]   FIRMS VIIRS_NOAA20_NRT: failed: GET failed for https://firms.modaps.eosdis.nasa.gov/api/area/csv/***/VIIRS_NOAA20_NRT/92,-10,124,10/2: HTTPSConnectionPo
-[02:42:43]   FIRMS VIIRS_SNPP_NRT: failed: GET failed for https://firms.modaps.eosdis.nasa.gov/api/area/csv/***/VIIRS_SNPP_NRT/92,-10,124,10/2: HTTPSConnectionPool
-[02:42:43]   FIRMS failed: no FIRMS source succeeded: N21 failed: GET failed for https://firms.modaps.eosdis.nasa.gov/api/area/csv/***/VIIRS_NOAA21_NRT/92,-10,124,10/2: HTTPSConnectionPo; N20 failed: GET failed for https://firms.modaps.eosdis.nasa.gov/api/area/csv/***/VIIRS_NOAA20_NRT/92,-10,124,10/2: HTTPSConnectionPo; SNPP failed: GET failed for https://firms.modaps.eosdis.nasa.gov/api/area/csv/***/VIIRS_SNPP_NRT/92,-10,124,10/2: HTTPSConnectionPool
-[02:42:43] GEFS ensemble
-[02:42:45]   GEFS cycle 2026-10-16 18Z
-[02:43:22]   GEFS downloaded 100/1411 (37s)
-[02:44:00]   GEFS downloaded 200/1411 (75s)
-[02:44:37]   GEFS downloaded 300/1411 (113s)
-[02:45:15]   GEFS downloaded 400/1411 (150s)
-[02:45:53]   GEFS downloaded 500/1411 (188s)
-[02:46:30]   GEFS downloaded 600/1411 (225s)
-[02:47:08]   GEFS downloaded 700/1411 (263s)
-[02:47:45]   GEFS downloaded 800/1411 (300s)
-[02:48:23]   GEFS downloaded 900/1411 (338s)
-[02:49:00]   GEFS downloaded 1000/1411 (375s)
-[02:49:38]   GEFS downloaded 1100/1411 (413s)
-[02:50:15]   GEFS downloaded 1200/1411 (451s)
-[02:50:53]   GEFS downloaded 1300/1411 (488s)
-[02:51:30]   GEFS downloaded 1400/1411 (526s)
-[02:51:37]   GEFS: 1410/1411 files ok
-[02:51:37]   first errors: 2026101218_c00_f006.grb2: GET failed for https://nomads.ncep.noaa.gov/cgi-bin/filter_gefs_atmos_0p50a.pl: HTTP 404: <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html><head><ti
-[02:51:45]   ECMWF aifs-ens 2026-10-16 18Z from cache
-[02:51:46]   merged ECMWF: 56 weather forecasts in total
-[02:51:46]   climate: RONI +1.69 (JAS 2026); DMI +0.15 (May 2026)
-[02:51:46] NEA history and past-season analogs
-[02:51:46]   history: backfilled 0 recent days
-[02:51:46] extra sources
-[02:51:46]   airports: 8 with recent reports, 5 reporting haze or smoke
-[02:51:47]   CAMS: 157 hourly PM2.5 values for Singapore
-[02:52:03]   news: 60 recent articles
-[02:52:04]   dryness: Kalimantan 87.1 mm in 30 days, Sumatra 130.9 mm in 30 days
-[02:52:09]   OpenAQ: 27 recent PM2.5 readings in the region
-[02:52:09] t0 2026-10-17T02:00:00+00:00, weather times -92..376 h, 56 members
-[02:52:09] 0 detections -> 0 fire cells
-[02:52:09] back-tracing from Singapore
-[02:52:10]   traced member 1/56
-[02:52:12]   traced member 9/56
-[02:52:15]   traced member 17/56
-[02:52:18]   traced member 25/56
-[02:52:21]   traced member 33/56
-[02:52:24]   traced member 41/56
-[02:52:26]   traced member 49/56
-[02:52:29]   traced member 56/56
+[03:07:59] NEA readings
+[03:08:26]   NEA: 180 PSI hours, 180 24-h PM2.5 hours, 180 1-h PM2.5 hours
+[03:08:26] FIRMS hotspots
+[03:16:56]   FIRMS VIIRS_NOAA21_NRT: failed: GET failed for https://firms.modaps.eosdis.nasa.gov/api/area/csv/***/VIIRS_NOAA21_NRT/92,-10,124,10/2: HTTPSConnectionPo
+[03:25:27]   FIRMS VIIRS_NOAA20_NRT: failed: GET failed for https://firms.modaps.eosdis.nasa.gov/api/area/csv/***/VIIRS_NOAA20_NRT/92,-10,124,10/2: HTTPSConnectionPo
+[03:33:57]   FIRMS VIIRS_SNPP_NRT: failed: GET failed for https://firms.modaps.eosdis.nasa.gov/api/area/csv/***/VIIRS_SNPP_NRT/92,-10,124,10/2: HTTPSConnectionPool
+[03:33:57]   FIRMS failed: no FIRMS source succeeded: N21 failed: GET failed for https://firms.modaps.eosdis.nasa.gov/api/area/csv/***/VIIRS_NOAA21_NRT/92,-10,124,10/2: HTTPSConnectionPo; N20 failed: GET failed for https://firms.modaps.eosdis.nasa.gov/api/area/csv/***/VIIRS_NOAA20_NRT/92,-10,124,10/2: HTTPSConnectionPo; SNPP failed: GET failed for https://firms.modaps.eosdis.nasa.gov/api/area/csv/***/VIIRS_SNPP_NRT/92,-10,124,10/2: HTTPSConnectionPool
+[03:33:57] GEFS ensemble
+[03:34:00]   GEFS listing 20261017/00: GET failed for https://nomads.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.20261017/00/atmos/pgrb2ap5/: HTTP 403: <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>403 Forbidden</title>
+</head><body>
+<h1>Forbidden</h1>
+<p>You don't have permission to access this resource.</p>
+</body></html>
+
+[03:34:01]   GEFS cycle 2026-10-16 18Z
+[03:34:39]   GEFS downloaded 100/1411 (37s)
+[03:35:16]   GEFS downloaded 200/1411 (75s)
+[03:35:54]   GEFS downloaded 300/1411 (113s)
+[03:36:31]   GEFS downloaded 400/1411 (150s)
+[03:37:09]   GEFS downloaded 500/1411 (188s)
+[03:37:47]   GEFS downloaded 600/1411 (225s)
+[03:38:25]   GEFS downloaded 700/1411 (263s)
+[03:39:02]   GEFS downloaded 800/1411 (301s)
+[03:39:40]   GEFS downloaded 900/1411 (339s)
+[03:40:18]   GEFS downloaded 1000/1411 (376s)
+[03:40:55]   GEFS downloaded 1100/1411 (414s)
+[03:41:33]   GEFS downloaded 1200/1411 (451s)
+[03:42:10]   GEFS downloaded 1300/1411 (489s)
+[03:42:49]   GEFS downloaded 1400/1411 (527s)
+[03:42:57]   GEFS: 1408/1411 files ok
+[03:42:57]   first errors: 2026101306_c00_f006.grb2: GET failed for https://nomads.ncep.noaa.gov/cgi-bin/filter_gefs_atmos_0p50a.pl: HTTP 404: <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html><head><ti | 2026101300_c00_f006.grb2: GET failed for https://nomads.ncep.noaa.gov/cgi-bin/filter_gefs_atmos_0p50a.pl: HTTP 404: <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html><head><ti | 2026101218_c00_f006.grb2: GET failed for https://nomads.ncep.noaa.gov/cgi-bin/filter_gefs_atmos_0p50a.pl: HTTP 404: <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html><head><ti
+[03:43:05]   ECMWF aifs-ens 2026-10-16 18Z from cache
+[03:43:05]   merged ECMWF: 56 weather forecasts in total
+[03:43:06]   climate: RONI +1.69 (JAS 2026); DMI +0.15 (May 2026)
+[03:43:06] NEA history and past-season analogs
+[03:43:06]   history: backfilled 0 recent days
+[03:43:06] extra sources
+[03:43:06]   airports: 8 with recent reports, 5 reporting haze or smoke
+[03:43:06]   CAMS: 157 hourly PM2.5 values for Singapore
+[03:43:32]   news: 60 recent articles
+[03:43:33]   dryness: Kalimantan 87.1 mm in 30 days, Sumatra 130.9 mm in 30 days
+[03:43:38]   OpenAQ: 27 recent PM2.5 readings in the region
+[03:43:38] t0 2026-10-17T03:00:00+00:00, weather times -81..375 h, 56 members
+[03:43:38] 0 detections -> 0 fire cells
+[03:43:38] back-tracing from Singapore
+[03:43:38]   traced member 1/56
+[03:43:41]   traced member 9/56
+[03:43:44]   traced member 17/56
+[03:43:47]   traced member 25/56
+[03:43:50]   traced member 33/56
+[03:43:52]   traced member 41/56
+[03:43:55]   traced member 49/56
+[03:43:58]   traced member 56/56
 /home/runner/work/haze-twin/haze-twin/pipeline/build_inputs.py:36: RuntimeWarning: invalid value encountered in divide
   q = np.round(np.log1p(np.maximum(S, 0) / s0) / np.log1p(smax / s0) * 65535).astype(np.uint16)
 /home/runner/work/haze-twin/haze-twin/pipeline/build_inputs.py:36: RuntimeWarning: invalid value encountered in cast
   q = np.round(np.log1p(np.maximum(S, 0) / s0) / np.log1p(smax / s0) * 65535).astype(np.uint16)
-[02:52:29] wrote /home/runner/work/haze-twin/haze-twin/site/data/inputs.json (3.79 MB) in 2143.7 s
-engine: 100000 futures in 11.3s, effective sample 20, anchored false
-NOT PUBLISHED, degraded: NASA FIRMS hotspots failed; very few simulated futures match NEA's readings (effective sample 20)
+[03:43:58] wrote /home/runner/work/haze-twin/haze-twin/site/data/inputs.json (3.79 MB) in 2158.9 s
+engine: 100000 futures in 11.9s, effective sample 11, anchored false
+NOT PUBLISHED, degraded: NASA FIRMS hotspots failed; very few simulated futures match NEA's readings (effective sample 11)
