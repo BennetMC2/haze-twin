@@ -177,6 +177,7 @@ def fetch(log=print, model="ifs"):
             lats, lons = la, lo
             (tp if par == "tp" else uv)[(par, num, st)] = sub
     log(f"  ECMWF {model}: {len(uv) + len(tp)}/{len(jobs)} fields in {_t.time() - t0:.0f}s")
+    scale = 1.0 if model == "aifs-ens" else 1000.0   # AIFS gives rain in kg/m2 (= mm); IFS in metres
     M, T = 50, len(steps)
     ny, nx = len(lats), len(lons)
     U = np.full((M, T, ny, nx), np.nan, np.float32)
@@ -192,7 +193,7 @@ def fetch(log=print, model="ifs"):
             if acc is not None:
                 if prev is not None and ti > 0:
                     hrs = steps[ti] - steps[ti - 1]
-                    R[m, ti] = np.maximum(acc - prev, 0) * 1000.0 / hrs * 6.0      # mm per 6 h
+                    R[m, ti] = np.maximum(acc - prev, 0) * scale / hrs * 6.0      # mm per 6 h
                 prev = acc
     from fetch_gefs import _fill
     _fill(U)
