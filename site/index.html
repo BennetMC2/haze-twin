@@ -966,7 +966,7 @@ function renderRegions(){
   REG.forEach(([key,name])=>{const b=document.createElement('button');b.type='button';b.className='reg';b.id='reg-'+key;b.setAttribute('aria-pressed',String(key===state.region));
     const v=FC.regions[key]?FC.regions[key].now:null;b.innerHTML='<span></span><b></b>';b.children[0].textContent=key==='national'?'Highest':name;b.children[1].textContent=v!=null?Math.round(v):'–';
     b.title=key==='national'?'Highest of the five areas, as NEA reports it':name+' Singapore';
-    b.addEventListener('click',()=>{if(state.running)return;state.region=key;state.sel=null;onRegion();});box.appendChild(b);});
+    b.addEventListener('click',()=>{if(state.running)return;state.region=key;state.sel=null;selectLikely();onRegion();});box.appendChild(b);});
 }
 function onRegion(){if(WHY)WHY.cache={};whyMapKey='';buildWinds();buildThreads();renderAll();drawThreads();drawFan();needWarm=true;}
 
@@ -1290,7 +1290,7 @@ function finishRun(res){
   const off=state.official;res.why={};
   for(const k of HE.NEA_REGIONS)res.why[k]=HE.why(off,res,INP.summary,INP.summary,k);
   res.built=new Date().toISOString();res.prevLabel=off.built;
-  FC=res;state.rerunAt=new Date();endRunUI();if(WHY)WHY.cache={};whyMapKey='';
+  FC=res;state.rerunAt=new Date();state.sel=topClass();endRunUI();if(WHY)WHY.cache={};whyMapKey='';
   buildWinds();buildThreads();renderAll();$('statusText').textContent='Rerun on this device at '+clock(state.rerunAt);
   const wc=$('changeCard');wc.classList.remove('flash');void wc.offsetWidth;wc.classList.add('flash');threadsDirty=true;drawFan();needWarm=true;
 }
@@ -1580,10 +1580,12 @@ async function loadAQ(){
 
 
 /* ---------- best case / most likely / worst case ---------- */
-function caseIndex(which){const cs=cls();if(which==='worst')return cs.findIndex(c=>c.id==='worse');
+// "Most likely" shows the single most likely outcome, so the map, chart and storyline always agree with the headline
+function caseIndex(which){const cs=cls();if(which==='likely')return topClass();if(which==='worst')return cs.findIndex(c=>c.id==='worse');
   if(which==='best'){for(const id of ['early','clean','later','brief']){const i=cs.findIndex(c=>c.id===id&&c.n>0);if(i>=0)return i;}return null;}return null;}
-function syncCases(){const cs=cls();let cur='likely';if(state.sel!==null){if(cs[state.sel].id==='worse')cur='worst';else if(state.sel===caseIndex('best'))cur='best';else cur='';}
-  document.querySelectorAll('#cases button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.case===cur)));}
+function syncCases(){const on={likely:state.sel!==null&&state.sel===caseIndex('likely'),worst:state.sel!==null&&state.sel===caseIndex('worst'),best:state.sel!==null&&state.sel===caseIndex('best')};
+  document.querySelectorAll('#cases button').forEach(b=>b.setAttribute('aria-pressed',String(!!on[b.dataset.case])));}
+function selectLikely(){if(!FC)return;state.sel=topClass();needWarm=true;threadsDirty=true;}
 document.querySelectorAll('#cases button').forEach(b=>b.addEventListener('click',()=>{if(!FC)return;const i=caseIndex(b.dataset.case);state.sel=(i===null||i<0)?null:i;needWarm=true;threadsDirty=true;renderScenarios();renderKey();drawFan();renderShowing();syncCases();}));
 
 /* ---------- guided tour ---------- */
@@ -1633,7 +1635,7 @@ async function boot(){
     RINGS=COAST.map(enc=>{const pts=[];let x=0,y=0;for(let i=0;i<enc.length;i+=2){x+=enc[i];y+=enc[i+1];pts.push([x/100,y/100]);}return pts;});
     loadAQ();setInterval(loadAQ,15*60e3);
     try{prepWhy();}catch(e){WHY=null;}
-    buildHot();buildWinds();buildThreads();renderAll();layout();initWind();syncT();
+    selectLikely();buildHot();buildWinds();buildThreads();renderAll();layout();initWind();syncT();syncCases();
     let seen=false;try{seen=localStorage.getItem('hazeTourSeen')==='1';}catch(e){}if(!seen)setTimeout(()=>{if(PAGE==='map')startTour();},900);
   }catch(e){showError('The latest forecast could not be loaded ('+e.message+'). Reload the page to try again.');$('statusText').textContent='No forecast loaded';$('headline').textContent='The latest forecast could not be loaded.';}
 }

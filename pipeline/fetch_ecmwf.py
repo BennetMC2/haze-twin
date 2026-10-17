@@ -212,7 +212,8 @@ def merge(weather, ens, t0, log=print):
     if not (lat_ok and lon_ok):
         raise RuntimeError("ECMWF grid does not match GEFS grid")
     eh = np.array([((ens["run"] + timedelta(hours=int(s))) - t0).total_seconds() / 3600 for s in ens["steps"]])
-    Me = ens["U"].shape[0]
+    # cap how many ECMWF forecasts join, so back-tracing stays within the run's time (ECMWF_MEMBERS, default 25)
+    Me = min(ens["U"].shape[0], int(__import__("os").environ.get("ECMWF_MEMBERS", "25")))
     U = np.empty((Me,) + weather["u"].shape[1:], np.float32)
     V = np.empty_like(U)
     R = np.empty_like(U)
