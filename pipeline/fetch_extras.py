@@ -64,16 +64,16 @@ def metar(log=print):
     return out
 
 
-def cams(log=print):
+def cams(log=print, lat=1.35, lon=103.82, name="Singapore"):
     r = get("https://air-quality-api.open-meteo.com/v1/air-quality",
-            params={"latitude": 1.35, "longitude": 103.82, "hourly": "pm2_5,aerosol_optical_depth",
+            params={"latitude": lat, "longitude": lon, "hourly": "pm2_5,aerosol_optical_depth",
                     "past_days": 2, "forecast_days": 5, "timezone": "UTC"}, timeout=60, retries=2)
     js = r.json()
     h = js.get("hourly") or {}
     times = h.get("time") or []
     pm = h.get("pm2_5") or []
     out = [[t + "Z" if not t.endswith("Z") else t, v] for t, v in zip(times, pm) if v is not None]
-    log(f"  CAMS: {len(out)} hourly PM2.5 values for Singapore")
+    log(f"  CAMS: {len(out)} hourly PM2.5 values for {name}")
     return {"pm25": out, "model": "CAMS global (via Open-Meteo)"}
 
 

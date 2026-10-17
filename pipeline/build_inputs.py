@@ -58,6 +58,16 @@ def BREAK_PSI(pm):
     return 500.0
 
 
+def city_cams(c, log=print):
+    """CAMS PM2.5 forecast for a city: the second opinion a city leans on while it has no track record."""
+    try:
+        import fetch_extras
+        return {"cams": fetch_extras.cams(log=log, lat=c["lat"], lon=c["lon"], name=c["name"])}
+    except Exception as e:
+        log(f"  CAMS for {c['name']} failed: {e}")
+        return {}
+
+
 def build_cities(base, weather, cells, t0, log=print):
     """Home cities: trace the same weather (GEFS members only) back from each city and write
     site/data/cities/<id>/inputs.json. A city without a reading is skipped (no forecast is better than an
@@ -87,7 +97,7 @@ def build_cities(base, weather, cells, t0, log=print):
                       "members": [[[[round(x, 2), round(y, 2)] for x, y in p] for p in mem] for mem in paths]},
             "summary": summary(S, cells, rain_reg, rain_t, w),
             "analogs": None,                      # past-season analogs are Singapore readings
-            "extras": {k: v for k, v in (base.get("extras") or {}).items() if k not in ("cams", "stations")},
+            "extras": dict({k: v for k, v in (base.get("extras") or {}).items() if k not in ("cams", "stations")}, **city_cams(c, log)),
             "sources": [s for s in base.get("sources", []) if "NEA" not in s.get("name", "")] + [
                 {"name": "World Air Quality Index Project", "status": "ok", "detail": f"{r.get('station')}: PM2.5 {r['pm25']} ug/m3 (from US AQI)",
                  "time": r["time"]}],

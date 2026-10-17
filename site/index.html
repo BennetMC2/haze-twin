@@ -461,6 +461,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
       <div class="bandscale" aria-label="NEA PSI bands"><span class="bslabel">PSI</span><span style="--c:var(--good)">0–50 Good</span><span style="--c:var(--mod)">51–100 Moderate</span><span style="--c:var(--unh)">101–200 Unhealthy</span><span style="--c:var(--vunh)">201–300 Very unhealthy</span><span style="--c:var(--haz)">300+ Hazardous</span></div>
       <p class="note"><b>Not an official forecast.</b> This is an experimental, independent model. For health advice, follow <a href="https://www.haze.gov.sg/" target="_blank" rel="noopener">NEA</a>.</p>
       <p class="note" id="camsWarn" hidden></p>
+      <p class="note" id="cityNote" hidden></p>
     </section>
 
     <section class="panel card" id="cardDays" aria-labelledby="daysTitle">
@@ -954,6 +955,7 @@ function renderAnswer(){
   const area=state.region==='national'?'':', '+REG.find(r=>r[0]===state.region)[1];
   if(FC.issued&&FC.obsTime)$('nowProv').textContent='24-hour PSI'+area+', NEA reading at '+whenTxt(new Date(FC.obsTime));
   else $('nowProv').textContent='24-hour PSI'+area+', NEA at '+whenTxt(new Date(INP.obs.time||INP.t0));
+  const cn=$('cityNote');if(cn){cn.hidden=!CITY;if(CITY)cn.innerHTML='<b>Experimental for '+esc(PLACE())+'.</b> No track record here yet. For the next 4 days the best guess is pulled half way towards CAMS, another smoke model. Readings come from one station.';}
   if(CITY){const o=INP.obs||{};$('nowProv').textContent='On Singapore\'s PSI scale, from PM2.5 at '+(o.station||'the nearest station')+' (World Air Quality Index Project), '+whenTxt(new Date(o.time||INP.t0));}
   // AQICN is a second opinion on a different scale: shown under the PSI, never instead of it
   if(AQ&&AQ.t&&Date.now()-AQ.t.getTime()<=4*3600e3){$('psiLine').hidden=false;

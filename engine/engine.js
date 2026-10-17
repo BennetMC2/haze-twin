@@ -130,6 +130,10 @@
     meanFire /= M;
     let K0 = 0.12, anchored = false;
     if (nat && meanFire > 1e-6) { K0 = Math.max(2, nat - bg0) / meanFire; anchored = true; }
+    // a home city borrows Singapore's smoke scale (how much PM2.5 a unit of fire air makes), which is fitted
+    // against NEA's longer record; its own single reading then weights the futures, as usual
+    const kRef = opts.k0 || inputs.kRef;
+    if (inputs.city && kRef > 0) { K0 = kRef; anchored = true; }
     // transport index per member: how much fire air reaches Singapore on days 2-4
     const trans = new Float64Array(M);
     for (let m = 0; m < M; m++) { let v = 0; for (const d of days.slice(1, 4)) { const off = (m * A + d.ai) * R * B; for (let k = 0; k < R * B; k++) v += S[off + k]; } trans[m] = v; }
