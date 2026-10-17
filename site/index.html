@@ -124,6 +124,9 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .otab td.b.z{color:var(--ink-3);font-weight:400}
 .otab tr.ext td{color:var(--ink-2)}
 .otab td.bg{font-family:var(--num)}
+.k-clr{display:inline-block;width:16px;height:0;border-top:2.5px solid var(--sky);vertical-align:middle;margin-right:6px}
+.k-sea{display:inline-block;width:16px;height:0;border-top:2.5px dashed var(--sD);vertical-align:middle;margin-right:6px}
+#weekList{display:none!important}
 .wrow{display:grid;grid-template-columns:84px minmax(0,1fr) 40px;align-items:center;gap:10px;min-height:26px;font-size:14px;color:var(--ink-2)}
 .wrow .wb{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
 .wrow .wb i{display:block;height:100%;background:var(--unh);border-radius:4px}
@@ -459,6 +462,13 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
       <div id="weekList" hidden></div>
       <div class="keyrow"><span><i class="k-mid"></i>Likely range (half of futures)</span><span><i class="k-wide"></i>Possible range (9 in 10)</span><span><i class="k-dot"></i>Best guess</span></div>
     </section>
+
+    <section class="panel card" id="seasonCard" aria-labelledby="seTitle">
+      <div class="head"><h2 id="seTitle">When does it clear?</h2><span class="note">To 31 Dec</span></div>
+      <p class="sub" id="seasonLine"></p>
+      <div id="clearChart" class="chart-wrap"></div><div class="keyrow"><span><i class="k-clr"></i>A day at 100 or below (model, 15 days)</span><span><i class="k-sea"></i>Haze season over (experimental)</span></div>
+      <details class="more"><summary>How this is worked out</summary><div id="seasonMore"></div></details>
+    </section>
   </aside>
 
   <section class="mapcell" id="mapcell" aria-label="Map of fires, smoke and the air reaching Singapore">
@@ -528,12 +538,6 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
       <ul class="news" id="newsList"></ul>
     </section>
 
-    <section class="panel card" id="seasonCard" aria-labelledby="seTitle">
-      <div class="head"><h2 id="seTitle">When the haze season ends</h2><span class="note">Experimental</span></div>
-      <p class="sub" id="seasonLine"></p>
-      <div id="seasonRows" style="display:flex;flex-direction:column;gap:6px"></div>
-      <details class="more"><summary>How this is worked out</summary><div id="seasonMore"></div></details>
-    </section>
 
     <section class="panel card" aria-labelledby="hoodTitle">
       <h2 id="hoodTitle">Model details</h2>
@@ -1098,11 +1102,29 @@ function renderNews(){
   items.slice(0,6).forEach(n=>{const li=document.createElement('li');const u=safeUrl(n.url);const a=document.createElement(u?'a':'span');a.textContent=n.title;if(u){a.href=u;a.target='_blank';a.rel='noopener';}
     const m=document.createElement('span');m.textContent=(n.domain||'')+(n.time?', '+dayName(new Date(n.time)).split(' ').slice(0,1)+' '+clock(new Date(n.time)):'');li.append(a,m);list.appendChild(li);});
 }
+// one curve for "when does it clear?": the chance of a day at 100 or below (model, 15 days) and the chance the
+// fire season is over (rain-season outlook, to 31 Dec), on the same date axis
+function drawClearChart(se,reg){
+  const box=$('clearChart');if(!box)return;const W=360,H=176,l=34,r=10,t=12,b=26;
+  const start=new Date(FC.days[0].iso).getTime()-864e5,end=Date.UTC(new Date(FC.days[0].iso).getUTCFullYear(),11,31,4);
+  const X=(ms)=>l+(ms-start)/(end-start)*(W-l-r),Y=(p)=>t+(1-p/100)*(H-t-b);
+  let g='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="Chance it has cleared by each date">';
+  [0,50,100].forEach(p=>{g+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+Y(p)+'" y2="'+Y(p)+'" stroke="'+COL['--line']+'" '+(p===50?'stroke-dasharray="3 3"':'')+'/><text x="'+(l-5)+'" y="'+(Y(p)+3.5)+'" fill="'+COL['--ink-3']+'" font-size="10" text-anchor="end">'+p+'%</text>';});
+  const mon=[];for(let m=new Date(start);m.getTime()<=end;m=new Date(Date.UTC(m.getUTCFullYear(),m.getUTCMonth()+1,1))){const d=Date.UTC(m.getUTCFullYear(),m.getUTCMonth()+(m.getUTCDate()>1?1:0),1);if(d>start&&d<=end)mon.push(d);}
+  [...new Set(mon)].forEach(d=>{g+='<line x1="'+X(d)+'" x2="'+X(d)+'" y1="'+t+'" y2="'+(H-b)+'" stroke="'+COL['--line']+'" stroke-opacity=".5"/><text x="'+X(d)+'" y="'+(H-8)+'" fill="'+COL['--ink-3']+'" font-size="10" text-anchor="middle">1 '+MON[new Date(d).getUTCMonth()]+'</text>';});
+  if(reg.mode==='haze'&&reg.clearBy){const pts=reg.clearBy.map((v,i)=>[X(new Date(FC.days[i].iso).getTime()),Y(v)]);
+    g+='<polyline points="'+pts.map(p=>p.join(',')).join(' ')+'" fill="none" stroke="'+COL['--sky']+'" stroke-width="2.5" stroke-linejoin="round"/>';}
+  if(se&&se.weeks){const pts=[];if(se.dates)se.dates.forEach(d=>{const ms=new Date(d.iso).getTime();if(ms<=end)pts.push([ms,d.p]);});se.weeks.forEach(w=>pts.push([new Date(w.start).getTime()+3.5*864e5,100-w.on]));pts.sort((a,b)=>a[0]-b[0]);
+    g+='<polyline points="'+pts.filter(p=>p[0]>=start).map(p=>X(p[0])+','+Y(p[1])).join(' ')+'" fill="none" stroke="'+COL['--sD']+'" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round"/>';}
+  const today=new Date(FC.days[0].iso).getTime();g+='<text x="'+(X(today)+2)+'" y="'+(t+9)+'" fill="'+COL['--ink-3']+'" font-size="10">'+esc(dshort(FC.days[0]))+'</text>';
+  box.innerHTML=g+'</svg>';
+  const i50=reg.clearBy?reg.clearBy.findIndex(v=>Math.round(v)>=50):-1;
+  $('seasonLine').textContent=reg.mode==='haze'?(i50>=0?'Even odds of a day at 100 or below by '+dfull(FC.days[i50])+'. ':'Less than even odds of a day at 100 or below in the next 15 days ('+Math.round(reg.clearBy[reg.clearBy.length-1])+'%). ')+'The haze season is most likely over around '+se.median+' (80% chance between '+se.p10+' and '+se.p90+').':'Steady rains most likely set in around '+se.median+'.';
+}
 function renderSeason(){
   const se=FC.season;const card=$('seasonCard');if(!se){card.hidden=true;return;}card.hidden=false;const reg=R();
-  $('seasonLine').textContent=reg.mode==='haze'?'Most likely around '+se.median+'. 80% chance it falls between '+se.p10+' and '+se.p90+'.':'Steady rains most likely set in around '+se.median+'.';
-  const rows=$('seasonRows');rows.innerHTML='';
-  se.dates.forEach(d=>{const r=document.createElement('div');r.className='srow';r.innerHTML='<span></span><span class="bar"><i></i></span><span class="pc"></span>';r.children[0].textContent='By '+d.label;r.querySelector('i').style.width=d.p+'%';r.children[2].textContent=d.p+'%';rows.appendChild(r);});
+  drawClearChart(se,reg);
+  if(false)se.dates.forEach(d=>{const r=document.createElement('div');r.className='srow';r.innerHTML='<span></span><span class="bar"><i></i></span><span class="pc"></span>';r.children[0].textContent='By '+d.label;r.querySelector('i').style.width=d.p+'%';r.children[2].textContent=d.p+'%';rows.appendChild(r);});
   const cl=se.climate||{};const f=(x)=>x==null?'n/a':(x>0?'+':'')+Number(x).toFixed(2);
   $('seasonMore').innerHTML='';
   ['"Over" means steady rain has set in over both the Kalimantan and Sumatra fire areas, plus about a week for fires and haze to die down. Haze can still lift earlier when winds change.',
@@ -1309,13 +1331,18 @@ async function latestNEA(){
     return {time:it.timestamp,psi_now:low(psi),pm24_now:low(pm)};
   }catch(e){return null;}
 }
+// first view loads the forecast and a light copy of the inputs; the footprints (about 1 MB) come after
+let FULLP=null;
+function ensureFull(){if(!INP||INP.S)return Promise.resolve();if(!FULLP)FULLP=getJSON(CITY?'data/cities/'+CITY.id+'/inputs.json':'data/inputs.json').then(full=>{if(full.t0===INP.t0){INP.S=full.S;}try{prepWhy();}catch(e){WHY=null;}renderShowing();}).catch(()=>{}).finally(()=>{FULLP=null;});return FULLP;}
 async function rerun(){
   if(state.running||!INP)return;
   state.running=true;state.runFrac=0;state.official=state.official||FC;
   $('btnRerun').setAttribute('aria-busy','true');$('btnRerun').textContent='Running…';$('runbox').hidden=false;$('liveDot').classList.add('run');
-  const live=await latestNEA();
+  await ensureFull();
+  const live=CITY?null:await latestNEA();   // NEA readings are Singapore's; a city reruns on its own last reading
   $('runSub').textContent=live?'futures, using NEA\'s '+clock(new Date(live.time))+' reading':'futures, using the readings from the last update';
-  const obs=live?{psi_now:live.psi_now,pm24_now:live.pm24_now}:{};
+  // the new reading is compared with the simulated air at the time it was taken, not at the model's start
+  const obs=live?{psi_now:live.psi_now,pm24_now:live.pm24_now,pm24_h:(new Date(live.time)-new Date(INP.t0))/3600e3}:{};
   const seed=Math.floor(Math.random()*1e9);const t0r=performance.now();const minMs=reduced?0:2200;
   const done=(res)=>{const wait=Math.max(0,minMs-(performance.now()-t0r));setTimeout(()=>finishRun(res),wait);};
   if(!worker)worker=makeWorker();
@@ -1695,7 +1722,7 @@ async function initCities(){
 async function boot(){
   renderLayers();layout();requestAnimationFrame(render);
   try{
-    const [coast,inp,fc]=await Promise.all([getJSON('data/coast.json'),getJSON('data/inputs.json'),getJSON('data/forecast.json')]);
+    const [coast,inp,fc]=await Promise.all([getJSON('data/coast.json'),getJSON('data/inputs_lite.json').catch(()=>getJSON('data/inputs.json')),getJSON('data/forecast.json')]);
     COAST=coast;INP=inp;FC=fc;state.official=fc;SGDATA={inp,fc};
     try{REC=await getJSON('data/record.json');}catch(e){REC=null;}
     try{RPL=await getJSON('data/replay.json');}catch(e){RPL=null;}
@@ -1704,7 +1731,7 @@ async function boot(){
     loadAQ();setInterval(loadAQ,15*60e3);
     try{prepWhy();}catch(e){WHY=null;}
     selectLikely();buildHot();buildWinds();buildThreads();renderAll();layout();initWind();syncT();syncCases();
-    initCities();
+    initCities();setTimeout(ensureFull,300);
     let seen=false;try{seen=localStorage.getItem('hazeTourSeen')==='1';}catch(e){}if(!seen)setTimeout(()=>{if(PAGE==='map')startTour();},900);
   }catch(e){showError('The latest forecast could not be loaded ('+e.message+'). Reload the page to try again.');$('statusText').textContent='No forecast loaded';$('headline').textContent='The latest forecast could not be loaded.';}
 }

@@ -113,7 +113,7 @@
       const t = wt.reduce((x, y) => x + y, 0) || 1; return { j: w, w: wt.map(x => x / t) };
     });
     // the latest 24-hour reading is compared with the simulated air at the time it was taken
-    const obsH = (inputs.obs && typeof inputs.obs.pm24_h === 'number') ? inputs.obs.pm24_h : 0;
+    const obsH = typeof obs.pm24_h === 'number' ? obs.pm24_h : 0;   // a browser rerun passes its own reading time
     let anchorA = 0; AH.forEach((a, j) => { if (a <= obsH + 3 && Math.abs(a - obsH) < Math.abs(AH[anchorA] - obsH)) anchorA = j; });
     // observed now
     const pmNow = obs.pm24_now || {};

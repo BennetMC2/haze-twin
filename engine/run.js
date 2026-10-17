@@ -113,6 +113,8 @@ if (fc.degraded && !inputs.sample && !process.env.ALLOW_DEGRADED) {
   process.exit(3);
 }
 writeJSON(path.join(DATA, 'forecast.json'), fc);
+// light copy for the first view: everything but the footprints (about 1 MB), which the page loads afterwards
+writeJSON(path.join(DATA, 'inputs_lite.json'), Object.assign({}, inputs, { S: undefined }));
 writeJSON(path.join(DATA, 'history.json'), hist);
 writeJSON(path.join(DATA, 'record.json'), rec);
 writeJSON(path.join(histDir, 'runs.json'), runs);
