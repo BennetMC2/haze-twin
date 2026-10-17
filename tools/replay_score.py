@@ -67,7 +67,7 @@ def score(season):
         persist = daily.get(issue)
         if persist is None:
             continue
-        clim = sorted(v for k, v in daily.items() if int(k[:4]) < season and k[5:7] in ("08", "09", "10", "11"))
+        clim = sorted(v for k, v in daily.items() if int(k[:4]) != season and k[5:7] in ("08", "09", "10", "11"))   # other years (2014 has none before it)
         for k, d in enumerate(f["days"]):
             vd = datetime.fromisoformat(d["iso"].replace("Z", "+00:00")).astimezone(SGT).date()
             lead = (vd - d0).days

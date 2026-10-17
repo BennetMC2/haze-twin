@@ -327,7 +327,11 @@
   // Low side widens the samples. High side widens only the printed upper range (p75, p95): widening the samples'
   // upside too made multi-day odds ("above 300 in 6 days") far too high, which the replays showed were already high.
   const CALIB_LO = [2.15, 1.45, 1.05];
-  const CALIB_HI = [1.95, 1.8, 1.9];
+  // Upper side: no widening. With the upper side widened too (1.95/1.8/1.9), replays of 2014, 2015, 2019 and 2023
+  // showed the yes/no odds and "gets worse" far too high (e.g. "above 200 within 6 days" said 75%, happened 17%);
+  // unwidened they were close (Brier skill about 0 vs -0.4 to -0.9). Cost: about 1 in 7 readings land above the
+  // possible range's top instead of 1 in 20. One distribution still drives every number.
+  const CALIB_HI = [1, 1, 1];
   const calibK = (C, hh) => hh <= 0 ? 1 : hh < 18 ? 1 + (C[0] - 1) * hh / 18 : hh <= 84 ? C[0] : hh <= 156 ? C[1] : C[2];
   // the same widening applied to a list of quantiles [p5, p25, p50, p75, p95] (for scoring and the replay chart)
   function widenPsi(q, leadDays) {
@@ -678,6 +682,6 @@
     return res;
   }
 
-  const CALIB = { lo: CALIB_LO, hi: CALIB_HI, version: 'replay-2015-2019-2023-v2' };
+  const CALIB = { lo: CALIB_LO, hi: CALIB_HI, version: 'replay-2014-2023-v3' };
   return { run, prepare, simulate, summarize, season, why, psiOf, pmOfPsi, bandOf, BANDS, NEA_REGIONS, decode, CALIB, widenPsi };
 });
