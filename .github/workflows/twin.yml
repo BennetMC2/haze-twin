@@ -75,6 +75,7 @@ jobs:
       - name: Run 100,000 futures
         env:
           WAQI_TOKEN: ${{ secrets.WAQI_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           set -o pipefail
           cp engine/engine.js site/engine.js
@@ -83,6 +84,8 @@ jobs:
           cp history/replay/summary.json site/data/replay.json 2>/dev/null || true
           cp history/learn/log.json site/data/learn.json 2>/dev/null || true
           SITE_URL="${{ vars.SITE_URL }}" python tools/build_static.py || echo "static copies failed"
+          python tools/scorecard.py || echo "scorecard failed"
+          python tools/column.py || echo "column failed"
           python tools/fetch_aq.py site/data/aq.json || true
           node engine/run_city.js --n 60000 2>&1 | tee -a run.log || true
           mkdir -p .work/fonts

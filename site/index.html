@@ -24,7 +24,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230E1820'/%3E%3Ccircle cx='32' cy='28' r='13' fill='%23E9813A'/%3E%3Crect x='10' y='36' width='44' height='5' rx='2.5' fill='%23A9B9C3'/%3E%3Crect x='16' y='45' width='32' height='5' rx='2.5' fill='%237F929F'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap">
 <style>
 :root{
   color-scheme: dark;
@@ -35,6 +35,8 @@
   --good:#4FB286; --mod:#6E9FD8; --unh:#E8C547; --vunh:#E9813A; --haz:#D24B45;
   --sans:'Barlow',system-ui,'Segoe UI',sans-serif;
   --num:'Barlow Semi Condensed','Barlow',system-ui,sans-serif;
+  --serif:'Newsreader',Georgia,'Times New Roman',serif;
+  --hz:0;
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
@@ -115,7 +117,7 @@ h2{margin:0;font-size:15px;font-weight:600;line-height:1.25;letter-spacing:.01em
 .inwords{grid-column:1/-1;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
 .inwords h2{margin:0;font-size:17px}.inwords ul{margin:0;padding-left:18px;color:var(--ink-2);display:flex;flex-direction:column;gap:4px}
 .inwords p{margin:0;color:var(--ink-2);max-width:80ch}
-@media (max-width:1100px){.inwords{order:6}.foot{order:7}}
+@media (max-width:1100px){.inwords{order:6}.moresec{order:6}.foot{order:7}.sky{height:130px}}
 .oddsflow{grid-column:1/-1;display:flex;flex-direction:column;gap:14px;padding:16px 18px;min-width:0}
 .oddsflow h2{margin:0;font-size:17px}
 .oddsflow .ohead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
@@ -195,6 +197,36 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .strip .st .d{font-size:10.5px;color:var(--ink-2);line-height:1.1;white-space:nowrap}
 .strip .st .v{font-family:var(--num);font-weight:700;font-size:13px;line-height:1.1}
 .striplab{margin-top:-4px}
+.brand{font-family:var(--serif)}
+.headline,h2{font-family:var(--serif)}
+h2{font-weight:600;font-size:17px;letter-spacing:0}
+.headline{font-size:25px;font-weight:600;letter-spacing:-.01em}
+.sky{position:relative;margin:-14px -16px 2px;height:150px;border-radius:10px 10px 0 0;overflow:hidden}
+.sky canvas{display:block;width:100%;height:100%}
+.skylab{position:absolute;left:14px;bottom:10px;font-size:13px;color:#F3EEE6;text-shadow:0 1px 3px rgba(0,0,0,.6);font-weight:500}
+.column p{margin:0}
+#column{font-family:var(--serif);font-size:16.5px;line-height:1.55;color:#DCE3E7}
+#columnBy{margin-top:4px;font-size:12px}
+.score{margin:0;font-size:13px;color:var(--ink-2);display:flex;gap:8px;align-items:baseline}
+.score i{flex:none;width:8px;height:8px;border-radius:50%;background:var(--c);transform:translateY(-1px)}
+.score a{color:var(--ink-2)}
+.plan{width:100%;border-collapse:collapse;font-size:13.5px}
+.plan th{font-weight:500;color:var(--ink-3);text-align:right;padding:0 6px 6px;font-size:12.5px}
+.plan th:first-child{text-align:left;padding-left:0}
+.plan td{padding:6px;text-align:right;font-family:var(--num);font-weight:600;font-size:15px;border-top:1px solid rgba(255,255,255,.05);background:color-mix(in srgb,var(--sD) var(--a),transparent)}
+.plan td:first-child{text-align:left;font-family:var(--sans);font-weight:500;font-size:13.5px;padding-left:0;background:none;color:var(--ink-2)}
+.plan tr.ext td{opacity:.6}
+.onef{display:flex;gap:12px;align-items:flex-start}
+.onef .btn{flex:none}
+#oneTxt{margin:0;font-family:var(--serif);font-size:15px;line-height:1.45;color:#DCE3E7;align-self:center}
+.fk-one{display:inline-block;width:16px;height:0;border-top:2.5px solid var(--fire);vertical-align:middle;margin-right:6px}
+.moresec{grid-column:1/-1;background:var(--panel);border:1px solid rgba(255,255,255,.045);border-radius:10px;padding:0}
+.moresec>summary{cursor:pointer;padding:14px 16px;font-family:var(--serif);font-size:17px;font-weight:600;list-style:none}
+.moresec>summary::-webkit-details-marker{display:none}
+.moresec>summary::after{content:' +';color:var(--sky)}.moresec[open]>summary::after{content:' −'}
+.moregrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;padding:0 12px 12px}
+.moregrid>.card{background:var(--raise)}
+body{background:color-mix(in srgb,#2A2116 calc(var(--hz)*38%),var(--bg));transition:background-color .6s}
 .foot{grid-column:1/-1;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 20px;padding:14px 4px 6px;font-size:12.5px;color:var(--ink-3);border-top:1px solid rgba(255,255,255,.05)}
 .foot a{color:var(--ink-2)}
 .wstrip{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:4px;margin-top:-4px}
@@ -483,8 +515,11 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
   <aside class="col hero" aria-label="Forecast summary">
     <section class="panel card" id="cardNow" tabindex="-1">
       <div class="degraded" id="degNow" hidden></div>
+      <div class="sky" id="skyWrap"><canvas id="sky" aria-hidden="true"></canvas><span class="skylab" id="skyLab"></span></div>
       <h1 class="headline" id="headline">Loading…</h1>
+      <div class="column"><p id="column"></p><p class="note" id="columnBy"></p></div>
       <div class="lede" id="lede"></div>
+      <p class="score" id="score" hidden></p>
       <div class="strip" id="strip" role="list" aria-label="Chance PSI is above 100, day by day"></div>
       <div class="wstrip" id="wstrip" role="list" aria-label="Chance of haze days, week by week to the end of the year"></div>
       <p class="note striplab"><span id="stripLab">Chance the 24-hour PSI is above 100 each day.</span> Faded: 7 to 15 days ahead. Weeks after that to 31 Dec: rough outlook from the rain season.</p>
@@ -564,15 +599,10 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
   </section>
 
   <aside class="col right" aria-label="Detail">
-    <section class="panel card" id="cardAsk" aria-labelledby="askTitle">
-      <h2 id="askTitle">Ask about the haze</h2>
-      <form class="ask" id="askForm" autocomplete="off">
-        <input id="askIn" type="text" maxlength="300" placeholder="Will it be better by Sunday?" aria-label="Your question about the haze">
-        <button class="btn primary" type="submit" id="askBtn">Ask</button>
-      </form>
-      <div class="asksug" id="askSug"></div>
-      <div class="askout" id="askOut" aria-live="polite" hidden></div>
-      <p class="note">Questions go to an AI service (Cloudflare or Anthropic) for an answer. Answers can be wrong. Don't include personal details.</p>
+    <section class="panel card" id="cardPlan" aria-labelledby="planTitle">
+      <div class="head"><h2 id="planTitle">Planning time outdoors</h2><span class="note">Chance it's fine</span></div>
+      <div class="chart-wrap"><table class="plan" id="planTable"></table></div>
+      <details class="more"><summary>What counts as fine</summary><p class="note">From NEA's advice for healthy people. Long run or hard exercise outdoors: PSI 100 or below. Walk or light activity: 200 or below (above 200, NEA advises avoiding long or hard exercise outdoors). Blue sky: 50 or below. Children, older people, pregnant women and people with heart or lung conditions should follow <a href="https://www.haze.gov.sg/" target="_blank" rel="noopener">NEA's</a> stricter advice.</p></details>
     </section>
     <section class="panel card" id="cardScen" aria-labelledby="scTitle">
       <div class="head"><h2 id="scTitle">What could happen</h2><span class="note" id="scSpan"></span></div>
@@ -588,29 +618,16 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
       <ul class="facts" id="facts"></ul>
     </section>
 
-    <section class="panel card" id="changeCard" aria-labelledby="chTitle">
-      <div class="head"><h2 id="chTitle">What changed</h2><span class="note" id="chWhen"></span></div>
-      <div class="changes" id="changes"></div>
-    </section>
 
-    <section class="panel card" aria-labelledby="fanTitle">
-      <div class="head"><h2 id="fanTitle">PSI, past 2 days and next 15</h2></div>
+    <section class="panel card" id="cardFan" aria-labelledby="fanTitle">
+      <div class="head"><h2 id="fanTitle">The futures, drawn</h2><span class="note" id="fanSub">Each line is one simulated future</span></div>
       <canvas id="fan" role="img" aria-label="Chart of 24-hour PSI"></canvas>
-      <div class="fankey"><span><i class="fk-meas"></i>Measured</span><span><i class="fk-mid"></i>Best guess</span><span><i class="fk-50"></i>Likely (half)</span><span><i class="fk-90"></i>Possible (9 in 10)</span></div>
-    </section>
-
-    <section class="panel card" id="newsCard" aria-labelledby="newsTitle">
-      <div class="head"><h2 id="newsTitle">In the news</h2><span class="note">Last 3 days</span></div>
-      <p class="sigline" id="sigLine"></p>
-      <div class="sigs" id="sigChips"></div>
-      <ul class="news" id="newsList"></ul>
+      <div class="onef"><button class="btn" type="button" id="btnOne">Show me one future</button><p id="oneTxt" aria-live="polite"></p></div>
+      <div class="fankey"><span><i class="fk-meas"></i>Measured</span><span><i class="fk-mid"></i>Best guess</span><span><i class="fk-one"></i>The future you picked</span></div>
     </section>
 
 
-    <section class="panel card" aria-labelledby="hoodTitle">
-      <h2 id="hoodTitle">Model details</h2>
-      <details class="more"><summary>Show details</summary><div id="hood"></div></details>
-    </section>
+
   </aside>
   <section class="panel oddsflow" id="oddsView" aria-labelledby="oddsTitle">
     <div class="ohead"><h2 id="oddsTitle">Odds</h2><span class="note" id="oddsSub"></span></div>
@@ -624,6 +641,32 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     <details class="more"><summary>More on these odds</summary><p class="note" id="oddsRel">Each % is the share of the 100,000 simulated futures where it happens. "Above 300" and "above 200" are checked at every simulated time step (every 6 hours to day 6, every 12 hours after), using the 24-hour average PSI. Beyond day 6 the ranges are wider. In the replays of 2015, 2019 and 2023, "above 300 within 6 days" was too high: on all 5 occasions it gave 30% or more, PSI did not go above 300. When "above 200" was given 60% or more, it happened about 4 times in 10.</p></details>
   </section>
 
+  <details class="moresec" id="moreSec"><summary>Ask a question, what changed, news and model details</summary><div class="moregrid">
+    <section class="panel card" id="cardAsk" aria-labelledby="askTitle">
+      <h2 id="askTitle">Ask about the haze</h2>
+      <form class="ask" id="askForm" autocomplete="off">
+        <input id="askIn" type="text" maxlength="300" placeholder="Will it be better by Sunday?" aria-label="Your question about the haze">
+        <button class="btn primary" type="submit" id="askBtn">Ask</button>
+      </form>
+      <div class="asksug" id="askSug"></div>
+      <div class="askout" id="askOut" aria-live="polite" hidden></div>
+      <p class="note">Questions go to an AI service (Cloudflare or Anthropic) for an answer. Answers can be wrong. Don't include personal details.</p>
+    </section>
+    <section class="panel card" id="changeCard" aria-labelledby="chTitle">
+      <div class="head"><h2 id="chTitle">What changed</h2><span class="note" id="chWhen"></span></div>
+      <div class="changes" id="changes"></div>
+    </section>
+    <section class="panel card" id="newsCard" aria-labelledby="newsTitle">
+      <div class="head"><h2 id="newsTitle">In the news</h2><span class="note">Last 3 days</span></div>
+      <p class="sigline" id="sigLine"></p>
+      <div class="sigs" id="sigChips"></div>
+      <ul class="news" id="newsList"></ul>
+    </section>
+    <section class="panel card" aria-labelledby="hoodTitle">
+      <h2 id="hoodTitle">Model details</h2>
+      <details class="more"><summary>Show details</summary><div id="hood"></div></details>
+    </section>
+  </div></details>
   <!--STATIC-START--><!--STATIC-END-->
   <footer class="foot" id="foot"><span>Singapore Haze Prediction Model. Independent and experimental; for official readings and health advice, follow <a href="https://www.haze.gov.sg/" target="_blank" rel="noopener">NEA</a>.</span><a id="btnCoffee" href="#" target="_blank" rel="noopener" hidden>Support this project</a></footer>
 </div>
@@ -666,6 +709,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
       <li>Full run every 6 hours; odds re-anchored to NEA's newest reading every hour. Rerun executes the same engine in a Web Worker on your device.</li>
       <li>Every issuance is archived as issued and scored against NEA two days later (range coverage, typical miss, Brier score).</li>
       <li>A daily review by Claude Opus 5.5 reads the scores and applies small, capped bias and spread corrections by lead.</li>
+      <li>The short column under the skyline is written by Claude Opus 5.5 from the same numbers after each run. Any number it uses must appear in the model's output, or the text is rejected and a plain template is shown instead.</li>
       <li>Replays so far: 85% of readings inside the 90% range for days 1–6 (82% for days 7–15). Typical miss 19 PSI for days 1–6 (no better than persistence) and 20 for days 7–15 (persistence 25). Yes/no odds are about as good as base rates.</li>
     </ul>
     <div class="srclist">
@@ -707,7 +751,7 @@ const PLAIN={early:'Clears within a few days',later:'Clears later in the week',s
 /* ---------- state ---------- */
 const state={region:'national',sel:null,t:0,playing:false,playEnd:0,running:false,runFrac:1,
   layers:{futures:true,paths:false,smoke:true,wind:true,hot:true,air:true,st:false,sat:true},official:null,rerunAt:null};
-let INP=null,FC=null,REC=null,COAST=null,RPL=null;
+let INP=null,FC=null,REC=null,COAST=null,RPL=null,COLUMN=null,SCORE=null;state.one=null;
 const t0=()=>new Date(INP.t0);
 const R=()=>FC.regions[state.region];
 const cls=()=>R().classes;
@@ -994,7 +1038,11 @@ function drawFan(){
   for(let d=0;d<=G.x1;d+=stp){const lab=d===0?'Now':d<7?DOW[sgt(new Date(t0().getTime()+d*864e5)).getUTCDay()]:String(sgt(new Date(t0().getTime()+d*864e5)).getUTCDate());c.fillText(lab,G.x(d),G.h-5);}
   const reg=R();const A=FC.arrivals_h;const pc=reg.pct;
   const band=(lo,hi,a)=>{c.fillStyle=rgba(COL['--ink'],a);c.beginPath();A.forEach((h,i)=>{const x=G.x(h/24),y=G.y(pc[hi][i]);if(i===0)c.moveTo(x,y);else c.lineTo(x,y);});for(let i=A.length-1;i>=0;i--)c.lineTo(G.x(A[i]/24),G.y(pc[lo][i]));c.closePath();c.fill();};
-  if(!state.running&&pc.p25){band('p5','p95',0.10);band('p25','p75',0.18);}
+  const SM=FC.samples,SC=(FC.regions.national||{}).sampleClass;const lines=!state.running&&SM&&SM.length&&state.region==='national';
+  if(lines){c.lineWidth=1;const csx=cls();SM.forEach((row,k)=>{const cl=SC&&SC[k]!=null?csx[SC[k]]:null;const on=state.sel===null||(cl&&csx.indexOf(cl)===state.sel);
+      c.strokeStyle=rgba(cl?classColor(cl):COL['--ink'],on?0.16:0.035);c.beginPath();row.forEach((pm,i)=>{if(i>=A.length)return;const x=G.x(A[i]/24),y=G.y(HE.psiOf(pm));if(i===0)c.moveTo(x,y);else c.lineTo(x,y);});c.stroke();});}
+  else if(!state.running&&pc.p25){band('p5','p95',0.10);band('p25','p75',0.18);}
+  if(lines&&state.one!=null&&SM[state.one]){c.strokeStyle=COL['--fire'];c.lineWidth=2.5;c.beginPath();SM[state.one].forEach((pm,i)=>{if(i>=A.length)return;const x=G.x(A[i]/24),y=G.y(HE.psiOf(pm));if(i===0)c.moveTo(x,y);else c.lineTo(x,y);});c.stroke();}
   if(state.sel!==null&&!state.running){const cl=cls()[state.sel];if(cl.median.length){c.strokeStyle=classColor(cl);c.lineWidth=2;c.setLineDash([5,3]);c.beginPath();cl.median.forEach((v,i)=>{const x=G.x(A[i]/24),y=G.y(v);if(i===0)c.moveTo(x,y);else c.lineTo(x,y);});c.stroke();c.setLineDash([]);}}
   if(!state.running){c.strokeStyle=COL['--ink'];c.lineWidth=2;c.beginPath();pc.p50.forEach((v,i)=>{const x=G.x(A[i]/24),y=G.y(v);if(i===0)c.moveTo(x,y);else c.lineTo(x,y);});c.stroke();}
   const hist=(INP.obs.psi_hist||[]).filter(x=>x[0]>=-48&&x[1][state.region]!=null);
@@ -1011,6 +1059,97 @@ function fanToT(ev){const r=fan.getBoundingClientRect();const G=fanGeom();const 
 fan.addEventListener('pointerdown',ev=>{if(!FC)return;dragFan=true;fan.setPointerCapture(ev.pointerId);stopPlay();fanToT(ev);});
 fan.addEventListener('pointermove',ev=>{if(dragFan)fanToT(ev);});
 fan.addEventListener('pointerup',()=>{dragFan=false;});
+// "Show me one future": pick one of the drawn futures and tell it in a sentence
+function pickOne(){
+  if(!FC||!FC.samples||!FC.samples.length)return;if(state.region!=='national'){state.region='national';onRegion();}
+  const SM=FC.samples,A=FC.arrivals_h;const k=Math.floor(Math.random()*SM.length);state.one=k;
+  const P=SM[k].slice(0,A.length).map(pm=>Math.round(HE.psiOf(pm)));const at=(i)=>dayName(new Date(t0().getTime()+A[i]*3600e3));
+  let pk=0;P.forEach((v,i)=>{if(A[i]>=0&&v>P[pk])pk=i;});const now=R().now;
+  const lo=P.findIndex((v,i)=>A[i]>=0&&v<=100);const end=P[P.length-1];
+  const ms=(INP&&INP.members)||[];const m=FC.sampleMember?FC.sampleMember[k]:null;const nm=m!=null?ms[m]||'':'';const nA=ms.filter(x=>/^a/.test(x)).length,nG=ms.length-nA;const num=(parseInt(nm.slice(1),10)||0)+1;
+  const src=/^a/.test(nm)?'ECMWF\'s AI weather forecast '+num+' of '+nA:'NOAA weather forecast '+num+' of '+nG;
+  const parts=[];
+  if(P[pk]>now+15)parts.push('PSI climbs to '+P[pk]+' by '+at(pk));else parts.push('PSI eases from the start');
+  if(lo>=0)parts.push((parts.length?'drops to ':'')+'100 or below on '+at(lo));else parts.push('stays above 100 for all 15 days');
+  parts.push('and ends the fortnight near '+end);
+  const SC=(FC.regions.national||{}).sampleClass;const cl=SC&&SC[k]!=null?cls()[SC[k]]:null;
+  $('oneTxt').textContent='Future #'+(Math.floor(Math.random()*100000)+1).toLocaleString('en-US')+', on '+src+': '+parts.join(', ').replace(', and',' and')+'.'+(cl&&!cl.hidden?' One of the '+Math.round(cl.odds)+'% that '+plainName(cl).toLowerCase()+'.':'');
+  drawFan();
+}
+$('btnOne').addEventListener('click',pickOne);
+
+/* ---------- the skyline: the air in front of the city at the chosen day ---------- */
+const skyC=$('sky');
+function skyPsi(){const reg=R();if(state.t<0.01)return {v:reg.now,lab:'Now, PSI '+Math.round(reg.now)};
+  const i=arrIndex(state.t*24);const sel=state.sel!==null?cls()[state.sel]:null;const v=sel&&sel.median&&sel.median.length?sel.median[i]:reg.pct.p50[i];
+  const d=new Date(t0().getTime()+Math.round(state.t*8)*3*3600e3);return {v,lab:dayName(d)+', PSI about '+Math.round(v)};}
+const mix=(a,b,t)=>{const p=(h)=>[1,3,5].map(k=>parseInt(h.slice(k,k+2),16));const A=p(a),B=p(b);return 'rgb('+A.map((x,k)=>Math.round(x+(B[k]-x)*t)).join(',')+')';};
+let SKYLINE=null;
+function skyline(){ // fixed shapes, made once: far towers, the bay towers with the ship on top, garden trees, near blocks
+  const r=rng(1965);const far=[],near=[];let x=0;
+  while(x<1){const w=0.016+r()*0.028;const tall=r()<0.18;far.push([x,w,tall?0.34+r()*0.14:0.1+r()*0.16]);x+=w+0.003+r()*0.01;}
+  x=-0.02;while(x<1.02){const w=0.035+r()*0.03;near.push([x,w,0.14+r()*0.16]);x+=w+0.02+r()*0.035;}
+  return {far,near};}
+function drawSky(v,lab){
+  if(!skyC)return;const W=skyC.clientWidth,H=skyC.clientHeight;if(W<10)return;const dpr=Math.min(2,window.devicePixelRatio||1);
+  if(skyC.width!==Math.round(W*dpr)){skyC.width=Math.round(W*dpr);skyC.height=Math.round(H*dpr);}
+  const c=skyC.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);if(!SKYLINE)SKYLINE=skyline();
+  const f=clamp((v-35)/265,0,1);document.documentElement.style.setProperty('--hz',f.toFixed(3));
+  // sky: clear tropical blue to a flat brown-grey
+  const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,mix('#2C6E96','#6A5D4C',f));g.addColorStop(0.75,mix('#9CCBE0','#B79E7B',f));g.addColorStop(1,mix('#BFE0EC','#C2A983',f));
+  c.fillStyle=g;c.fillRect(0,0,W,H);
+  // the sun: a soft glare on a clear day, a hard orange disc in heavy haze
+  const sx=W*0.8,sy=H*0.3,sr=Math.max(9,H*0.085);
+  if(f<0.55){const gl=c.createRadialGradient(sx,sy,0,sx,sy,sr*4);gl.addColorStop(0,'rgba(255,250,232,'+(0.85*(1-f/0.55))+')');gl.addColorStop(1,'rgba(255,250,232,0)');c.fillStyle=gl;c.fillRect(0,0,W,H);}
+  if(f>0.25){c.fillStyle='rgba(232,110,52,'+Math.min(0.9,(f-0.25)*1.6)+')';c.beginPath();c.arc(sx,sy,sr,0,Math.PI*2);c.fill();}
+  const base=H*0.9;const veil=(depth)=>1-Math.exp(-3.2*f*depth);   // how much of a layer the haze hides
+  const hzc=mix('#8FBBD0','#BCA47F',Math.min(1,f*2.2)).match(/\d+/g).map(x=>(+x).toString(16).padStart(2,'0')).join('');
+  const sil=(depth,dark)=>mix(dark,'#'+hzc,Math.min(0.92,veil(depth)+(1-f)*0.22*depth));
+  // far towers
+  c.fillStyle=sil(1,'#3B5566');SKYLINE.far.forEach(([x,w,h])=>c.fillRect(x*W,base-h*H,w*W,h*H));
+  // the bay towers and the ship across them
+  c.fillStyle=sil(0.75,'#2B3F4C');const bx=W*0.24,tw=W*0.035,th=H*0.5;
+  for(let k=0;k<3;k++){const x=bx+k*tw*1.55;c.beginPath();c.moveTo(x,base);c.lineTo(x+tw*0.15,base-th);c.lineTo(x+tw,base-th);c.lineTo(x+tw,base);c.fill();}
+  c.beginPath();c.moveTo(bx-tw*0.5,base-th-2);c.lineTo(bx+tw*4.4,base-th-4);c.lineTo(bx+tw*4.6,base-th+3);c.lineTo(bx-tw*0.3,base-th+4);c.closePath();c.fill();
+  // garden trees
+  c.fillStyle=sil(0.6,'#2A3A40');[[0.52,0.26],[0.56,0.33],[0.6,0.24],[0.635,0.29]].forEach(([x,h])=>{const X=x*W,top=base-h*H,r=W*0.022;c.fillRect(X-1.5,top,3,h*H);c.beginPath();c.moveTo(X-r,top);c.lineTo(X+r,top);c.lineTo(X+2,top+r*0.9);c.lineTo(X-2,top+r*0.9);c.closePath();c.fill();});
+  // near housing blocks, with a few lit windows
+  const nearCol=sil(0.32,'#1B2830');SKYLINE.near.forEach(([x,w,h],k)=>{c.fillStyle=nearCol;c.fillRect(x*W,H-h*H-H*0.06,w*W,h*H+H*0.06);
+    c.fillStyle='rgba(255,226,170,'+(0.22*(1-f*0.7))+')';for(let yy=H-h*H;yy<H-6;yy+=6)for(let xx=x*W+3;xx<(x+w)*W-3;xx+=5)if(((xx*7+yy*13+k)|0)%5===0)c.fillRect(xx,yy,2,2);});
+  // a low haze band over everything
+  const hb=c.createLinearGradient(0,H*0.35,0,H);hb.addColorStop(0,'rgba(196,170,130,0)');hb.addColorStop(1,'rgba(196,170,130,'+(0.55*f)+')');c.fillStyle=hb;c.fillRect(0,0,W,H);
+  const L=$('skyLab');if(L)L.textContent=lab;
+  skyC.parentNode.setAttribute('title',lab);
+}
+function drawSkyNow(){if(!FC)return;const s=skyPsi();drawSky(s.v,s.lab);}
+
+/* ---------- the written column ---------- */
+function renderColumn(){
+  const el=$('column'),by=$('columnBy');if(!el||!FC)return;const off=state.official||FC;
+  if(!CITY&&COLUMN&&COLUMN.text&&COLUMN.issued===off.issued){el.textContent=COLUMN.text;by.textContent='Written by Claude Opus 5.5 from the model\'s numbers, '+whenTxt(new Date(off.issued))+'.';return;}
+  const reg=R();const cs=stories();const top=cs[topClass()];const sm=INP.summary||{};const tr=sm.transport_share_0_72h||{},rn=sm.rain_mm_0_120h||{};
+  const P=[];P.push('The 24-hour PSI is '+Math.round(reg.now)+', '+bandWord(reg.now)+'.');
+  const k=Math.round((tr.Kalimantan||0)*100),su=Math.round((tr.Sumatra||0)*100);
+  if(k+su>20)P.push('Over the next three days the air arriving here passes mostly over '+(k>=su?'Kalimantan':'Sumatra')+'\'s fires ('+Math.max(k,su)+'% of its fire exposure), with '+(k>=su?'Sumatra':'Kalimantan')+' at '+Math.min(k,su)+'%.');
+  if(top)P.push('The most likely path, in '+Math.round(top.odds)+'% of futures: '+String(top.outcome||'').replace(/\.$/,'').replace(/^./,c=>c.toLowerCase())+'.');
+  if(rn.Sumatra!=null&&rn.Kalimantan!=null)P.push('Rain over the fire areas in the next five days: about '+Math.round(rn.Sumatra)+' mm over Sumatra and '+Math.round(rn.Kalimantan)+' mm over Kalimantan. Peat fires need days of steady rain to go out.');
+  el.textContent=P.join(' ');by.textContent='Written automatically from the model\'s numbers.';
+}
+/* ---------- day-ahead check ---------- */
+function renderScore(){
+  const el=$('score');if(!el)return;const d=SCORE&&SCORE.days&&SCORE.days.length?SCORE.days[SCORE.days.length-1]:null;
+  if(CITY||!d){el.hidden=true;return;}el.hidden=false;
+  el.innerHTML='<i style="--c:'+(d.inside?'var(--sD)':'var(--sC)')+'"></i><span>Checking ourselves: for '+esc(dayName(new Date(d.day)))+', the forecast from '+esc(whenTxt(new Date(d.issued)))+' said about '+d.said+' (90% range '+d.lo+' to '+d.hi+'). NEA measured <b>'+d.measured+'</b>. <a href="#record" id="scoreLink">Track record</a></span>';
+  const a=$('scoreLink');if(a)a.addEventListener('click',e=>{e.preventDefault();setView('record');});
+}
+/* ---------- planning outdoors ---------- */
+function renderPlan(){
+  const t=$('planTable');if(!t||!FC)return;const reg=R();const nC=coreDays().length;
+  const cell=(v)=>'<td style="--a:'+Math.round(v*0.32)+'%">'+(v<1?'<1':v>99?'>99':Math.round(v))+'%</td>';
+  let h='<thead><tr><th>Day</th><th>Long run</th><th>Walk</th><th>Blue sky</th></tr></thead><tbody>';
+  reg.days.slice(0,7).forEach((d,i)=>{const b=d.bands;h+='<tr'+(i>=nC?' class="ext"':'')+'><td>'+esc(i===0?'Today':dfull(FC.days[i]))+'</td>'+cell(b[0]+b[1])+cell(b[0]+b[1]+b[2])+cell(b[0])+'</tr>';});
+  t.innerHTML=h+'</tbody>';
+}
 
 /* ---------- words ---------- */
 const regionName=()=>state.region==='national'?PLACE():REG.find(r=>r[0]===state.region)[1]+' Singapore';
@@ -1297,7 +1436,7 @@ function markCurrent(){
   document.querySelectorAll('.drow').forEach(r=>r.classList.toggle('cur',t>0.3&&r===br));
 }
 function renderShowing(){
-  if(!FC)return;const reg=R();
+  if(!FC)return;drawSkyNow();const reg=R();
   const sel=state.sel!==null?cls()[state.sel]:null;
   if(state.t<0.01){$('whyMap').hidden=true;$('showing1').textContent='Now, '+dayName(t0())+', '+clock(new Date(INP.obs.time||INP.t0));$('showing2').textContent=(sel?'Showing outcome: '+plainName(sel)+'. ':'')+'Fires seen in the last day, today\'s smoke, and (shaded) where '+PLACEP()+' air is coming from.';}
   else{const d=new Date(t0().getTime()+Math.round(state.t*8)*3*3600e3);const i=arrIndex(state.t*24);
@@ -1356,7 +1495,7 @@ function renderHeader(){
   else{$('liveDot').classList.remove('stale');$('nextText').classList.remove('warn');$('nextText').textContent='Odds rerun every hour with the latest reading. Full model with new fire and weather data every 6 hours.';}
   document.querySelectorAll('.nMembers').forEach(e=>e.textContent=FC.members);
 }
-function renderAll(){renderStrip15();renderBestDay();renderHeader();renderRegions();renderAnswer();renderDays();renderScenarios();renderSources();renderChanges();renderNews();renderSeason();renderHood();renderStrip();renderKey();renderShowing();renderRecord();markCurrent();
+function renderAll(){renderStrip15();renderColumn();renderScore();renderPlan();renderBestDay();renderHeader();renderRegions();renderAnswer();renderDays();renderScenarios();renderSources();renderChanges();renderNews();renderSeason();renderHood();renderStrip();renderKey();renderShowing();renderRecord();markCurrent();
   if(!state.viewSet){state.viewSet=1;if(location.hash==='#odds')setView('odds');else if(location.hash==='#record')setView('record');}else if(PAGE==='record')renderLearn();renderOdds();}
 
 /* ---------- record ---------- */
@@ -1894,6 +2033,8 @@ async function boot(){
     try{REC=await getJSON('data/record.json');}catch(e){REC=null;}
     try{RPL=await getJSON('data/replay.json');}catch(e){RPL=null;}
     try{LEARN=await getJSON('data/learn.json');}catch(e){LEARN=null;}
+    try{COLUMN=await getJSON('data/column.json');}catch(e){COLUMN=null;}
+    try{SCORE=await getJSON('data/scorecard.json');}catch(e){SCORE=null;}
     RINGS=COAST.map(enc=>{const pts=[];let x=0,y=0;for(let i=0;i<enc.length;i+=2){x+=enc[i];y+=enc[i+1];pts.push([x/100,y/100]);}return pts;});
     loadAQ();setInterval(loadAQ,15*60e3);
     try{prepWhy();}catch(e){WHY=null;}
@@ -1902,7 +2043,7 @@ async function boot(){
     let seen=false;try{seen=localStorage.getItem('hazeTourSeen')==='1';}catch(e){}
   }catch(e){showError('The latest forecast could not be loaded ('+e.message+'). Reload the page to try again.');$('statusText').textContent='No forecast loaded';$('headline').textContent='The latest forecast could not be loaded.';}
 }
-let rz=0;window.addEventListener('resize',()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{layout();renderDays();});});
+let rz=0;window.addEventListener('resize',()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{layout();renderDays();drawSkyNow();});});
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(FC){drawStatic();drawFan();}});
 boot();
 })();

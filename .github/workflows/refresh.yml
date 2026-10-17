@@ -28,6 +28,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           DATAGOVSG_API_KEY: ${{ secrets.DATAGOVSG_API_KEY }}
           WAQI_TOKEN: ${{ secrets.WAQI_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           set -o pipefail
           echo "deploy=false" >> $GITHUB_OUTPUT
@@ -48,6 +49,8 @@ jobs:
           cp history/replay/summary.json site/data/replay.json 2>/dev/null || true
           cp history/learn/log.json site/data/learn.json 2>/dev/null || true
           SITE_URL="${{ vars.SITE_URL }}" python tools/build_static.py || echo "static copies failed"
+          python tools/scorecard.py || echo "scorecard failed"
+          python tools/column.py || echo "column failed"
           # home cities: latest saved run, re-anchored to each city's newest reading
           CREL=$(gh api "repos/${GITHUB_REPOSITORY}/releases?per_page=4" -q '[.[] | select(.tag_name|startswith("archive-"))] | .[].tag_name' | head -2)
           for R in $CREL; do CA=$(gh release view "$R" --json assets -q '[.assets[].name | select(startswith("cities-"))] | sort | last'); if [ -n "$CA" ]; then gh release download "$R" -p "$CA" -D .work --clobber && tar -xzf ".work/$CA" -C site/data && break; fi; done
