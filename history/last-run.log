@@ -1,46 +1,53 @@
-[01:02:45] NEA readings
-[01:03:12]   NEA: 178 PSI hours, 178 24-h PM2.5 hours, 178 1-h PM2.5 hours
-[01:03:12] FIRMS hotspots
-[01:03:13]   FIRMS VIIRS_NOAA21_NRT: 2839 detections
-[01:03:13]   FIRMS VIIRS_NOAA20_NRT: 3044 detections
-[01:03:14]   FIRMS VIIRS_SNPP_NRT: 4269 detections
-[01:03:14] GEFS ensemble
-[01:03:16]   GEFS cycle 2026-10-16 18Z
-[01:03:53]   GEFS downloaded 100/1411 (37s)
-[01:04:31]   GEFS downloaded 200/1411 (75s)
-[01:05:08]   GEFS downloaded 300/1411 (112s)
-[01:05:46]   GEFS downloaded 400/1411 (150s)
-[01:06:23]   GEFS downloaded 500/1411 (188s)
-[01:07:01]   GEFS downloaded 600/1411 (225s)
-[01:07:39]   GEFS downloaded 700/1411 (263s)
-[01:08:16]   GEFS downloaded 800/1411 (300s)
-[01:08:54]   GEFS downloaded 900/1411 (338s)
-[01:09:31]   GEFS downloaded 1000/1411 (375s)
-[01:10:09]   GEFS downloaded 1100/1411 (413s)
-[01:10:46]   GEFS downloaded 1200/1411 (451s)
-[01:11:24]   GEFS downloaded 1300/1411 (488s)
-[01:12:01]   GEFS downloaded 1400/1411 (526s)
-[01:12:08]   GEFS: 1410/1411 files ok
-[01:12:08]   first errors: 2026101218_c00_f006.grb2: GET failed for https://nomads.ncep.noaa.gov/cgi-bin/filter_gefs_atmos_0p50a.pl: HTTP 404: <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html><head><ti
-[01:12:15]   climate: RONI +1.69 (JAS 2026); DMI +0.15 (May 2026)
-[01:12:15] NEA history and past-season analogs
-[01:12:15]   history: backfilled 0 recent days
-[01:12:15] extra sources
-[01:12:16]   airports: 8 with recent reports, 6 reporting haze or smoke
-[01:12:16]   CAMS: 157 hourly PM2.5 values for Singapore
-[01:12:56]   news: 60 recent articles
-[01:13:15]   dryness: Kalimantan 87.1 mm in 30 days, Sumatra 130.9 mm in 30 days
-[01:13:20]   OpenAQ: 26 recent PM2.5 readings in the region
-[01:13:20] t0 2026-10-17T01:00:00+00:00, weather times -91..377 h, 31 members
-[01:13:20] 10152 detections -> 359 fire cells
-[01:13:20] back-tracing from Singapore
-[01:13:20]   traced member 1/31
-[01:13:23]   traced member 9/31
-[01:13:26]   traced member 17/31
-[01:13:29]   traced member 25/31
-[01:13:32]   traced member 31/31
-[01:13:32] wrote /home/runner/work/haze-twin/haze-twin/site/data/inputs.json (2.44 MB) in 647.3 s
-engine: 100000 futures in 12s, effective sample 78028, anchored true
-national now 187, clear by Fri 23 Oct: 23.3%
-classes: Clears early 17.1% | Clears later in the week 4.7% | Stays unhealthy 4.4% | Gets worse 73.8%
-days p50: Sun 18 Oct 207, Mon 19 Oct 248, Tue 20 Oct 245, Wed 21 Oct 215, Thu 22 Oct 182, Fri 23 Oct 188, Sat 24 Oct 173, Sun 25 Oct 162, Mon 26 Oct 152, Tue 27 Oct 150, Wed 28 Oct 131, Thu 29 Oct 130, Fri 30 Oct 125, Sat 31 Oct 125, Sun 1 Nov 117
+[01:57:51] NEA readings
+[01:58:18]   NEA: 178 PSI hours, 178 24-h PM2.5 hours, 178 1-h PM2.5 hours
+[01:58:18] FIRMS hotspots
+[01:58:19]   FIRMS VIIRS_NOAA21_NRT: 2839 detections
+[01:58:20]   FIRMS VIIRS_NOAA20_NRT: 3044 detections
+[01:58:21]   FIRMS VIIRS_SNPP_NRT: 4269 detections
+[01:58:21] GEFS ensemble
+[01:58:22]   GEFS cycle 2026-10-16 18Z
+[01:59:00]   GEFS downloaded 100/1411 (37s)
+[01:59:37]   GEFS downloaded 200/1411 (75s)
+[02:00:15]   GEFS downloaded 300/1411 (112s)
+[02:00:52]   GEFS downloaded 400/1411 (150s)
+[02:01:30]   GEFS downloaded 500/1411 (187s)
+[02:02:08]   GEFS downloaded 600/1411 (226s)
+[02:02:45]   GEFS downloaded 700/1411 (263s)
+[02:03:23]   GEFS downloaded 800/1411 (301s)
+[02:04:00]   GEFS downloaded 900/1411 (338s)
+[02:04:38]   GEFS downloaded 1000/1411 (376s)
+[02:05:16]   GEFS downloaded 1100/1411 (413s)
+[02:05:53]   GEFS downloaded 1200/1411 (451s)
+[02:06:31]   GEFS downloaded 1300/1411 (488s)
+[02:07:08]   GEFS downloaded 1400/1411 (526s)
+[02:07:14]   GEFS: 1410/1411 files ok
+[02:07:14]   first errors: 2026101218_c00_f006.grb2: GET failed for https://nomads.ncep.noaa.gov/cgi-bin/filter_gefs_atmos_0p50a.pl: HTTP 404: <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html><head><ti
+[02:07:21]   ECMWF aifs-ens 2026-10-16 18Z: fetching u/v 850 hPa and rain for 50 members, 31 steps
+[02:11:39]   ECMWF aifs-ens: 4600/4600 fields in 252s
+[02:11:41]   ECMWF: 1550/1550 member-steps decoded
+[02:11:41]   merged ECMWF: 56 weather forecasts in total
+[02:11:42]   climate: RONI +1.69 (JAS 2026); DMI +0.15 (May 2026)
+[02:11:42] NEA history and past-season analogs
+[02:11:42]   history: backfilled 0 recent days
+[02:11:42] extra sources
+[02:11:43]   airports: 8 with recent reports, 6 reporting haze or smoke
+[02:11:43]   CAMS: 157 hourly PM2.5 values for Singapore
+[02:12:00]   news: 60 recent articles
+[02:12:01]   dryness: Kalimantan 87.1 mm in 30 days, Sumatra 130.9 mm in 30 days
+[02:12:07]   OpenAQ: 26 recent PM2.5 readings in the region
+[02:12:07] t0 2026-10-17T01:00:00+00:00, weather times -91..377 h, 56 members
+[02:12:07] 10152 detections -> 359 fire cells
+[02:12:07] back-tracing from Singapore
+[02:12:08]   traced member 1/56
+[02:12:09]   traced member 9/56
+[02:12:11]   traced member 17/56
+[02:12:13]   traced member 25/56
+[02:12:15]   traced member 33/56
+[02:12:17]   traced member 41/56
+[02:12:18]   traced member 49/56
+[02:12:20]   traced member 56/56
+[02:12:20] wrote /home/runner/work/haze-twin/haze-twin/site/data/inputs.json (4.11 MB) in 868.9 s
+engine: 100000 futures in 7s, effective sample 77930, anchored true
+national now 187, clear by Fri 23 Oct: 24.3%
+classes: Clears early 15% | Clears later in the week 6.3% | Stays unhealthy 4.9% | Gets worse 73.9%
+days p50: Sun 18 Oct 191, Mon 19 Oct 229, Tue 20 Oct 255, Wed 21 Oct 227, Thu 22 Oct 188, Fri 23 Oct 181, Sat 24 Oct 178, Sun 25 Oct 165, Mon 26 Oct 151, Tue 27 Oct 151, Wed 28 Oct 131, Thu 29 Oct 121, Fri 30 Oct 120, Sat 31 Oct 124, Sun 1 Nov 118
