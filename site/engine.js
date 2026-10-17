@@ -421,32 +421,43 @@
         const md = quantile(sorted, 0.5), hh = out.arrivals_h[f];
         pct.p5.push(Math.round(quantile(sorted, 0.05))); pct.p25.push(Math.round(quantile(sorted, 0.25))); pct.p75.push(Math.round(quantile(sorted, 0.75))); pct.p50.push(Math.round(md)); pct.p95.push(Math.round(quantile(sorted, 0.95)));
       }
-      let clearCount = 0; for (let s = 0; s < N; s++) if (dayVals[nC - 1][s] <= 100.5) clearCount++;
+      // "by <day>" = the first day at 100 or below falls on or before that day (the same rule the storylines use)
+      let clearCount = 0; for (let s = 0; s < N; s++) if (mode === 'haze' ? (firstAll[s] > 0 && firstAll[s] <= nC) : dayVals[nC - 1][s] <= 100.5) clearCount++;
       const by = days.map(() => 0); for (let s = 0; s < N; s++) if (firstAll[s] > 0) for (let d = firstAll[s] - 1; d < days.length; d++) by[d]++;
       const clearBy = by.map(x => Math.round(x / N * 1000) / 10);
+      // best and worst cases: the 1 in 10 futures with the lowest and the highest average PSI over the next 6 days.
+      // They overlap the storylines (a future is in one storyline and maybe in a tail), so they are kept apart:
+      // storylines 0-3 split all futures; 4 = best case, 5 = worst case.
+      const sev = new Float32Array(N); for (let s = 0; s < N; s++) { let t = 0; for (let d = 0; d < nC; d++) t += dayVals[d][s]; sev[s] = t / nC; }
+      const sevSorted = Float32Array.from(sev).sort(); const qLo = quantile(sevSorted, 0.1), qHi = quantile(sevSorted, 0.9);
+      const inTail = (c, s) => c === 4 ? sev[s] <= qLo : sev[s] >= qHi;
+      const member = (c) => c < 4 ? (s) => cls[s] === c : (s) => inTail(c, s);
+      const allDefs = defs.concat([{ id: 'bestcase', name: 'Best case', color: '--sD', hidden: true }, { id: 'worstcase', name: 'Worst case', color: '--haz', hidden: true }]);
       // per-class summaries
-      const counts = [0, 0, 0, 0]; for (let s = 0; s < N; s++) counts[cls[s]]++;
+      const counts = [0, 0, 0, 0, 0, 0]; for (let s = 0; s < N; s++) { counts[cls[s]]++; if (sev[s] <= qLo) counts[4]++; if (sev[s] >= qHi) counts[5]++; }
       const mean = (arr, sel) => { let t = 0, n = 0; for (let s = 0; s < N; s++) if (sel(s)) { t += arr(s); n++; } return n ? t / n : 0; };
       const allShareSum = mean(s => sim.share[sim.idx[s] * 3], () => true), allShareKal = mean(s => sim.share[sim.idx[s] * 3 + 1], () => true);
       const allT = mean(s => sim.pThalf[sim.idx[s]], () => true);
       let bRain = 0; model.binMid.forEach((h, b) => { if (Math.abs(h - 84) < Math.abs(model.binMid[bRain] - 84)) bRain = b; });
       const kalRain = (s) => { const m = sim.memb[sim.idx[s]]; let v = 0, n = 0; for (let q = 0; q < model.R; q++) if (model.isl[q] === 1) { v += model.cum[(m * model.R + q) * model.B + bRain]; n++; } return n ? v / n : 0; };
       const allRain = mean(kalRain, () => true);
-      const classes = defs.map((def, c) => {
-        const sel = (s) => cls[s] === c;
+      const classes = allDefs.map((def, c) => {
+        const sel = member(c);
         const n = counts[c];
         const o = { id: def.id, name: def.name, color: def.color, odds: Math.round(n / N * 1000) / 10, n };
+        if (def.hidden) o.hidden = true;
         if (!n) { o.outcome = ''; o.watch = ''; o.median = []; return o; }
         // median path
         const med = [];
-        for (let f = 0; f < F; f++) { const v = []; for (let s = 0; s < N; s += Math.max(1, Math.floor(N / 4000))) if (cls[s] === c) v.push(regionPsi(sim, s, f, rr)); v.sort((x, y) => x - y); med.push(Math.round(quantile(v, 0.5) || 0)); }
+        for (let f = 0; f < F; f++) { const v = []; for (let s = 0; s < N; s += Math.max(1, Math.floor(N / 4000))) if (sel(s)) v.push(regionPsi(sim, s, f, rr)); v.sort((x, y) => x - y); med.push(Math.round(quantile(v, 0.5) || 0)); }
         o.median = med;
-        const cds = [], pks = [], pkds = []; for (let s = 0; s < N; s += Math.max(1, Math.floor(N / 8000))) if (cls[s] === c) { if (clearDay[s] > 0) cds.push(clearDay[s]); pks.push(peakV[s]); pkds.push(peakD[s]); }
+        const cds = [], pks = [], pkds = []; for (let s = 0; s < N; s += Math.max(1, Math.floor(N / 8000))) if (sel(s)) { if (clearDay[s] > 0) cds.push(clearDay[s]); pks.push(peakV[s]); pkds.push(peakD[s]); }
         cds.sort((x, y) => x - y); pks.sort((x, y) => x - y); pkds.sort((x, y) => x - y);
         const dl = (k) => days[Number.isFinite(k) ? Math.max(0, Math.min(days.length - 1, k - 1)) : nC - 1].label;
         if (def.id === 'early' || def.id === 'later') o.outcome = 'PSI 100 or below by ' + dl(quantile(cds, 0.5)) + '.';
         else if (def.id === 'stays') { let lastAbove = 0; days.slice(0, nC).forEach((d, k) => { if (med[dayF[k]] > 100) lastAbove = k + 1; }); o.outcome = 'Above 100 through ' + dl(lastAbove || nC) + '. Middle path near ' + Math.round(med[dayF[Math.min(2, days.length - 1)]] / 5) * 5 + '.'; }
-        else if (def.id === 'worse') o.outcome = 'Peaks ' + Math.round(quantile(pks, 0.1) / 5) * 5 + '–' + Math.round(quantile(pks, 0.9) / 5) * 5 + ' around ' + dl(quantile(pkds, 0.5)) + '.';
+        else if (def.id === 'bestcase') o.outcome = cds.length * 2 >= pks.length ? 'PSI 100 or below by ' + dl(quantile(cds, 0.5)) + '.' : 'Peaks ' + Math.round(quantile(pks, 0.1) / 5) * 5 + '–' + Math.round(quantile(pks, 0.9) / 5) * 5 + ' around ' + dl(quantile(pkds, 0.5)) + '.';
+        else if (def.id === 'worse' || def.id === 'worstcase') o.outcome = 'Peaks ' + Math.round(quantile(pks, 0.1) / 5) * 5 + '–' + Math.round(quantile(pks, 0.9) / 5) * 5 + ' around ' + dl(quantile(pkds, 0.5)) + '.';
         else if (def.id === 'clean') o.outcome = 'PSI stays 100 or below all week.';
         else if (def.id === 'brief') o.outcome = 'One or two days above 100.';
         else if (def.id === 'returns') o.outcome = 'Above 100 for three days or more.';
@@ -490,9 +501,10 @@
       // split markers: first arrival where class median leaves the overall median by 25+
       classes.forEach(o => { if (!o.median.length) return; for (let f = 0; f < F; f++) if (Math.abs(o.median[f] - pct.p50[f]) >= 25) { o.split_h = out.arrivals_h[f]; break; } });
       // member weights by class (for winds and threads on the map)
-      const mw = []; for (let m = 0; m < model.M; m++) mw.push([0, 0, 0, 0]);
-      for (let s = 0; s < N; s++) mw[sim.memb[sim.idx[s]]][cls[s]]++;
+      const mw = []; for (let m = 0; m < model.M; m++) mw.push([0, 0, 0, 0, 0, 0]);
+      for (let s = 0; s < N; s++) { const row = mw[sim.memb[sim.idx[s]]]; row[cls[s]]++; if (sev[s] <= qLo) row[4]++; if (sev[s] >= qHi) row[5]++; }
       const sampleClass = sampleIdx.map(s => cls[s]);
+      const sampleTail = sampleIdx.map(s => sev[s] <= qLo ? 4 : sev[s] >= qHi ? 5 : -1);
       // yes/no questions for the odds board
       const markets = (() => {
         let p300 = 0, p200 = 0, p300all = 0, b100all = 0;
@@ -513,7 +525,7 @@
         }
         return m;
       })();
-      out.regions[reg] = { now: now, mode, factor: model.regRatio[rr], clear: Math.round(clearCount / N * 1000) / 10, clearDayLabel: days[nC - 1].label, clearBy, days: dayStats, pct, classes, memberClass: mw, sampleClass, markets };
+      out.regions[reg] = { now: now, mode, factor: model.regRatio[rr], clear: Math.round(clearCount / N * 1000) / 10, clearDayLabel: days[nC - 1].label, clearBy, days: dayStats, pct, classes, memberClass: mw, sampleClass, sampleTail, markets };
     }
     const shares = [0, 0, 0]; for (let s = 0; s < N; s++) for (let k = 0; k < 3; k++) shares[k] += sim.share[sim.idx[s] * 3 + k];
     { const R = model.R, rs = new Float64Array(R); for (let s = 0; s < N; s++) { const j = sim.idx[s]; for (let q = 0; q < R; q++) rs[q] += sim.rshare[j * R + q]; }
@@ -630,7 +642,7 @@
     region = region || 'national';
     if (!prev || !prev.regions || !prev.regions[region]) return { label: '', deltas: [], drivers: [] };
     const P = prev.regions[region], Q = cur.regions[region];
-    const deltas = Q.classes.map((c, i) => ({ id: c.id, name: c.name, color: c.color, d: Math.round((c.odds - (P.mode === Q.mode && P.classes[i] ? P.classes[i].odds : 0))) }));
+    const deltas = Q.classes.filter(c => !c.hidden).map((c, i) => ({ id: c.id, name: c.name, color: c.color, d: Math.round((c.odds - (P.mode === Q.mode && P.classes[i] ? P.classes[i].odds : 0))) }));
     const drivers = [];
     if (P.now != null && Q.now != null && Math.abs(Q.now - P.now) >= 8) drivers.push([Math.abs(Q.now - P.now) / 8, 'Measured PSI ' + (Q.now > P.now ? 'rose' : 'fell') + ' ' + Math.abs(Math.round(Q.now - P.now)) + ' since the last run.']);
     if (prevSummary && curSummary) {
