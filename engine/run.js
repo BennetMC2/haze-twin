@@ -45,12 +45,16 @@ const runs = readJSON(path.join(histDir, 'runs.json'), []);
 const obsLog = readJSON(path.join(histDir, 'obs.json'), {});
 
 // why the odds moved, against the previous run that is at least 1 hour older
-const prev = runs.filter(r => new Date(r.issued || r.t0) < new Date(Date.now() - 3600e3) && !!r.sample === !!inputs.sample).slice(-1)[0];
+// "what changed since yesterday": the forecast issued closest to 24 hours ago (else the last one over an hour old)
+const older = runs.filter(r => new Date(r.issued || r.t0) < new Date(Date.now() - 3600e3) && !!r.sample === !!inputs.sample);
+const dayAgo = older.filter(r => { const h = (Date.now() - new Date(r.issued || r.t0)) / 3600e3; return h >= 18 && h <= 36; })
+  .sort((a, b) => Math.abs((Date.now() - new Date(a.issued || a.t0)) / 3600e3 - 24) - Math.abs((Date.now() - new Date(b.issued || b.t0)) / 3600e3 - 24))[0];
+const prev = dayAgo || older.slice(-1)[0];
 fc.why = {};
 for (const reg of E.NEA_REGIONS) {
   fc.why[reg] = prev ? E.why({ regions: prev.regions }, fc, prev.summary, inputs.summary, reg) : { deltas: [], drivers: [] };
 }
-fc.prevLabel = prev ? prev.t0 : null;
+fc.prevLabel = prev ? (prev.issued || prev.t0) : null;
 
 // append this issuance (compact, never overwritten: every hourly forecast gets its own entry)
 const entry = {

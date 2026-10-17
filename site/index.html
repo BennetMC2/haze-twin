@@ -168,6 +168,9 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .strip .st .d{font-size:10.5px;color:var(--ink-2);line-height:1.1;white-space:nowrap}
 .strip .st .v{font-family:var(--num);font-weight:700;font-size:13px;line-height:1.1}
 .striplab{margin-top:-4px}
+.bestday{margin:0;font-size:14px;color:var(--ink-2)}
+.bestday b{color:var(--ink)}
+.sharerow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .nowtxt{display:flex;flex-direction:column;gap:3px}
 .band{display:inline-block;align-self:flex-start;font-weight:600;font-size:14px;border-radius:4px;padding:2px 8px;color:#0B1218}
 .regions{display:flex;flex-wrap:wrap;gap:6px}
@@ -387,6 +390,9 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 @media (max-width:560px){
   .headline{font-size:23px}
   .psi{font-size:32px}
+  .actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%}
+  .actions .btn{white-space:nowrap;padding:8px 4px;font-size:13px;min-height:38px}
+  .citypick select{width:100%}
   .strip{grid-template-columns:repeat(8,minmax(0,1fr));row-gap:4px}
   .key{display:none}
 }
@@ -440,6 +446,8 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
       <p class="lede" id="lede"></p>
       <div class="strip" id="strip" role="list" aria-label="Chance PSI is above 100, day by day"></div>
       <p class="note striplab"><span id="stripLab">Chance the 24-hour PSI is above 100 each day.</span> Faded: 7 to 15 days ahead, wider ranges.</p>
+      <p class="bestday" id="bestDay"></p>
+      <div class="sharerow"><button class="btn" type="button" id="btnShare">Share this forecast</button><span class="note" id="shareNote" aria-live="polite"></span></div>
       <div class="now">
         <span class="nowlab">Now</span>
         <span class="psi" id="psiNow">–</span>
@@ -521,7 +529,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     </section>
 
     <section class="panel card" id="changeCard" aria-labelledby="chTitle">
-      <div class="head"><h2 id="chTitle">Since the last update</h2><span class="note" id="chWhen"></span></div>
+      <div class="head"><h2 id="chTitle">What changed</h2><span class="note" id="chWhen"></span></div>
       <div class="changes" id="changes"></div>
     </section>
 
@@ -994,6 +1002,23 @@ function renderStrip15(){
     b.setAttribute('aria-label',dfull(fd)+': '+Math.round(p)+'% chance above 100, '+Math.round(p2)+'% above 200');
     b.dataset.t=fd.h/24;b.addEventListener('click',()=>{stopPlay();setT(fd.h/24);needWarm=true;});box.appendChild(b);});
 }
+// the days with the lowest chance of unhealthy air, for planning outdoor time
+function renderBestDay(){
+  const el=$('bestDay');if(!el||!FC)return;const reg=R();const nC=coreDays().length;
+  const ch=reg.days.map((d,i)=>({i,p:d.bands[2]+d.bands[3]+d.bands[4]}));
+  const best=(arr)=>arr.reduce((a,b)=>b.p<a.p?b:a);const b6=best(ch.slice(0,nC)),b15=best(ch);
+  const name=(x)=>dfull(FC.days[x.i]);
+  if(b6.p>50){el.innerHTML='No day in the next 6 looks good for outdoor plans. Least bad: <b>'+esc(name(b6))+'</b> ('+Math.round(100-b6.p)+'% chance PSI is 100 or below)'+(b15.i!==b6.i&&b15.p<b6.p-5?'. Further out: <b>'+esc(name(b15))+'</b> ('+Math.round(100-b15.p)+'%)':'')+'.';return;}
+  el.innerHTML='Best day for outdoor plans: <b>'+esc(name(b6))+'</b> ('+Math.round(100-b6.p)+'% chance PSI is 100 or below)'+(b15.i!==b6.i&&b15.p<b6.p-5?'. Further out: <b>'+esc(name(b15))+'</b> ('+Math.round(100-b15.p)+'%)':'')+'.';
+}
+// share: the headline and the next days' odds, with a link that opens the same city
+async function shareForecast(){
+  const reg=R();const strip=reg.days.slice(0,6).map((d,i)=>FC.days[i].dow+' '+Math.round(d.bands[2]+d.bands[3]+d.bands[4])+'%').join(', ');
+  const url=location.origin+location.pathname+(CITY?'?city='+CITY.id:'');
+  const text=PLACE()+' haze: '+$('headline').textContent+' Chance PSI above 100: '+strip+'. (Haze Twin, independent model, made '+dshort(FC.days[0])+')';
+  try{if(navigator.share){await navigator.share({title:'Haze Twin',text,url});return;}}catch(e){if(e&&e.name==='AbortError')return;}
+  try{await navigator.clipboard.writeText(text+' '+url);$('shareNote').textContent='Copied to clipboard.';}catch(e){$('shareNote').textContent=url;}
+}
 function renderRegions(){
   const box=$('regions');box.innerHTML='';
   REG.forEach(([key,name])=>{const b=document.createElement('button');b.type='button';b.className='reg';b.id='reg-'+key;b.setAttribute('aria-pressed',String(key===state.region));
@@ -1221,7 +1246,7 @@ function renderHeader(){
   else{$('liveDot').classList.remove('stale');$('nextText').classList.remove('warn');$('nextText').textContent='Updates every hour';}
   document.querySelectorAll('.nMembers').forEach(e=>e.textContent=FC.members);
 }
-function renderAll(){renderStrip15();renderHeader();renderRegions();renderAnswer();renderDays();renderScenarios();renderSources();renderChanges();renderNews();renderSeason();renderHood();renderStrip();renderKey();renderShowing();renderRecord();markCurrent();
+function renderAll(){renderStrip15();renderBestDay();renderHeader();renderRegions();renderAnswer();renderDays();renderScenarios();renderSources();renderChanges();renderNews();renderSeason();renderHood();renderStrip();renderKey();renderShowing();renderRecord();markCurrent();
   if(!state.viewSet){state.viewSet=1;if(location.hash==='#odds')setView('odds');else if(location.hash==='#record')setView('record');}else if(PAGE==='odds')renderOdds();else if(PAGE==='record')renderLearn();}
 
 /* ---------- record ---------- */
@@ -1712,6 +1737,7 @@ async function loadPlace(id,quiet){
     $('citySel').value=id;
   }catch(e){if(!quiet)showError('That city\'s forecast could not be loaded. Showing Singapore.');if(id!=='sg')loadPlace('sg',true);}
 }
+$('btnShare').addEventListener('click',shareForecast);
 async function initCities(){
   let idx=null;try{idx=await getJSON('data/cities/index.json');}catch(e){}
   const sel=$('citySel');(idx&&idx.cities||[]).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;sel.appendChild(o);});
