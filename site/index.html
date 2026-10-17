@@ -88,6 +88,16 @@ h2{margin:0;font-size:15px;font-weight:600;line-height:1.25;letter-spacing:.01em
 .note{margin:0;font-size:13px;color:var(--ink-3)}
 .sub{margin:0;color:var(--ink-2);font-size:14.5px}
 .ask{display:flex;gap:6px}
+.top{position:sticky;top:0;z-index:40;background:rgba(14,24,32,.94);backdrop-filter:blur(8px);margin:-12px -16px 0;padding:10px 16px}
+.askbox{position:relative;flex:1 1 360px;max-width:560px}
+.askbox .ask input{min-height:38px;border-radius:19px;padding:0 16px;background:var(--raise);border-color:var(--sky)}
+.askbox .ask .btn{border-radius:19px}
+.askpop{position:absolute;left:0;right:0;top:calc(100% + 8px);background:var(--panel);border:1px solid var(--line-hi);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 14px 40px rgba(0,0,0,.5);max-height:min(70vh,560px);overflow-y:auto}
+.askpop .askout{border-top:0;padding-top:0}
+.linkbtn{border:0;background:none;color:var(--sky);cursor:pointer;padding:0;font-size:inherit;text-decoration:underline}
+@media (max-width:700px){.top{position:static;backdrop-filter:none;margin:0;padding:0}.askbox{position:fixed;left:0;right:0;bottom:0;max-width:none;z-index:45;padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));background:rgba(14,24,32,.97);border-top:1px solid var(--line-hi)}
+  .askpop{top:auto;bottom:calc(100% + 6px);left:8px;right:8px;max-height:60vh}
+  body{padding-bottom:64px}}
 .ask input{flex:1;min-width:0;min-height:40px;border:1px solid var(--line-hi);border-radius:5px;background:var(--bg);color:var(--ink);font:inherit;font-size:15px;padding:0 12px}
 .ask input:focus{outline:2px solid var(--sky);outline-offset:0;border-color:var(--sky)}
 .asksug{display:flex;flex-wrap:wrap;gap:6px}
@@ -117,7 +127,7 @@ h2{margin:0;font-size:15px;font-weight:600;line-height:1.25;letter-spacing:.01em
 .inwords{grid-column:1/-1;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
 .inwords h2{margin:0;font-size:17px}.inwords ul{margin:0;padding-left:18px;color:var(--ink-2);display:flex;flex-direction:column;gap:4px}
 .inwords p{margin:0;color:var(--ink-2);max-width:80ch}
-@media (max-width:1100px){.inwords{order:6}.moresec{order:6}.foot{order:7}.sky{height:130px}}
+@media (max-width:1100px){.inwords{order:6}.moresec{order:6}.foot{order:7}}
 .oddsflow{grid-column:1/-1;display:flex;flex-direction:column;gap:14px;padding:16px 18px;min-width:0}
 .oddsflow h2{margin:0;font-size:17px}
 .oddsflow .ohead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
@@ -201,9 +211,6 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .headline,h2{font-family:var(--serif)}
 h2{font-weight:600;font-size:17px;letter-spacing:0}
 .headline{font-size:25px;font-weight:600;letter-spacing:-.01em}
-.sky{position:relative;margin:-14px -16px 2px;height:150px;border-radius:10px 10px 0 0;overflow:hidden}
-.sky canvas{display:block;width:100%;height:100%}
-.skylab{position:absolute;left:14px;bottom:10px;font-size:13px;color:#F3EEE6;text-shadow:0 1px 3px rgba(0,0,0,.6);font-weight:500}
 .column p{margin:0}
 #column{font-family:var(--serif);font-size:16.5px;line-height:1.55;color:#DCE3E7}
 #columnBy{margin-top:4px;font-size:12px}
@@ -496,6 +503,17 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
       <span class="live" id="liveDot"><i></i><span id="statusText">Loading the latest forecast…</span></span>
       <span id="nextText"></span>
     </div>
+    <div class="askbox" id="askBox">
+      <form class="ask" id="askForm" autocomplete="off" role="search">
+        <input id="askIn" type="text" maxlength="300" placeholder="Ask about the haze, e.g. can I run outside on Sunday?" aria-label="Ask about the haze">
+        <button class="btn primary" type="submit" id="askBtn">Ask</button>
+      </form>
+      <div class="askpop" id="askPop" hidden>
+        <div class="asksug" id="askSug"></div>
+        <div class="askout" id="askOut" aria-live="polite" hidden></div>
+        <p class="note">Answered by AI (Cloudflare or Anthropic) from today's forecast. It can be wrong. Don't include personal details. <button type="button" class="linkbtn" id="askClose">Close</button></p>
+      </div>
+    </div>
     <div class="actions" id="actions">
       <button class="btn" id="btnTour" type="button">Take the tour</button>
       <button class="btn" id="btnOdds" type="button" aria-pressed="false">Odds</button>
@@ -515,7 +533,6 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
   <aside class="col hero" aria-label="Forecast summary">
     <section class="panel card" id="cardNow" tabindex="-1">
       <div class="degraded" id="degNow" hidden></div>
-      <div class="sky" id="skyWrap"><canvas id="sky" aria-hidden="true"></canvas><span class="skylab" id="skyLab"></span></div>
       <h1 class="headline" id="headline">Loading…</h1>
       <div class="column"><p id="column"></p><p class="note" id="columnBy"></p></div>
       <div class="lede" id="lede"></div>
@@ -641,17 +658,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     <details class="more"><summary>More on these odds</summary><p class="note" id="oddsRel">Each % is the share of the 100,000 simulated futures where it happens. "Above 300" and "above 200" are checked at every simulated time step (every 6 hours to day 6, every 12 hours after), using the 24-hour average PSI. Beyond day 6 the ranges are wider. In the replays of 2015, 2019 and 2023, "above 300 within 6 days" was too high: on all 5 occasions it gave 30% or more, PSI did not go above 300. When "above 200" was given 60% or more, it happened about 4 times in 10.</p></details>
   </section>
 
-  <details class="moresec" id="moreSec"><summary>Ask a question, what changed, news and model details</summary><div class="moregrid">
-    <section class="panel card" id="cardAsk" aria-labelledby="askTitle">
-      <h2 id="askTitle">Ask about the haze</h2>
-      <form class="ask" id="askForm" autocomplete="off">
-        <input id="askIn" type="text" maxlength="300" placeholder="Will it be better by Sunday?" aria-label="Your question about the haze">
-        <button class="btn primary" type="submit" id="askBtn">Ask</button>
-      </form>
-      <div class="asksug" id="askSug"></div>
-      <div class="askout" id="askOut" aria-live="polite" hidden></div>
-      <p class="note">Questions go to an AI service (Cloudflare or Anthropic) for an answer. Answers can be wrong. Don't include personal details.</p>
-    </section>
+  <details class="moresec" id="moreSec"><summary>What changed, news and model details</summary><div class="moregrid">
     <section class="panel card" id="changeCard" aria-labelledby="chTitle">
       <div class="head"><h2 id="chTitle">What changed</h2><span class="note" id="chWhen"></span></div>
       <div class="changes" id="changes"></div>
@@ -700,7 +707,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     <ul class="steps">
       <li>Spread is widened in log-PSI space by lead (×2.15, ×1.45, ×1.05 below the median for days 1–3, 4–6, 7–15), fitted on replays of the 2014 (held out), 2015, 2019 and 2023 seasons. One distribution drives every number on the page.</li>
       <li>Days 7–15 blend in analogues from NEA's record since 2014, more with lead time.</li>
-      <li>End of season: monsoon onset over the fire areas from the ensemble while it reaches, beyond that a climatological onset shifted by the Relative Oceanic Niño Index and the Indian Ocean Dipole.</li>
+      <li>End of season: monsoon onset over the fire areas from the ensemble while it reaches, beyond that a climatological onset shifted by the Relative Oceanic Niño Index and the Indian Ocean Dipole. In a strong El Niño year the shift grows faster than linearly, heavier rain is needed to count as the end, and a one-sided late tail is added: ending the season too early is the costlier mistake.</li>
     </ul>
     <h3>6. Outputs</h3>
     <p>Storylines partition the 100,000 futures (clears early, clears later, stays above 100, gets worse: a peak into a higher band, above 200 and at least 30% and 40 points above now). Yes/no odds are evaluated on every simulated time step. Best and worst case are the lowest and highest 10% by 6-day mean PSI.</p>
@@ -1079,49 +1086,10 @@ function pickOne(){
 $('btnOne').addEventListener('click',pickOne);
 
 /* ---------- the skyline: the air in front of the city at the chosen day ---------- */
-const skyC=$('sky');
 function skyPsi(){const reg=R();if(state.t<0.01)return {v:reg.now,lab:'Now, PSI '+Math.round(reg.now)};
   const i=arrIndex(state.t*24);const sel=state.sel!==null?cls()[state.sel]:null;const v=sel&&sel.median&&sel.median.length?sel.median[i]:reg.pct.p50[i];
   const d=new Date(t0().getTime()+Math.round(state.t*8)*3*3600e3);return {v,lab:dayName(d)+', PSI about '+Math.round(v)};}
-const mix=(a,b,t)=>{const p=(h)=>[1,3,5].map(k=>parseInt(h.slice(k,k+2),16));const A=p(a),B=p(b);return 'rgb('+A.map((x,k)=>Math.round(x+(B[k]-x)*t)).join(',')+')';};
-let SKYLINE=null;
-function skyline(){ // fixed shapes, made once: far towers, the bay towers with the ship on top, garden trees, near blocks
-  const r=rng(1965);const far=[],near=[];let x=0;
-  while(x<1){const w=0.016+r()*0.028;const tall=r()<0.18;far.push([x,w,tall?0.34+r()*0.14:0.1+r()*0.16]);x+=w+0.003+r()*0.01;}
-  x=-0.02;while(x<1.02){const w=0.035+r()*0.03;near.push([x,w,0.14+r()*0.16]);x+=w+0.02+r()*0.035;}
-  return {far,near};}
-function drawSky(v,lab){
-  if(!skyC)return;const W=skyC.clientWidth,H=skyC.clientHeight;if(W<10)return;const dpr=Math.min(2,window.devicePixelRatio||1);
-  if(skyC.width!==Math.round(W*dpr)){skyC.width=Math.round(W*dpr);skyC.height=Math.round(H*dpr);}
-  const c=skyC.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);if(!SKYLINE)SKYLINE=skyline();
-  const f=clamp((v-35)/265,0,1);document.documentElement.style.setProperty('--hz',f.toFixed(3));
-  // sky: clear tropical blue to a flat brown-grey
-  const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,mix('#2C6E96','#6A5D4C',f));g.addColorStop(0.75,mix('#9CCBE0','#B79E7B',f));g.addColorStop(1,mix('#BFE0EC','#C2A983',f));
-  c.fillStyle=g;c.fillRect(0,0,W,H);
-  // the sun: a soft glare on a clear day, a hard orange disc in heavy haze
-  const sx=W*0.8,sy=H*0.3,sr=Math.max(9,H*0.085);
-  if(f<0.55){const gl=c.createRadialGradient(sx,sy,0,sx,sy,sr*4);gl.addColorStop(0,'rgba(255,250,232,'+(0.85*(1-f/0.55))+')');gl.addColorStop(1,'rgba(255,250,232,0)');c.fillStyle=gl;c.fillRect(0,0,W,H);}
-  if(f>0.25){c.fillStyle='rgba(232,110,52,'+Math.min(0.9,(f-0.25)*1.6)+')';c.beginPath();c.arc(sx,sy,sr,0,Math.PI*2);c.fill();}
-  const base=H*0.9;const veil=(depth)=>1-Math.exp(-3.2*f*depth);   // how much of a layer the haze hides
-  const hzc=mix('#8FBBD0','#BCA47F',Math.min(1,f*2.2)).match(/\d+/g).map(x=>(+x).toString(16).padStart(2,'0')).join('');
-  const sil=(depth,dark)=>mix(dark,'#'+hzc,Math.min(0.92,veil(depth)+(1-f)*0.22*depth));
-  // far towers
-  c.fillStyle=sil(1,'#3B5566');SKYLINE.far.forEach(([x,w,h])=>c.fillRect(x*W,base-h*H,w*W,h*H));
-  // the bay towers and the ship across them
-  c.fillStyle=sil(0.75,'#2B3F4C');const bx=W*0.24,tw=W*0.035,th=H*0.5;
-  for(let k=0;k<3;k++){const x=bx+k*tw*1.55;c.beginPath();c.moveTo(x,base);c.lineTo(x+tw*0.15,base-th);c.lineTo(x+tw,base-th);c.lineTo(x+tw,base);c.fill();}
-  c.beginPath();c.moveTo(bx-tw*0.5,base-th-2);c.lineTo(bx+tw*4.4,base-th-4);c.lineTo(bx+tw*4.6,base-th+3);c.lineTo(bx-tw*0.3,base-th+4);c.closePath();c.fill();
-  // garden trees
-  c.fillStyle=sil(0.6,'#2A3A40');[[0.52,0.26],[0.56,0.33],[0.6,0.24],[0.635,0.29]].forEach(([x,h])=>{const X=x*W,top=base-h*H,r=W*0.022;c.fillRect(X-1.5,top,3,h*H);c.beginPath();c.moveTo(X-r,top);c.lineTo(X+r,top);c.lineTo(X+2,top+r*0.9);c.lineTo(X-2,top+r*0.9);c.closePath();c.fill();});
-  // near housing blocks, with a few lit windows
-  const nearCol=sil(0.32,'#1B2830');SKYLINE.near.forEach(([x,w,h],k)=>{c.fillStyle=nearCol;c.fillRect(x*W,H-h*H-H*0.06,w*W,h*H+H*0.06);
-    c.fillStyle='rgba(255,226,170,'+(0.22*(1-f*0.7))+')';for(let yy=H-h*H;yy<H-6;yy+=6)for(let xx=x*W+3;xx<(x+w)*W-3;xx+=5)if(((xx*7+yy*13+k)|0)%5===0)c.fillRect(xx,yy,2,2);});
-  // a low haze band over everything
-  const hb=c.createLinearGradient(0,H*0.35,0,H);hb.addColorStop(0,'rgba(196,170,130,0)');hb.addColorStop(1,'rgba(196,170,130,'+(0.55*f)+')');c.fillStyle=hb;c.fillRect(0,0,W,H);
-  const L=$('skyLab');if(L)L.textContent=lab;
-  skyC.parentNode.setAttribute('title',lab);
-}
-function drawSkyNow(){if(!FC)return;const s=skyPsi();drawSky(s.v,s.lab);}
+function drawSkyNow(){if(!FC)return;const s=skyPsi();document.documentElement.style.setProperty('--hz',clamp((s.v-35)/265,0,1).toFixed(3));}
 
 /* ---------- the written column ---------- */
 function renderColumn(){
@@ -1734,7 +1702,7 @@ document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if
 
 /* ---------- ask about the haze ---------- */
 const AI_URL=(document.querySelector('meta[name="haze-ai"]')||{}).content||'';
-const SUGS=['Will it be better by Sunday?','When will the haze end?','Where is the smoke coming from?','Is it getting worse?','How sure are you?'];
+const SUGS=['Can I run outside on Sunday?','When will the haze end?','Will it be worse on Tuesday?','Where is the smoke coming from?','Should I cancel plans this weekend?'];
 function renderAskSug(){const b=$('askSug');b.innerHTML='';SUGS.forEach(t=>{const x=document.createElement('button');x.type='button';x.textContent=t;x.addEventListener('click',()=>{$('askIn').value=t;ask(t);});b.appendChild(x);});}
 function findDay(q){
   const days=FC.days;const sg=sgt(t0());const names=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
@@ -1796,7 +1764,11 @@ async function ask(q){
   const b=document.createElement('p');b.className='by';b.textContent=by;out.appendChild(b);
   askBusy=false;$('askBtn').disabled=false;
 }
-$('askForm').addEventListener('submit',e=>{e.preventDefault();ask($('askIn').value);});
+$('askForm').addEventListener('submit',e=>{e.preventDefault();$('askPop').hidden=false;ask($('askIn').value);});
+$('askIn').addEventListener('focus',()=>{$('askPop').hidden=false;});
+$('askClose').addEventListener('click',()=>{$('askPop').hidden=true;});
+document.addEventListener('click',e=>{if(!$('askBox').contains(e.target)&&$('askOut').hidden)$('askPop').hidden=true;});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('askPop').hidden=true;});
 renderAskSug();
 // premium code: open the site once with ?premium=CODE to save it on this device (?premium=off removes it)
 try{const pc=new URLSearchParams(location.search).get('premium');if(pc){if(pc==='off')localStorage.removeItem('hazePremium');else localStorage.setItem('hazePremium',pc);history.replaceState(null,'',location.pathname+location.hash);}}catch(e){}
@@ -1967,31 +1939,34 @@ document.querySelectorAll('#cases button').forEach(b=>b.addEventListener('click'
 
 /* ---------- guided tour ---------- */
 const TOUR=[
-  ['cardNow','The forecast','Plain answers to what people ask: will it get worse, when it drops below 100, and when the haze is over. Each % is the share of 100,000 simulated futures.'],
-  ['strip','Day by day','Each box is the chance the 24-hour PSI is above 100 that day. Tap a day to see it on the map.'],
-  ['timebar','Watch it unfold','Press Play to see fires, smoke and the air heading for Singapore over the next 15 days.'],
-  ['oddsView','The odds','Yes or No odds on specific questions, like "Above 200 in the next 6 days?".'],
-  ['actions','Check the model','Rerun runs the model again on your device. Track record shows how past forecasts did. How it works has the full method.'],
+  ['lede','Start with the answer','Will it get worse, when it drops below 100, and roughly when the haze season ends. The % is how often it happened in 100,000 simulated futures.'],
+  ['strip','Pick a day','Each box is the chance of unhealthy air (PSI above 100) that day. Tap one to see it on the map.'],
+  ['mapcell','See where the smoke comes from','Orange dots are fires. The pink shading is where Singapore\'s air will come from, so fires inside it matter most.'],
+  ['btnPlay','Press Play','Watch the fires, smoke and winds move over the next 15 days.'],
+  ['askBox','Ask anything','Type a question like "Can I run outside on Sunday?" and get an answer from today\'s forecast.'],
 ];
 let tourI=-1,tourHole=null,tourCard=null,tourLast=null;
 let tourScroll=[];
 function startTour(){tourLast=document.activeElement;tourI=0;tourScroll=[...document.querySelectorAll('.col')].map(c=>c.scrollTop).concat([window.scrollY]);if(!tourHole){tourHole=document.createElement('div');tourHole.className='tourhole';tourCard=document.createElement('div');tourCard.className='tourcard';tourCard.setAttribute('role','dialog');tourCard.setAttribute('aria-modal','true');tourCard.setAttribute('aria-labelledby','tourTitle');document.body.append(tourHole,tourCard);}
   tourHole.hidden=tourCard.hidden=false;showTour();}
 function endTour(){tourI=-1;document.querySelectorAll('.col').forEach((c,i)=>{c.scrollTop=tourScroll[i]||0;});window.scrollTo(0,tourScroll[tourScroll.length-1]||0);if(tourHole){tourHole.hidden=tourCard.hidden=true;}try{localStorage.setItem('hazeTourSeen','1');}catch(e){}if(tourLast&&tourLast.focus)tourLast.focus();}
+function placeHole(){if(tourI<0)return;const el=$(TOUR[tourI][0]);if(!el)return;const r=el.getBoundingClientRect();const pad=6,Hh=window.innerHeight;
+  const top=Math.max(4,r.top-pad),bot=Math.min(Hh-4,r.bottom+pad);
+  Object.assign(tourHole.style,{left:(r.left-pad)+'px',top:top+'px',width:(r.width+pad*2)+'px',height:Math.max(0,bot-top)+'px'});return r;}
 function showTour(){
-  const [id,title,text]=TOUR[tourI];const el=$(id);
-  el.scrollIntoView({block:'nearest',behavior:reduced?'auto':'smooth'});
-  const place=()=>{const r=el.getBoundingClientRect();const pad=6;
-    Object.assign(tourHole.style,{left:(r.left-pad)+'px',top:(r.top-pad)+'px',width:(r.width+pad*2)+'px',height:(r.height+pad*2)+'px'});
-    tourCard.innerHTML='<h2 id="tourTitle"></h2><p></p><div class="tnav"><span>'+(tourI+1)+' of '+TOUR.length+'</span>'+(tourI?'<button class="btn" type="button" data-t="back">Back</button>':'<button class="btn" type="button" data-t="skip">Skip</button>')+'<button class="btn primary" type="button" data-t="next">'+(tourI===TOUR.length-1?'Done':'Next')+'</button></div>';
-    tourCard.querySelector('h2').textContent=title;tourCard.querySelector('p').textContent=text;
-    const cw=tourCard.offsetWidth,ch=tourCard.offsetHeight,W=window.innerWidth,Hh=window.innerHeight;let x,y;
-    if(r.right+16+cw<=W){x=r.right+16;y=r.top;}else if(r.left-16-cw>=0){x=r.left-16-cw;y=r.top;}else{x=r.left;y=r.bottom+16;if(y+ch>Hh)y=r.top-16-ch;}
-    x=clamp(x,16,W-cw-16);y=clamp(y,16,Hh-ch-16);tourCard.style.left=x+'px';tourCard.style.top=y+'px';
-    tourCard.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.t;if(t==='next'){if(tourI===TOUR.length-1)endTour();else{tourI++;showTour();}}else if(t==='back'){tourI--;showTour();}else endTour();}));
-    tourCard.querySelector('[data-t="next"]').focus();};
-  setTimeout(place,reduced?0:260);
+  const [id,title,text]=TOUR[tourI];const el=$(id);if(!el){endTour();return;}
+  const tall=el.getBoundingClientRect().height>window.innerHeight*0.7;
+  el.scrollIntoView({block:tall?'start':'center',behavior:reduced?'auto':'smooth'});
+  tourCard.innerHTML='<h2 id="tourTitle"></h2><p></p><div class="tnav"><span>'+(tourI+1)+' of '+TOUR.length+'</span>'+(tourI?'<button class="btn" type="button" data-t="back">Back</button>':'<button class="btn" type="button" data-t="skip">Skip</button>')+'<button class="btn primary" type="button" data-t="next">'+(tourI===TOUR.length-1?'Done':'Next')+'</button></div>';
+  tourCard.querySelector('h2').textContent=title;tourCard.querySelector('p').textContent=text;
+  tourCard.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.t;if(t==='next'){if(tourI===TOUR.length-1)endTour();else{tourI++;showTour();}}else if(t==='back'){tourI--;showTour();}else endTour();}));
+  const place=()=>{const r=placeHole();if(!r)return;const cw=tourCard.offsetWidth,ch=tourCard.offsetHeight,W=window.innerWidth,Hh=window.innerHeight;let x,y;
+    const top=Math.max(16,r.top);
+    if(r.right+16+cw<=W){x=r.right+16;y=top;}else if(r.left-16-cw>=0){x=r.left-16-cw;y=top;}else{x=r.left;y=r.bottom+16;if(y+ch>Hh-16)y=Math.max(16,r.top-16-ch);if(y<16||y+ch>Hh-16)y=Hh-ch-16;}
+    x=clamp(x,16,W-cw-16);y=clamp(y,16,Hh-ch-16);tourCard.style.left=x+'px';tourCard.style.top=y+'px';};
+  place();setTimeout(place,reduced?0:350);setTimeout(()=>{place();tourCard.querySelector('[data-t="next"]').focus({preventScroll:true});},reduced?0:700);
 }
+window.addEventListener('scroll',()=>{if(tourI>=0)placeHole();},{passive:true});
 document.addEventListener('keydown',e=>{if(tourI<0)return;if(e.key==='Escape')endTour();else if(e.key==='ArrowRight'&&tourI<TOUR.length-1){tourI++;showTour();}else if(e.key==='ArrowLeft'&&tourI>0){tourI--;showTour();}});
 window.addEventListener('resize',()=>{if(tourI>=0)showTour();});
 $('btnTour').addEventListener('click',startTour);

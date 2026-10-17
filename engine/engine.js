@@ -574,7 +574,13 @@
       const k = months[mm[1]]; if (k === undefined) return false; const age = (sgt(model.t0).getUTCFullYear() - +mm[2]) * 12 + mo0 - k; return age >= 0 && age <= 4; };
     const roniOk = typeof clim.roni === 'number' && fresh(clim.roni_period), dmiOk = typeof clim.dmi === 'number' && fresh(clim.dmi_period);
     const roni = roniOk ? clim.roni : 0, dmi = dmiOk ? clim.dmi : 0;
-    const shiftDays = 6 * Math.min(2.5, Math.max(0, roni)) + 4 * Math.min(2, Math.max(0, dmi / 0.4));
+    // El Niño delays the rains. A strong one (RONI above about 1.5, as in 1997 and 2015) can push the end of the
+    // fire season weeks later and makes a very late end much more likely, so the shift grows faster than linearly
+    // and a late tail is added below. Deliberately cautious: ending too early is the costlier mistake here.
+    const rp = Math.min(2.5, Math.max(0, roni));
+    const shiftDays = 7 * rp + 2 * Math.max(0, rp - 1) ** 2 + 4 * Math.min(2, Math.max(0, dmi / 0.4));
+    const lateTail = 3 + 4 * rp;           // mean of an extra one-sided delay (days)
+    const spread = 9 + 2 * rp;             // day-to-day scatter of the onset (days)
     const year = sgt(model.t0).getUTCFullYear();
     const groups = [['Kalimantan', 1, 'ckal'], ['Sumatra', 0, 'ssum']].map(([name, isl, fallback]) => {
       let w = inp.regions.map((r, i) => (model.isl[i] === isl ? (r.frp0 || 0) : 0));
@@ -584,7 +590,7 @@
     });
     const lastH = tH[T - 1], horizonH = lastH - 120;
     const dry = inp.dryness || {}; const di = ['Kalimantan', 'Sumatra'].map(k => (dry[k] && typeof dry[k].index === 'number') ? dry[k].index : 0.5);
-    const lagMean = 4 + 6 * (di[0] + di[1]) / 2;   // drier peat keeps smouldering longer after the rains start
+    const lagMean = 5 + 8 * (di[0] + di[1]) / 2 + 1 * rp;   // drier peat, and an El Niño year, keep it smouldering longer after the rains start
     const onset = groups.map(g => {
       const out = new Float64Array(M).fill(NaN);
       for (let m = 0; m < M; m++) {
@@ -593,7 +599,7 @@
         for (let t = 0; t < T; t++) {
           if (tH[t] < 0 || tH[t] > horizonH) continue;
           let sum = 0; for (let u = t + 1; u < T && tH[u] <= tH[t] + 120; u++) sum += series[u];
-          if (sum >= 25) { out[m] = tH[t] + 48; break; }
+          if (sum >= 25 + 4 * rp) { out[m] = tH[t] + 48; break; }   // a strong El Niño needs heavier rain to put the peat out
         }
       }
       return out;
@@ -610,7 +616,7 @@
           const pr = SEASON_PRIORS[g.name];
           let tries = 0;
           do {
-            const date = Date.UTC(year, pr[0], pr[1]) + (shiftDays + gauss(r) * 9) * 864e5;
+            const date = Date.UTC(year, pr[0], pr[1]) + (shiftDays + gauss(r) * spread - Math.log(1 - r()) * lateTail) * 864e5;
             o = (date - model.t0.getTime()) / 3600e3;
           } while (o < horizonH && ++tries < 30);
           if (o < horizonH) o = horizonH + (-Math.log(1 - r()) * 5 * 24);
@@ -618,7 +624,7 @@
         ons[k][s] = o; e = Math.max(e, o);
       });
       if (allSeen) seen++;
-      ends[s] = e + Math.max(1, lagMean + gauss(r) * 3) * 24;
+      ends[s] = e + Math.max(1, lagMean + gauss(r) * 4) * 24;
     }
     const sorted = Float64Array.from(ends).sort();
     const toDate = (h) => new Date(model.t0.getTime() + h * 3600e3);
