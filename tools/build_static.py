@@ -17,7 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "site"
-URL = os.environ.get("SITE_URL", "https://bennetmc2.github.io/haze-twin/").rstrip("/") + "/"
+URL = (os.environ.get("SITE_URL") or "https://bennetmc2.github.io/haze-twin/").rstrip("/") + "/"
 NAME = "Singapore Haze Prediction Model"
 SGT = timezone(timedelta(hours=8))
 DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
