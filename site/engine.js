@@ -254,6 +254,23 @@
         for (let s = 0; s < N; s++) { const v = Math.log(Math.max(1, pm24[s * F + f])); if (v < med) pm24[s * F + f] = Math.exp(med + k * (v - med)); }
       }
     }
+    // daily learning (tools/learn.py): a small, capped correction for recent bias and spread, by lead
+    // group (days 1-3, 4-6, 7-15). Comes from history/learn/params.json via inputs.learn.
+    const L = opts.learn || model.inputs.learn || null;
+    if (L && (L.bias || L.spread)) {
+      const g = (hh) => hh <= 84 ? 0 : hh <= 156 ? 1 : 2;
+      const tmp = new Float64Array(Math.min(N, 20000)); const stp = Math.max(1, Math.floor(N / tmp.length));
+      for (let f = 0; f < F; f++) {
+        const hh = model.inputs.arrivals_h[futA[f]]; if (hh <= 0) continue;
+        const ramp = Math.min(1, hh / 24);
+        const b = Math.max(-0.4, Math.min(0.4, ((L.bias || [])[g(hh)] || 0))) * ramp;
+        const k = 1 + (Math.max(0.7, Math.min(1.5, (L.spread || [])[g(hh)] || 1)) - 1) * ramp;
+        if (!b && k === 1) continue;
+        let n = 0; for (let s = 0; s < N && n < tmp.length; s += stp) tmp[n++] = Math.log(Math.max(1, pm24[s * F + f]));
+        const srt = Array.from(tmp.subarray(0, n)).sort((a, c) => a - c); const med = srt[Math.floor(n / 2)];
+        for (let s = 0; s < N; s++) { const v = Math.log(Math.max(1, pm24[s * F + f])); pm24[s * F + f] = Math.exp(med + b + k * (v - med)); }
+      }
+    }
     if (report) report(0.9);
     return { N, F, pm24, idx, memb, share, rshare, pThalf, pRain, pK, pRho, ess, model, blend };
   }
@@ -568,6 +585,8 @@
     const sim = simulate(model, opts);
     const res = summarize(sim, opts);
     try { res.season = season(model, opts); } catch (e) { res.season = null; }
+    const L = opts.learn || inputs.learn || null;
+    res.learn = L ? { date: L.date || null, bias: L.bias || null, spread: L.spread || null } : null;
     if (opts.onProgress) opts.onProgress(1);
     return res;
   }

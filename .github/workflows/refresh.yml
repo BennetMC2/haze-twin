@@ -45,6 +45,7 @@ jobs:
           cp engine/engine.js site/engine.js
           node engine/run.js --n 100000
           cp history/replay/summary.json site/data/replay.json 2>/dev/null || true
+          cp history/learn/log.json site/data/learn.json 2>/dev/null || true
           python tools/fetch_aq.py site/data/aq.json || true
           mkdir -p .work/fonts
           for f in barlow/Barlow-Bold barlow/Barlow-Medium barlow/Barlow-SemiBold barlowsemicondensed/BarlowSemiCondensed-Bold; do

@@ -94,11 +94,24 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .seg button[aria-pressed="true"]{background:var(--raise);color:var(--ink);box-shadow:inset 0 -2px 0 var(--sky)}
 .cases button[data-case="best"][aria-pressed="true"]{box-shadow:inset 0 -2px 0 var(--sD)}
 .cases button[data-case="worst"][aria-pressed="true"]{box-shadow:inset 0 -2px 0 var(--sC)}
-#oddsView{display:none}
-.app.odds>:not(.top):not(#oddsView){display:none!important}
-.app.odds #oddsView{display:flex;flex-direction:column;gap:14px;grid-column:1/-1;grid-row:2/4;overflow:auto;padding:16px 18px;min-height:0}
-#oddsView h2{margin:0;font-size:17px}
-#oddsView .ohead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.pageview{display:none}
+.app.paged>:not(.top):not(.pageview.on){display:none!important}
+.app.paged .pageview.on{display:flex;flex-direction:column;gap:14px;grid-column:1/-1;grid-row:2/4;overflow:auto;padding:16px 18px;min-height:0}
+.pageview h2{margin:0;font-size:17px}
+.pageview h3{margin:6px 0 0;font-size:15px}
+.pageview p{margin:0;max-width:76ch;color:var(--ink-2)}
+.pageview .ohead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.btn[aria-pressed="true"]{border-color:var(--sky);color:var(--ink)}
+.learn{display:flex;flex-direction:column;gap:10px;max-width:980px}
+.lnote{background:var(--raise);border:1px solid var(--line);border-left:3px solid var(--sky);border-radius:6px;padding:12px 14px}
+.lnote .by{font-size:12.5px;color:var(--ink-3);margin-top:6px}
+.ltab{border-collapse:collapse;font-size:14px;min-width:520px;width:100%;max-width:980px}
+.ltab th,.ltab td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right}
+.ltab th:first-child,.ltab td:first-child{text-align:left}
+.ltab th{font-size:12.5px;color:var(--ink-2);font-weight:600}
+.lchg{margin:0;padding-left:18px;color:var(--ink-2);display:flex;flex-direction:column;gap:3px;font-size:14px}
+.lchg b{color:var(--ink)}
+.lold{border-top:1px solid var(--line);padding-top:8px}
 .otab{width:100%;max-width:980px;border-collapse:collapse;font-size:14px;min-width:560px}
 .otab th,.otab td{padding:6px 8px;text-align:right;border-bottom:1px solid var(--line)}
 .otab th:first-child,.otab td:first-child{text-align:left;white-space:nowrap}
@@ -376,12 +389,18 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     </div>
   </header>
 
-  <section class="panel" id="oddsView" aria-labelledby="oddsTitle">
-    <div class="ohead"><button class="btn" type="button" id="oddsBack">← Back to forecast</button><h2 id="oddsTitle">Odds</h2><span class="note" id="oddsSub"></span></div>
+  <section class="panel pageview" id="oddsView" aria-labelledby="oddsTitle">
+    <div class="ohead"><button class="btn" type="button" data-back>← Back to forecast</button><h2 id="oddsTitle">Odds</h2><span class="note" id="oddsSub"></span></div>
     <div class="markets" id="markets"></div>
     <h2>Day by day</h2>
     <div class="chart-wrap"><table class="otab" id="oddsTable"></table></div>
     <details class="more"><summary>How reliable these odds are</summary><p class="note" id="oddsRel">Each % is the share of the 100,000 simulated futures where it happens. Days more than 6 days out are rougher. In the replays of 2015, 2019 and 2023, "above 300 within 6 days" was over-called: the 5 times it gave 30% or more, it didn't happen. "Above 200" at 60% or more happened about 4 times in 10.</p></details>
+  </section>
+
+  <section class="panel pageview" id="recordView" aria-labelledby="recTitle">
+    <div class="ohead"><button class="btn" type="button" data-back>← Back to forecast</button><h2 id="recTitle">Track record and learnings</h2></div>
+    <div class="learn" id="learnBody"></div>
+    <div class="learn" id="recBody"></div>
   </section>
 
   <aside class="col left" aria-label="Summary">
@@ -490,10 +509,6 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
   </aside>
 </div>
 
-<dialog id="dlgRecord" aria-labelledby="recTitle">
-  <div class="dlghead"><h2 id="recTitle">How accurate is it?</h2><button class="btn" type="button" data-close>Close</button></div>
-  <div class="dlgbody" id="recBody"></div>
-</dialog>
 
 <dialog id="dlgHow" aria-labelledby="howTitle">
   <div class="dlghead"><h2 id="howTitle">How it works</h2><button class="btn" type="button" data-close>Close</button></div>
@@ -1105,7 +1120,7 @@ function renderHeader(){
   document.querySelectorAll('.nMembers').forEach(e=>e.textContent=FC.members);
 }
 function renderAll(){renderHeader();renderRegions();renderAnswer();renderDays();renderScenarios();renderSources();renderChanges();renderNews();renderSeason();renderHood();renderStrip();renderKey();renderShowing();renderRecord();markCurrent();
-  if(!state.viewSet){state.viewSet=1;if(location.hash==='#odds')setView('odds');}else if($('app').classList.contains('odds'))renderOdds();}
+  if(!state.viewSet){state.viewSet=1;if(location.hash==='#odds')setView('odds');else if(location.hash==='#record')setView('record');}else if(PAGE==='odds')renderOdds();else if(PAGE==='record')renderLearn();}
 
 /* ---------- record ---------- */
 function renderRecord(){
@@ -1156,8 +1171,8 @@ function wireReplay(){
   const grp=(items,cur,cb,label)=>{const g=document.createElement('div');g.className='seg';g.setAttribute('role','group');g.setAttribute('aria-label',label);items.forEach(([v,t])=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.setAttribute('aria-pressed',String(String(v)===String(cur)));b.addEventListener('click',()=>{cb(v);wireReplay();});g.appendChild(b);});ctl.appendChild(g);};
   grp(seasons.map(x=>[x,x]),rplSeason,v=>rplSeason=v,'Season');
   grp([[1,'1 day ahead'],[3,'3 days ahead'],[6,'6 days ahead']],rplLead,v=>rplLead=v,'How far ahead');
-  const S=RPL.seasons[rplSeason];const kL=rplLead<=3?2.1:rplLead<=6?1.6:1.35;
-  const wid=(x)=>{const m=Math.log(Math.max(1,x.p50));const w=(q)=>Math.round(Math.exp(m+kL*(Math.log(Math.max(1,q))-m)));return {...x,p5:w(x.p5),p25:w(x.p25),p75:w(x.p75),p95:w(x.p95)};};
+  const S=RPL.seasons[rplSeason];const gi=rplLead<=3?0:rplLead<=6?1:2;const kLo=[2.15,1.45,1.05][gi],kHi=[1.95,1.8,1.9][gi];
+  const wid=(x)=>{const m=Math.log(Math.max(1,x.p50));const w=(q)=>{const v=Math.log(Math.max(1,q));return Math.round(Math.min(500,Math.exp(m+(v<m?kLo:kHi)*(v-m))));};return {...x,p5:w(x.p5),p25:w(x.p25),p75:w(x.p75),p95:w(x.p95)};};
   const ser=((S.series||{})[rplLead]||[]).map(wid);const obs=S.observed||{};
   const dates=Object.keys(obs).sort();if(!dates.length){$('rplChart').innerHTML='';return;}
   const W=640,H=230,l=36,r=10,t=12,b=26;const t0=new Date(dates[0]).getTime(),t1=new Date(dates[dates.length-1]).getTime();
@@ -1278,7 +1293,7 @@ function render(now){
 
 /* ---------- controls ---------- */
 $('btnRerun').addEventListener('click',rerun);
-$('btnRecord').addEventListener('click',()=>$('dlgRecord').showModal());
+
 $('btnHow').addEventListener('click',()=>$('dlgHow').showModal());
 document.querySelectorAll('dialog [data-close]').forEach(b=>b.addEventListener('click',()=>b.closest('dialog').close()));
 document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close();}));
@@ -1463,11 +1478,45 @@ function renderOddsTable(){
   t.innerHTML=h+'</tbody>';
 }
 function renderOdds(){if(!FC)return;renderMarkets();renderOddsTable();const sub=$('oddsSub');if(sub)sub.textContent=regionName()+', 24-hour PSI. Each % is the share of 100,000 simulated futures.';}
-function setView(v){const odds=v==='odds';if(odds&&typeof tourI!=='undefined'&&tourI>=0)endTour();$('app').classList.toggle('odds',odds);
-  $('btnOdds').setAttribute('aria-pressed',String(odds));$('btnOdds').textContent=odds?'Forecast':'Odds';window.scrollTo(0,0);
-  if(odds)renderOdds();else window.dispatchEvent(new Event('resize'));
-  try{history.replaceState(null,'',odds?'#odds':location.pathname+location.search);}catch(e){}}
-$('btnOdds').addEventListener('click',()=>setView($('app').classList.contains('odds')?'map':'odds'));$('oddsBack').addEventListener('click',()=>setView('map'));
+let PAGE='map';
+function setView(v){PAGE=v;const paged=v!=='map';if(paged&&typeof tourI!=='undefined'&&tourI>=0)endTour();
+  $('app').classList.toggle('paged',paged);$('oddsView').classList.toggle('on',v==='odds');$('recordView').classList.toggle('on',v==='record');
+  $('btnOdds').setAttribute('aria-pressed',String(v==='odds'));$('btnRecord').setAttribute('aria-pressed',String(v==='record'));window.scrollTo(0,0);
+  if(v==='odds')renderOdds();else if(v==='record'){renderLearn();renderRecord();}else window.dispatchEvent(new Event('resize'));
+  try{history.replaceState(null,'',paged?'#'+v:location.pathname+location.search);}catch(e){}}
+$('btnOdds').addEventListener('click',()=>setView(PAGE==='odds'?'map':'odds'));
+$('btnRecord').addEventListener('click',()=>setView(PAGE==='record'?'map':'record'));
+document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>setView('map')));
+
+/* ---------- daily learnings (tools/learn.py, run every day at 1:30 pm) ---------- */
+let LEARN=null;
+function renderLearn(){
+  const box=$('learnBody');if(!box)return;const L=Array.isArray(LEARN)?LEARN:[];const last=L[L.length-1];
+  const pctB=(b)=>{const v=Math.round((Math.exp(b||0)-1)*100);return v===0?'none':(v>0?'+':'')+v+'%';};
+  const spr=(k)=>{const v=Math.round(((k||1)-1)*100);return v===0?'none':(v>0?'wider by ':'narrower by ')+Math.abs(v)+'%';};
+  const GN=['Days 1-3','Days 4-6','Days 7-15'];
+  let h='<h3>Daily learnings</h3><p>Every day at 1:30 pm, after NEA\'s noon reading, the twin checks its own forecasts. Claude Opus 5.5 reviews the misses and writes down the likely reason. Then the code makes a small, capped correction to the next forecasts. Each day\'s working is below.</p>';
+  if(!last){h+='<p class="note">The first review runs at 1:30 pm today. Forecasts need to reach their target day before they can be scored.</p>';box.innerHTML=h+learnHow();return;}
+  h+=learnEntry(last,true);
+  const cur=last.after||{bias:[0,0,0],spread:[1,1,1]};
+  h+='<h3>Corrections in use now</h3><div class="chart-wrap"><table class="ltab"><thead><tr><th></th><th>Best guess moved</th><th>Range</th></tr></thead><tbody>'+
+    GN.map((g,i)=>'<tr><td>'+g+'</td><td>'+pctB(cur.bias[i])+'</td><td>'+spr(cur.spread[i])+'</td></tr>').join('')+'</tbody></table></div>';
+  const older=L.slice(0,-1).reverse();
+  if(older.length)h+='<details class="more"><summary>Earlier days ('+older.length+')</summary>'+older.map(e=>'<div class="lold">'+learnEntry(e,false)+'</div>').join('')+'</details>';
+  box.innerHTML=h+learnHow();
+}
+function learnEntry(e,full){
+  const d=new Date(e.date+'T12:00:00+08:00');let h='<p><b>'+esc(dayName(d))+'</b>'+(e.scored_day?', checking forecasts for '+esc(dayName(new Date(e.scored_day+'T12:00:00+08:00'))):'')+'</p>';
+  if(e.review&&e.review.note)h+='<div class="lnote"><p>'+esc(e.review.note)+'</p><div class="by">Review by Claude Opus 5.5'+(e.agree?'. Its suggested direction matched the code\'s change for '+e.agree[0]+' of '+e.agree[1]+' forecast ranges.':'.')+'</div></div>';
+  else if(e.review_error)h+='<p class="note">No AI review this day ('+esc(String(e.review_error).slice(0,80))+').</p>';
+  const sc=(e.scores||[]).filter(g=>g.n);
+  if(sc.length)h+='<div class="chart-wrap"><table class="ltab"><thead><tr><th>How far ahead</th><th>Days scored</th><th>Typical miss</th><th>"Same as today" missed by</th><th>Inside possible range</th><th>Readings vs best guess</th></tr></thead><tbody>'+
+    sc.map(g=>'<tr><td>'+esc(g.name)+'</td><td>'+g.days+'</td><td>'+g.mae+'</td><td>'+g.mae_persistence+'</td><td>'+g.coverage90+'%</td><td>'+(g.bias_pct>0?'+':'')+g.bias_pct+'%</td></tr>').join('')+'</tbody></table></div>';
+  if(full&&e.latest&&e.latest.length)h+='<p class="note">'+e.latest.map(x=>esc(x.group)+': said '+x.p50+' (range '+x.p5+' to '+x.p95+'), measured '+x.obs).join('. ')+'.</p>';
+  const ch=(e.changes||[]);if(ch.length)h+='<ul class="lchg">'+ch.map(c=>'<li><b>'+esc(c.group)+':</b> '+esc(c.what)+'. '+esc(c.why)+'.</li>').join('')+'</ul>';
+  return h;
+}
+function learnHow(){return '<details class="more"><summary>How the learning works</summary><p>1. Score: each forecast from the last 15 days is checked against NEA\'s 24-hour PSI at noon, split by how far ahead it was made.</p><p>2. Review: Claude Opus 5.5 gets the scores plus what the fires, rain and winds did, and writes the most likely reason for the biggest misses.</p><p>3. Correct: the code moves the best guess half way toward fixing the past week\'s leftover error, by at most 8% a day and 50% in total. It widens the range if fewer than 75% of readings fell inside it, and narrows it if nearly all did. The AI explains; it does not set the numbers.</p></details>';}
 
 
 /* ---------- main reading from AQICN (World Air Quality Index), US AQI scale ---------- */
@@ -1534,11 +1583,12 @@ async function boot(){
     COAST=coast;INP=inp;FC=fc;state.official=fc;
     try{REC=await getJSON('data/record.json');}catch(e){REC=null;}
     try{RPL=await getJSON('data/replay.json');}catch(e){RPL=null;}
+    try{LEARN=await getJSON('data/learn.json');}catch(e){LEARN=null;}
     RINGS=COAST.map(enc=>{const pts=[];let x=0,y=0;for(let i=0;i<enc.length;i+=2){x+=enc[i];y+=enc[i+1];pts.push([x/100,y/100]);}return pts;});
     loadAQ();setInterval(loadAQ,15*60e3);
     try{prepWhy();}catch(e){WHY=null;}
     buildHot();buildWinds();buildThreads();renderAll();layout();initWind();syncT();
-    let seen=false;try{seen=localStorage.getItem('hazeTourSeen')==='1';}catch(e){}if(!seen)setTimeout(()=>{if(!$('app').classList.contains('odds'))startTour();},900);
+    let seen=false;try{seen=localStorage.getItem('hazeTourSeen')==='1';}catch(e){}if(!seen)setTimeout(()=>{if(PAGE==='map')startTour();},900);
   }catch(e){showError('The latest forecast could not be loaded ('+e.message+'). Reload the page to try again.');$('statusText').textContent='No forecast loaded';$('headline').textContent='The latest forecast could not be loaded.';}
 }
 let rz=0;window.addEventListener('resize',()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{layout();renderDays();});});

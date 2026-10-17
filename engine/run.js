@@ -20,6 +20,9 @@ const writeJSON = (p, v) => { fs.mkdirSync(path.dirname(p), { recursive: true })
 
 const inputs = readJSON(path.join(DATA, 'inputs.json'));
 if (!inputs) { console.error('no inputs.json'); process.exit(1); }
+// the daily learning step's current corrections travel with the inputs, so a rerun in the browser uses them too
+const learnParams = readJSON(path.join(HIST, 'learn', 'params.json'), null);
+if (learnParams && !inputs.sample) { inputs.learn = learnParams; writeJSON(path.join(DATA, 'inputs.json'), inputs); }
 const t0 = new Date(inputs.t0);
 const seed = Math.floor(t0.getTime() / 3600e3) % 2147483647;
 const started = Date.now();
@@ -43,6 +46,7 @@ fc.prevLabel = prev ? prev.t0 : null;
 // append this run (compact)
 const entry = {
   t0: inputs.t0, built: fc.built, cycle: inputs.cycle, sample: !!inputs.sample, summary: inputs.summary,
+  learn: inputs.learn ? { bias: inputs.learn.bias, spread: inputs.learn.spread } : null,
   regions: Object.fromEntries(Object.entries(fc.regions).map(([k, v]) => [k, {
     now: v.now, mode: v.mode, clear: v.clear,
     classes: v.classes.map(c => ({ id: c.id, name: c.name, odds: c.odds })),
