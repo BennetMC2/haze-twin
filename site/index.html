@@ -1865,7 +1865,7 @@ async function loadPlace(id,quiet){
     else{const base='data/cities/'+encodeURIComponent(id)+'/';const [inp,fc]=await Promise.all([getJSON(base+'inputs.json'),getJSON(base+'forecast.json')]);
       INP=inp;FC=fc;CITY=inp.city;SG=inp.receptor||SGC;}
     state.official=FC;state.region='national';$('app').classList.toggle('city',!!CITY);
-    $('brandSub').textContent='Odds for '+PLACEP()+' haze over the next 15 days';document.title=(CITY?PLACE()+' haze odds: ':'')+'Singapore Haze Prediction Model';
+    $('brandSub').textContent='Odds for '+PLACEP()+' haze, to the end of the year';document.title=(CITY?PLACE()+' haze odds: ':'')+'Singapore Haze Prediction Model';
     if(WHY)WHY.cache={};whyMapKey='';try{prepWhy();}catch(e){WHY=null;}
     selectLikely();buildHot();buildWinds();buildThreads();renderAll();layout();syncT();syncCases();needWarm=true;threadsDirty=true;
     try{localStorage.setItem('hazeCity',id);}catch(e){}
