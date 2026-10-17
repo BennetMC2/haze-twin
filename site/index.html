@@ -1828,7 +1828,7 @@ async function loadPlace(id,quiet){
 }
 $('btnShare').addEventListener('click',shareForecast);
 // support link: set COFFEE_URL to switch the button on
-const CF_BEACON='';if(CF_BEACON){const sc=document.createElement('script');sc.defer=true;sc.src='https://static.cloudflareinsights.com/beacon.min.js';sc.setAttribute('data-cf-beacon',JSON.stringify({token:CF_BEACON}));document.head.appendChild(sc);}
+const CF_BEACON='d0b3772a4f4e47e490237db7ca05f76e';if(CF_BEACON){const sc=document.createElement('script');sc.defer=true;sc.src='https://static.cloudflareinsights.com/beacon.min.js';sc.setAttribute('data-cf-beacon',JSON.stringify({token:CF_BEACON}));document.head.appendChild(sc);}
 const COFFEE_URL='https://ko-fi.com/bennetmc';if(COFFEE_URL){$('btnCoffee').href=COFFEE_URL;$('btnCoffee').hidden=false;}
 async function initCities(){
   let idx=null;try{idx=await getJSON('data/cities/index.json');}catch(e){}
