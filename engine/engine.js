@@ -435,6 +435,16 @@
       let clearCount = 0; for (let s = 0; s < N; s++) if (mode === 'haze' ? (firstAll[s] > 0 && firstAll[s] <= nC) : dayVals[nC - 1][s] <= 100.5) clearCount++;
       const by = days.map(() => 0); for (let s = 0; s < N; s++) if (firstAll[s] > 0) for (let d = firstAll[s] - 1; d < days.length; d++) by[d]++;
       const clearBy = by.map(x => Math.round(x / N * 1000) / 10);
+      // "haze over": the first day of 7 in a row at 100 or below. Checkable only while 7 days still fit in the
+      // 15-day forecast (start day 9 or earlier); after that the rain-season outlook takes over.
+      const RUN = 7, lastStart = days.length - RUN;
+      const ob = days.map(() => 0);
+      if (mode === 'haze') for (let s = 0; s < N; s++) {
+        let run = 0, start = -1;
+        for (let d = 0; d < days.length; d++) { if (dayVals[d][s] <= 100.5) { run++; if (run === RUN) { start = d - RUN + 1; break; } } else run = 0; }
+        if (start >= 0) for (let d = start; d <= lastStart; d++) ob[d]++;
+      }
+      const overBy = ob.map((x, d) => d <= lastStart ? Math.round(x / N * 1000) / 10 : null);
       // best and worst cases: the 1 in 10 futures with the lowest and the highest average PSI over the next 6 days.
       // They overlap the storylines (a future is in one storyline and maybe in a tail), so they are kept apart:
       // storylines 0-3 split all futures; 4 = best case, 5 = worst case.
@@ -535,7 +545,7 @@
         }
         return m;
       })();
-      out.regions[reg] = { now: now, mode, factor: model.regRatio[rr], clear: Math.round(clearCount / N * 1000) / 10, clearDayLabel: days[nC - 1].label, clearBy, days: dayStats, pct, classes, memberClass: mw, sampleClass, sampleTail, markets };
+      out.regions[reg] = { now: now, mode, factor: model.regRatio[rr], clear: Math.round(clearCount / N * 1000) / 10, clearDayLabel: days[nC - 1].label, clearBy, overBy, overRun: RUN, days: dayStats, pct, classes, memberClass: mw, sampleClass, sampleTail, markets };
     }
     const shares = [0, 0, 0]; for (let s = 0; s < N; s++) for (let k = 0; k < 3; k++) shares[k] += sim.share[sim.idx[s] * 3 + k];
     { const R = model.R, rs = new Float64Array(R); for (let s = 0; s < N; s++) { const j = sim.idx[s]; for (let q = 0; q < R; q++) rs[q] += sim.rshare[j * R + q]; }

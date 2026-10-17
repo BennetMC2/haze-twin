@@ -98,6 +98,10 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .citypick select{font:inherit;font-size:14px;color:var(--ink);background:var(--raise);border:1px solid var(--line-hi);border-radius:6px;padding:6px 28px 6px 10px;min-height:34px;cursor:pointer}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .app.city .regions,.app.city #psiLine{display:none}
+.oddsflow{grid-column:1/-1;display:flex;flex-direction:column;gap:14px;padding:16px 18px;min-width:0}
+.oddsflow h2{margin:0;font-size:17px}
+.oddsflow .ohead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+@media (max-width:1100px){.oddsflow{order:5}}
 .pageview{display:none}
 .app.paged>:not(.top):not(.pageview.on){display:none!important}
 .app.paged .pageview.on{display:flex;flex-direction:column;gap:14px;grid-column:1/-1;grid-row:2/4;overflow:auto;padding:16px 18px;min-height:0}
@@ -125,7 +129,9 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .otab tr.ext td{color:var(--ink-2)}
 .otab td.bg{font-family:var(--num)}
 #clearChart svg{display:block;max-width:620px;max-height:280px}
+a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .k-clr{display:inline-block;width:16px;height:0;border-top:2.5px solid var(--sky);vertical-align:middle;margin-right:6px}
+.k-over{display:inline-block;width:16px;height:0;border-top:2.5px solid var(--sD);vertical-align:middle;margin-right:6px}
 .k-sea{display:inline-block;width:16px;height:0;border-top:2.5px dashed var(--sD);vertical-align:middle;margin-right:6px}
 #weekList{display:none!important}
 .wrow{display:grid;grid-template-columns:84px minmax(0,1fr) 40px;align-items:center;gap:10px;min-height:26px;font-size:14px;color:var(--ink-2)}
@@ -424,16 +430,6 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     </div>
   </header>
 
-  <section class="panel pageview" id="oddsView" aria-labelledby="oddsTitle">
-    <div class="ohead"><button class="btn" type="button" data-back>← Back to forecast</button><h2 id="oddsTitle">Odds</h2><span class="note" id="oddsSub"></span></div>
-    <p class="note"><b>Not an official forecast.</b> This is an experimental, independent model. For health advice, follow <a href="https://www.haze.gov.sg/" target="_blank" rel="noopener">NEA</a>.</p>
-    <div class="degraded" id="degOdds" hidden></div>
-    <p class="note" id="oddsVal"><b>Not yet validated.</b> These yes/no odds have not been tested against past seasons with the current model, so treat them as rough.</p>
-    <div class="markets" id="markets"></div>
-    <h2>Day by day</h2>
-    <div class="chart-wrap"><table class="otab" id="oddsTable"></table></div>
-    <details class="more"><summary>More on these odds</summary><p class="note" id="oddsRel">Each % is the share of the 100,000 simulated futures where it happens. "Above 300" and "above 200" are checked at every simulated time step (every 6 hours to day 6, every 12 hours after), using the 24-hour average PSI. Beyond day 6 the ranges are wider. In the replays of 2015, 2019 and 2023, "above 300 within 6 days" was too high: on all 5 occasions it gave 30% or more, PSI did not go above 300. When "above 200" was given 60% or more, it happened about 4 times in 10.</p></details>
-  </section>
 
   <section class="panel pageview" id="recordView" aria-labelledby="recTitle">
     <div class="ohead"><button class="btn" type="button" data-back>← Back to forecast</button><h2 id="recTitle">Track record and learnings</h2></div>
@@ -475,9 +471,10 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     </section>
 
     <section class="panel card" id="seasonCard" aria-labelledby="seTitle">
-      <div class="head"><h2 id="seTitle">When does it clear?</h2><span class="note">To 31 Dec</span></div>
+      <div class="head"><h2 id="seTitle">When does it end?</h2><span class="note">To 31 Dec</span></div>
       <p class="sub" id="seasonLine"></p>
-      <div id="clearChart" class="chart-wrap"></div><div class="keyrow"><span><i class="k-clr"></i>A day at 100 or below (model, 15 days)</span><span><i class="k-sea"></i>Haze season over (experimental)</span></div>
+      <div id="clearChart" class="chart-wrap"></div><div class="keyrow"><span><i class="k-clr"></i>Back below 100 (first day at 100 or below)</span><span><i class="k-over"></i>Haze over (model)</span><span><i class="k-sea"></i>Haze over (rain-season outlook, experimental)</span></div>
+      <details class="more" open><summary>What these mean</summary><p class="note"><b>Back below 100:</b> the first day the 24-hour PSI is 100 or below. Haze can come back after it.</p><p class="note"><b>Haze over:</b> the PSI stays at 100 or below for 7 days in a row. The model can check this up to 9 days ahead. After that, the estimate comes from when the rains usually end the fire season, shifted by El Niño.</p></details>
       <details class="more"><summary>How this is worked out</summary><div id="seasonMore"></div></details>
     </section>
   </aside>
@@ -555,6 +552,16 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
       <details class="more"><summary>Show details</summary><div id="hood"></div></details>
     </section>
   </aside>
+  <section class="panel oddsflow" id="oddsView" aria-labelledby="oddsTitle">
+    <div class="ohead"><h2 id="oddsTitle">Odds</h2><span class="note" id="oddsSub"></span></div>
+    <p class="note"><b>Not an official forecast.</b> This is an experimental, independent model. For health advice, follow <a href="https://www.haze.gov.sg/" target="_blank" rel="noopener">NEA</a>.</p>
+    <div class="degraded" id="degOdds" hidden></div>
+    <p class="note" id="oddsVal"><b>Not yet validated.</b> These yes/no odds have not been tested against past seasons with the current model, so treat them as rough.</p>
+    <div class="markets" id="markets"></div>
+    <h2>Day by day</h2>
+    <div class="chart-wrap"><table class="otab" id="oddsTable"></table></div>
+    <details class="more"><summary>More on these odds</summary><p class="note" id="oddsRel">Each % is the share of the 100,000 simulated futures where it happens. "Above 300" and "above 200" are checked at every simulated time step (every 6 hours to day 6, every 12 hours after), using the 24-hour average PSI. Beyond day 6 the ranges are wider. In the replays of 2015, 2019 and 2023, "above 300 within 6 days" was too high: on all 5 occasions it gave 30% or more, PSI did not go above 300. When "above 200" was given 60% or more, it happened about 4 times in 10.</p></details>
+  </section>
 </div>
 
 
@@ -984,14 +991,15 @@ function renderAnswer(){
     // early + later are both "eases": count them together for the relief line
     const clear=reg.clear;
     ranked.slice(0,2).forEach((c,k)=>parts.push((k===0?'Most likely, '+pc(c.odds)+': ':'Next most likely, '+pc(c.odds)+': ')+say(c)+'.'));
-    if(!ranked.slice(0,2).some(c=>c.id==='early'||c.id==='later'))parts.push('Chance PSI is 100 or below by '+end+': '+pc(clear)+'.');
+    if(!ranked.slice(0,2).some(c=>c.id==='early'||c.id==='later'))parts.push('<b>Back below 100</b> by '+end+': '+pc(clear)+'.');
   }else{
     const clean=by('clean');const above=100-clean.odds;
     h=above>=50?'Haze likely to return this week.':'PSI likely to stay '+bandWord(typicalCore())+' this week.';
     ranked.slice(0,2).forEach((c,k)=>parts.push((k===0?'Most likely, '+pc(c.odds)+': ':'Next most likely, '+pc(c.odds)+': ')+say(c)+'.'));
     parts.push('Chance PSI goes above 100 by '+end+': '+pc(above)+'.');
   }
-  const se=FC.season;if(se&&reg.mode==='haze')parts.push('The haze season most likely ends around '+esc(se.median)+' (experimental estimate).');
+  const se=FC.season;if(reg.mode==='haze'){const ob=(reg.overBy||[]).filter(v=>v!=null);const li=ob.length-1;
+    parts.push('<b>Haze over</b> (7 days in a row at 100 or below): '+(li>=0?pc(ob[li])+' chance it has started by '+esc(dfull(FC.days[li]))+'. ':'')+(se?'Most likely around '+esc(se.median)+', from the rain-season outlook (experimental).':''));}
   $('headline').textContent=h;$('lede').innerHTML=parts.map(x=>'<span class="ll">'+x+'</span>').join('');
   REG.forEach(([k])=>{const el=$('reg-'+k);if(el)el.setAttribute('aria-pressed',String(k===state.region));});
 }
@@ -1143,12 +1151,14 @@ function drawClearChart(se,reg){
   [...new Set(mon)].forEach(d=>{g+='<line x1="'+X(d)+'" x2="'+X(d)+'" y1="'+t+'" y2="'+(H-b)+'" stroke="'+COL['--line']+'" stroke-opacity=".5"/><text x="'+X(d)+'" y="'+(H-8)+'" fill="'+COL['--ink-3']+'" font-size="10" text-anchor="middle">1 '+MON[new Date(d).getUTCMonth()]+'</text>';});
   if(reg.mode==='haze'&&reg.clearBy){const pts=reg.clearBy.map((v,i)=>[X(new Date(FC.days[i].iso).getTime()),Y(v)]);
     g+='<polyline points="'+pts.map(p=>p.join(',')).join(' ')+'" fill="none" stroke="'+COL['--sky']+'" stroke-width="2.5" stroke-linejoin="round"/>';}
+  if(reg.mode==='haze'&&reg.overBy){const pts=reg.overBy.map((v,i)=>v==null?null:[X(new Date(FC.days[i].iso).getTime()),Y(v)]).filter(Boolean);
+    if(pts.length)g+='<polyline points="'+pts.map(p=>p.join(',')).join(' ')+'" fill="none" stroke="'+COL['--sD']+'" stroke-width="2.5" stroke-linejoin="round"/>';}
   if(se&&se.weeks){const pts=[];if(se.dates)se.dates.forEach(d=>{const ms=new Date(d.iso).getTime();if(ms<=end)pts.push([ms,d.p]);});se.weeks.forEach(w=>pts.push([new Date(w.start).getTime()+3.5*864e5,100-w.on]));pts.sort((a,b)=>a[0]-b[0]);
     g+='<polyline points="'+pts.filter(p=>p[0]>=start).map(p=>X(p[0])+','+Y(p[1])).join(' ')+'" fill="none" stroke="'+COL['--sD']+'" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round"/>';}
   const today=new Date(FC.days[0].iso).getTime();g+='<text x="'+(X(today)+2)+'" y="'+(t+9)+'" fill="'+COL['--ink-3']+'" font-size="10">'+esc(dshort(FC.days[0]))+'</text>';
   box.innerHTML=g+'</svg>';
   const i50=reg.clearBy?reg.clearBy.findIndex(v=>Math.round(v)>=50):-1;
-  $('seasonLine').textContent=reg.mode==='haze'?(i50>=0?'Even odds of a day at 100 or below by '+dfull(FC.days[i50])+'. ':'Less than even odds of a day at 100 or below in the next 15 days ('+Math.round(reg.clearBy[reg.clearBy.length-1])+'%). ')+'The haze season is most likely over around '+se.median+' (80% chance between '+se.p10+' and '+se.p90+').':'Steady rains most likely set in around '+se.median+'.';
+  $('seasonLine').textContent=reg.mode==='haze'?(i50>=0?'Back below 100: even odds by '+dfull(FC.days[i50])+'. ':'Back below 100: less than even odds within 15 days ('+Math.round(reg.clearBy[reg.clearBy.length-1])+'%). ')+'Haze over: most likely around '+se.median+' (80% chance between '+se.p10+' and '+se.p90+').':'Steady rains most likely set in around '+se.median+'.';
 }
 function renderSeason(){
   const se=FC.season;const card=$('seasonCard');if(!se){card.hidden=true;return;}card.hidden=false;const reg=R();
@@ -1251,7 +1261,7 @@ function renderHeader(){
   document.querySelectorAll('.nMembers').forEach(e=>e.textContent=FC.members);
 }
 function renderAll(){renderStrip15();renderBestDay();renderHeader();renderRegions();renderAnswer();renderDays();renderScenarios();renderSources();renderChanges();renderNews();renderSeason();renderHood();renderStrip();renderKey();renderShowing();renderRecord();markCurrent();
-  if(!state.viewSet){state.viewSet=1;if(location.hash==='#odds')setView('odds');else if(location.hash==='#record')setView('record');}else if(PAGE==='odds')renderOdds();else if(PAGE==='record')renderLearn();}
+  if(!state.viewSet){state.viewSet=1;if(location.hash==='#odds')setView('odds');else if(location.hash==='#record')setView('record');}else if(PAGE==='record')renderLearn();renderOdds();}
 
 /* ---------- record ---------- */
 function renderRecord(){
@@ -1605,7 +1615,7 @@ function renderMarkets(){
   Q('Back to 100 or below by '+end+'?',reg.clear,COL['--good']);
   Q('Back to 100 or below in the next 15 days?',m.below100_15,COL['--good']);
   (m.weekends||[]).forEach((w,k)=>{const nm=(k===0?'This weekend':'Next weekend')+' ('+w.label.replace(/^Sat /,'')+')';Q(nm+': 100 or below both days?',w.clear,COL['--good'],w.extended?'More than 6 days out.':null);Q(nm+': above 200 on either day?',w.bad,COL['--vunh'],w.extended?'More than 6 days out.':null);});
-  if(se)se.dates.slice(0,3).forEach(d=>Q('Haze season over by '+d.label+'?',d.p,COL['--sD'],'Experimental.'));
+  if(se)se.dates.slice(0,3).forEach(d=>Q('Haze over by '+d.label+'?',d.p,COL['--sD'],'From the rain-season outlook. Experimental.'));
   const box=$('markets');if(!box)return;box.innerHTML='';
   list.forEach(x=>{const el=document.createElement('div');el.className='mkt';el.style.setProperty('--c',x.col);
     const oneIn=x.v>0.5&&x.v<50?'About 1 in '+Math.round(100/x.v):x.v>=50&&x.v<99.5?'About '+Math.round(x.v/10)+' in 10':'';
@@ -1624,12 +1634,12 @@ function renderOddsTable(){
 function renderOdds(){if(!FC)return;
   const M=RPL&&RPL.markets&&RPL.markets.hazardous6;if(M&&$('oddsVal')){const sk=M.brier_skill_vs_base_rate;$('oddsVal').innerHTML='<b>Tested on past seasons:</b> '+(sk!=null&&sk>0.05?'the yes/no odds were more useful than always quoting the usual rate.':'the yes/no odds were no more useful than always quoting the usual rate, so treat them as rough.')+' Details under Track record.';}renderMarkets();renderOddsTable();const sub=$('oddsSub');if(sub)sub.textContent=regionName()+', 24-hour PSI. Each % is the share of 100,000 simulated futures.';}
 let PAGE='map';
-function setView(v){PAGE=v;const paged=v!=='map';if(paged&&typeof tourI!=='undefined'&&tourI>=0)endTour();
-  $('app').classList.toggle('paged',paged);$('oddsView').classList.toggle('on',v==='odds');$('recordView').classList.toggle('on',v==='record');
-  $('btnOdds').setAttribute('aria-pressed',String(v==='odds'));$('btnRecord').setAttribute('aria-pressed',String(v==='record'));window.scrollTo(0,0);
-  if(v==='odds')renderOdds();else if(v==='record'){renderLearn();renderRecord();}else window.dispatchEvent(new Event('resize'));
+function setView(v){if(v==='odds'){if(PAGE!=='map')setView('map');renderOdds();$('oddsView').scrollIntoView({behavior:'smooth',block:'start'});return;}PAGE=v;const paged=v!=='map';if(paged&&typeof tourI!=='undefined'&&tourI>=0)endTour();
+  $('app').classList.toggle('paged',paged);$('recordView').classList.toggle('on',v==='record');
+  $('btnRecord').setAttribute('aria-pressed',String(v==='record'));window.scrollTo(0,0);
+  if(v==='record'){renderLearn();renderRecord();}else window.dispatchEvent(new Event('resize'));
   try{history.replaceState(null,'',paged?'#'+v:location.pathname+location.search);}catch(e){}}
-$('btnOdds').addEventListener('click',()=>setView(PAGE==='odds'?'map':'odds'));
+$('btnOdds').addEventListener('click',()=>setView('odds'));
 $('btnRecord').addEventListener('click',()=>setView(PAGE==='record'?'map':'record'));
 document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>setView('map')));
 
