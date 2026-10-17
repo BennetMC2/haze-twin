@@ -151,7 +151,6 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .k-clr{display:inline-block;width:16px;height:0;border-top:2.5px solid var(--sky);vertical-align:middle;margin-right:6px}
 .k-over{display:inline-block;width:16px;height:0;border-top:2.5px solid var(--sD);vertical-align:middle;margin-right:6px}
 .k-sea{display:inline-block;width:16px;height:0;border-top:2.5px dashed var(--sD);vertical-align:middle;margin-right:6px}
-#weekList{display:none!important}
 .wrow{display:grid;grid-template-columns:84px minmax(0,1fr) 40px;align-items:center;gap:10px;min-height:26px;font-size:14px;color:var(--ink-2)}
 .wrow .wb{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
 .wrow .wb i{display:block;height:100%;background:var(--unh);border-radius:4px}
@@ -196,6 +195,9 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .strip .st .d{font-size:10.5px;color:var(--ink-2);line-height:1.1;white-space:nowrap}
 .strip .st .v{font-family:var(--num);font-weight:700;font-size:13px;line-height:1.1}
 .striplab{margin-top:-4px}
+.wstrip{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:4px;margin-top:-4px}
+.wstrip .wk{display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0 3px;border-radius:5px;background:color-mix(in srgb,var(--c) calc(var(--a)*25%),var(--raise));opacity:.75}
+.wstrip .d{font-size:10px;color:var(--ink-2);white-space:nowrap}.wstrip .v{font-family:var(--num);font-weight:700;font-size:12.5px}
 .bestday{margin:0;font-size:14px;color:var(--ink-2)}
 .bestday b{color:var(--ink)}
 .sharerow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -454,7 +456,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 <div class="app" id="app">
 
   <header class="top">
-    <div class="brand">Singapore Haze Prediction Model<span id="brandSub">Odds for Singapore's haze over the next 15 days</span></div>
+    <div class="brand">Singapore Haze Prediction Model<span id="brandSub">Odds for Singapore's haze, to the end of the year</span></div>
     <label class="citypick"><span class="vh">Home city</span><select id="citySel" aria-label="Home city"><option value="sg">Singapore</option></select></label>
     <div class="status" role="status" aria-live="polite">
       <span class="live" id="liveDot"><i></i><span id="statusText">Loading the latest forecast…</span></span>
@@ -483,7 +485,8 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
       <h1 class="headline" id="headline">Loading…</h1>
       <div class="lede" id="lede"></div>
       <div class="strip" id="strip" role="list" aria-label="Chance PSI is above 100, day by day"></div>
-      <p class="note striplab"><span id="stripLab">Chance the 24-hour PSI is above 100 each day.</span> Faded: 7 to 15 days ahead, wider ranges.</p>
+      <div class="wstrip" id="wstrip" role="list" aria-label="Chance of haze days, week by week to the end of the year"></div>
+      <p class="note striplab"><span id="stripLab">Chance the 24-hour PSI is above 100 each day.</span> Faded: 7 to 15 days ahead. Weeks after that to 31 Dec: rough outlook from the rain season.</p>
       <p class="bestday" id="bestDay"></p>
       <div class="sharerow"><button class="btn" type="button" id="btnShare">Share this forecast</button><span class="note" id="shareNote" aria-live="polite"></span></div>
       <div class="now">
@@ -506,7 +509,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
   <aside class="col left" aria-label="Day by day">
 
     <section class="panel card" id="cardDays" aria-labelledby="daysTitle">
-      <div class="head"><h2 id="daysTitle">Next 15 days</h2><span class="note">24-hour PSI</span></div>
+      <div class="head"><h2 id="daysTitle">Next 15 days, then to 31 Dec</h2><span class="note">24-hour PSI</span></div>
       <div class="scale" aria-hidden="true"><span></span><div class="ax" id="ax"></div><span></span></div>
       <div id="dayList"></div>
       <div id="weekList" hidden></div>
@@ -1094,8 +1097,19 @@ function renderStrip15(){
     b.setAttribute('aria-label',dfull(fd)+': '+Math.round(p)+'% chance above 100, '+Math.round(p2)+'% above 200');
     b.dataset.t=fd.h/24;b.addEventListener('click',()=>{stopPlay();setT(fd.h/24);needWarm=true;});box.appendChild(b);});
 }
+// after the 15 days, week by week to 31 Dec: chance of days above 100 (same rule as the week list)
+function renderWStrip(){
+  const box=$('wstrip');if(!box||!FC)return;box.innerHTML='';const se=FC.season;const reg=R();
+  if(!se||!se.weeks||!se.weeks.length){box.hidden=true;return;}box.hidden=false;
+  const tail=reg.days.slice(-5);const k=tail.length?tail.reduce((a,d)=>a+d.bands[2]+d.bands[3]+d.bands[4],0)/tail.length/100:0;
+  se.weeks.forEach(w=>{const v=Math.round(w.on*Math.min(1,k));const el=document.createElement('span');el.className='wk';el.setAttribute('role','listitem');
+    el.style.setProperty('--c',v>=50?COL['--unh']:COL['--good']);el.style.setProperty('--a',(Math.abs(v-50)/50).toFixed(2));
+    el.innerHTML='<span class="d"></span><span class="v"></span>';el.children[0].textContent=w.label;el.children[1].textContent=v<1?'<1%':v+'%';
+    el.dataset.tip=w.label+'|Chance of days above 100: <b>'+(v<1?'under 1':v)+'%</b>|Rough outlook, from when the rains usually end the fire season';
+    el.setAttribute('aria-label',w.label+': '+v+'% chance of days above 100');box.appendChild(el);});
+}
 // the days with the lowest chance of unhealthy air, for planning outdoor time
-function renderBestDay(){
+function renderBestDay(){renderWStrip();
   const el=$('bestDay');if(!el||!FC)return;const reg=R();const nC=coreDays().length;
   const ch=reg.days.map((d,i)=>({i,p:d.bands[2]+d.bands[3]+d.bands[4]}));
   const best=(arr)=>arr.reduce((a,b)=>b.p<a.p?b:a);const b6=best(ch.slice(0,nC)),b15=best(ch);
