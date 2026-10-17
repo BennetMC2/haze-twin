@@ -95,6 +95,9 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .seg button[aria-pressed="true"]{background:var(--raise);color:var(--ink);box-shadow:inset 0 -2px 0 var(--sky)}
 .cases button[data-case="best"][aria-pressed="true"]{box-shadow:inset 0 -2px 0 var(--sD)}
 .cases button[data-case="worst"][aria-pressed="true"]{box-shadow:inset 0 -2px 0 var(--sC)}
+.citypick select{font:inherit;font-size:14px;color:var(--ink);background:var(--raise);border:1px solid var(--line-hi);border-radius:6px;padding:6px 28px 6px 10px;min-height:34px;cursor:pointer}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.app.city .regions,.app.city #psiLine{display:none}
 .pageview{display:none}
 .app.paged>:not(.top):not(.pageview.on){display:none!important}
 .app.paged .pageview.on{display:flex;flex-direction:column;gap:14px;grid-column:1/-1;grid-row:2/4;overflow:auto;padding:16px 18px;min-height:0}
@@ -395,7 +398,8 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 <div class="app" id="app">
 
   <header class="top">
-    <div class="brand">Haze Twin<span>Odds for Singapore's haze over the next 15 days</span></div>
+    <div class="brand">Haze Twin<span id="brandSub">Odds for Singapore's haze over the next 15 days</span></div>
+    <label class="citypick"><span class="vh">Home city</span><select id="citySel" aria-label="Home city"><option value="sg">Singapore</option></select></label>
     <div class="status" role="status" aria-live="polite">
       <span class="live" id="liveDot"><i></i><span id="statusText">Loading the latest forecast…</span></span>
       <span id="nextText"></span>
@@ -584,7 +588,7 @@ const esc=(s)=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;
 const HE=window.HazeEngine;
 const BANDS=HE.BANDS;const BAND_KEYS=['--good','--mod','--unh','--vunh','--haz'];const bandOf=HE.bandOf;
 const REG=[['national','Singapore'],['north','North'],['south','South'],['east','East'],['west','West'],['central','Central']];
-const SG=[103.82,1.35];
+const SGC=[103.82,1.35];let SG=SGC;let CITY=null;const PLACE=()=>CITY?CITY.name:'Singapore';const PLACEP=()=>PLACE()+'\''+(PLACE().endsWith('s')?'':'s');
 const COL={};
 ['--bg','--line','--ink','--ink-2','--ink-3','--sky','--fire','--sA','--sB','--sC','--sD','--good','--mod','--unh','--vunh','--haz'].forEach(k=>COL[k]=tok(k)||'#888888');COL.b=BAND_KEYS.map(k=>COL[k]);
 const SANS=()=>tok('--sans');
@@ -735,9 +739,9 @@ function hover(x,y){
   if(state.layers.st)(ex.stations||[]).forEach(st=>{const s=P(st.lon,st.lat);const d=Math.hypot(s[0]-x,s[1]-y);if(d<bd){bd=d;best={t:'Air quality station',d:'PM2.5 '+Math.round(st.pm25)+' µg/m³, latest hour'};}});
   if(!best&&FC&&state.layers.paths){let bt=null,bdd=7;for(const tr of THREADS){if(!threadVisible(tr))continue;if(state.sel!==null&&tr.frac[state.sel]<0.15)continue;for(let i=0;i<tr.pts.length;i++){const s=P(tr.pts[i][0],tr.pts[i][1]);const d=Math.hypot(s[0]-x,s[1]-y);if(d<bdd){bdd=d;bt=tr;}}}
     if(bt){const a=new Date(t0().getTime()+bt.h*3600e3);const st=bt.pts[0];let nr=null,nd=1e9;(INP.regions||[]).forEach(g=>{const d=Math.hypot(g.lon-st[0],g.lat-st[1]);if(d<nd){nd=d;nr=g;}});
-      best={t:'Path of air reaching Singapore',d:'Arrives around '+dayName(a).split(' ')[0]+' '+clock(a)+'. About 4 days earlier it was '+(nd<2.5&&nr?'over '+nr.name:'out over the sea')+'.'};}}
-  if(!best&&FC&&state.layers.futures){const lon=(x-V.ox)/V.k,lat=(V.oy-y)/V.k;const f=catchAt(lon,lat);if(f>=0.04){const d=new Date(t0().getTime()+Math.round(state.t*4)*6*3600e3);best={t:'Where Singapore\'s air comes from',d:'Air reaching Singapore around '+dayName(d).split(' ')[0]+' '+clock(d)+' passes over here in the 4 days before'+(f>0.6?' in most forecasts':f>0.25?' in some forecasts':' in a few forecasts')+'. Smoke from fires here can reach Singapore.'};}}
-  const sg=P(SG[0],SG[1]);if(Math.hypot(sg[0]-x,sg[1]-y)<12&&FC){best={t:'Singapore',d:'24-hour PSI '+Math.round(R().now)};}
+      best={t:'Path of air reaching '+PLACE(),d:'Arrives around '+dayName(a).split(' ')[0]+' '+clock(a)+'. About 4 days earlier it was '+(nd<2.5&&nr?'over '+nr.name:'out over the sea')+'.'};}}
+  if(!best&&FC&&state.layers.futures){const lon=(x-V.ox)/V.k,lat=(V.oy-y)/V.k;const f=catchAt(lon,lat);if(f>=0.04){const d=new Date(t0().getTime()+Math.round(state.t*4)*6*3600e3);best={t:'Where '+PLACEP()+' air comes from',d:'Air reaching '+PLACE()+' around '+dayName(d).split(' ')[0]+' '+clock(d)+' passes over here in the 4 days before'+(f>0.6?' in most forecasts':f>0.25?' in some forecasts':' in a few forecasts')+'. Smoke from fires here can reach Singapore.'};}}
+  const sg=P(SG[0],SG[1]);if(Math.hypot(sg[0]-x,sg[1]-y)<12&&FC){best={t:PLACE(),d:(CITY?'PSI scale ':'24-hour PSI ')+Math.round(R().now)};}
   if(!best){tip.hidden=true;return;}
   tip.innerHTML='<b>'+esc(best.t)+'</b>'+esc(best.d);tip.style.left=x+'px';tip.style.top=y+'px';tip.hidden=false;
 }
@@ -904,7 +908,7 @@ fan.addEventListener('pointermove',ev=>{if(dragFan)fanToT(ev);});
 fan.addEventListener('pointerup',()=>{dragFan=false;});
 
 /* ---------- words ---------- */
-const regionName=()=>state.region==='national'?'Singapore':REG.find(r=>r[0]===state.region)[1]+' Singapore';
+const regionName=()=>state.region==='national'?PLACE():REG.find(r=>r[0]===state.region)[1]+' Singapore';
 const bandWord=(v)=>BANDS[bandOf(v)].name.toLowerCase();
 function typicalCore(){const reg=R();const d=reg.days.slice(0,coreDays().length).map(x=>x.p50).sort((a,b)=>a-b);return d[Math.floor(d.length/2)]||reg.now;}
 // "10pm today" or "10pm Fri 16 Oct"
@@ -938,6 +942,7 @@ function renderAnswer(){
   const area=state.region==='national'?'':', '+REG.find(r=>r[0]===state.region)[1];
   if(FC.issued&&FC.obsTime)$('nowProv').textContent='24-hour PSI'+area+', NEA reading at '+whenTxt(new Date(FC.obsTime));
   else $('nowProv').textContent='24-hour PSI'+area+', NEA at '+whenTxt(new Date(INP.obs.time||INP.t0));
+  if(CITY){const o=INP.obs||{};$('nowProv').textContent='On Singapore\'s PSI scale, from PM2.5 at '+(o.station||'the nearest station')+' (World Air Quality Index Project), '+whenTxt(new Date(o.time||INP.t0));}
   // AQICN is a second opinion on a different scale: shown under the PSI, never instead of it
   if(AQ&&AQ.t&&Date.now()-AQ.t.getTime()<=4*3600e3){$('psiLine').hidden=false;
     $('psiLine').innerHTML='US AQI (different scale) <b>'+esc(AQ.aqi)+'</b> at Central, <a href="https://aqicn.org/city/singapore/central/" target="_blank" rel="noopener">AQICN</a>, '+esc(clock(AQ.t));}
@@ -1059,9 +1064,9 @@ function islandOf(lon,lat){if(lat<-5.6&&lon>105.5)return 'Java';if(lon>=108.5)re
 function renderSources(){
   const ss=FC.sourceShare||{};const list=(FC.sourceRegions||[]).filter(r=>r.share>=1).slice(0,5);
   const k=Math.round((ss.Kalimantan||0)/10),s=Math.round((ss.Sumatra||0)/10);
-  $('srcLine').textContent='Of the fire smoke likely to reach Singapore, about '+k*10+'% comes from Kalimantan and '+s*10+'% from Sumatra.';
+  $('srcLine').textContent='Of the fire smoke likely to reach '+PLACE()+', about '+k*10+'% comes from Kalimantan and '+s*10+'% from Sumatra.';
   const box=$('srcs');box.innerHTML='';const mx=Math.max(1,...list.map(r=>r.share));
-  list.forEach(r=>{const el=document.createElement('div');el.className='src';el.innerHTML='<span></span><span class="bar"><i></i></span><span class="pc"></span>';el.children[0].textContent=r.name;el.dataset.tip=r.name+'|<b>'+Math.round(r.share)+'%</b> of the fire smoke reaching Singapore over the next 3 days';el.querySelector('i').style.width=(r.share/mx*100)+'%';el.children[2].textContent=Math.round(r.share)+'%';box.appendChild(el);});
+  list.forEach(r=>{const el=document.createElement('div');el.className='src';el.innerHTML='<span></span><span class="bar"><i></i></span><span class="pc"></span>';el.children[0].textContent=r.name;el.dataset.tip=r.name+'|<b>'+Math.round(r.share)+'%</b> of the fire smoke reaching '+PLACE()+' over the next 3 days';el.querySelector('i').style.width=(r.share/mx*100)+'%';el.children[2].textContent=Math.round(r.share)+'%';box.appendChild(el);});
   const facts=$('facts');facts.innerHTML='';const add=(k,html)=>{const li=document.createElement('li');li.innerHTML='<span>'+k+'</span><span>'+html+'</span>';facts.appendChild(li);};
   const cnt={};INP.hotspots.forEach(h=>{const i=islandOf(h[0],h[1]);cnt[i]=(cnt[i]||0)+1;});const fmt=(n)=>n.toLocaleString('en-US');
   add('Fires','<b>'+fmt(INP.hotspots.length)+'</b> hotspots seen by <a href="https://firms.modaps.eosdis.nasa.gov/map/#d:24hrs;@108,-1,6z" target="_blank" rel="noopener">NASA satellites</a> in the last day: Kalimantan '+fmt(cnt.Kalimantan||0)+', Sumatra '+fmt(cnt.Sumatra||0)+'.');
@@ -1137,7 +1142,7 @@ function markCurrent(){
 function renderShowing(){
   if(!FC)return;const reg=R();
   const sel=state.sel!==null?cls()[state.sel]:null;
-  if(state.t<0.01){$('whyMap').hidden=true;$('showing1').textContent='Now, '+dayName(t0())+', '+clock(new Date(INP.obs.time||INP.t0));$('showing2').textContent=(sel?'Showing outcome: '+plainName(sel)+'. ':'')+'Fires seen in the last day, today\'s smoke, and (shaded) where Singapore\'s air is coming from.';}
+  if(state.t<0.01){$('whyMap').hidden=true;$('showing1').textContent='Now, '+dayName(t0())+', '+clock(new Date(INP.obs.time||INP.t0));$('showing2').textContent=(sel?'Showing outcome: '+plainName(sel)+'. ':'')+'Fires seen in the last day, today\'s smoke, and (shaded) where '+PLACEP()+' air is coming from.';}
   else{const d=new Date(t0().getTime()+Math.round(state.t*8)*3*3600e3);const i=arrIndex(state.t*24);
     $('showing1').textContent='Forecast for '+dayName(d)+', '+clock(d);
     const v=sel&&sel.median.length?sel.median[i]:reg.pct.p50[i];
@@ -1149,8 +1154,8 @@ function renderKey(){
   const k=$('key');const L=state.layers;const items=[];
   if(L.hot)items.push('<span><i class="ky-fire"></i>Fire hotspot</span>');
   if(L.smoke)items.push('<span><i class="ky-smoke"></i>Smoke</span>');
-  if(L.futures)items.push('<span><i class="ky-catch" style="--c:'+(state.sel!==null?classColor(cls()[state.sel]):COL['--sA'])+'"></i>Where Singapore\'s air comes from</span>');
-  if(L.paths)items.push('<span><i class="ky-air" style="--c:'+(state.sel!==null?classColor(cls()[state.sel]):COL['--sA'])+'"></i>Air paths to Singapore</span>');
+  if(L.futures)items.push('<span><i class="ky-catch" style="--c:'+(state.sel!==null?classColor(cls()[state.sel]):COL['--sA'])+'"></i>Where '+PLACEP()+' air comes from</span>');
+  if(L.paths)items.push('<span><i class="ky-air" style="--c:'+(state.sel!==null?classColor(cls()[state.sel]):COL['--sA'])+'"></i>Air paths to '+PLACE()+'</span>');
   if(L.wind)items.push('<span><i class="ky-wind"></i>Wind</span>');
   if(L.air)items.push('<span><i class="ky-ap"></i>Airport visibility</span>');
   if(L.st)items.push('<span><i class="ky-st"></i>Air quality station</span>');
@@ -1162,7 +1167,7 @@ function toggleExplainer(){const e=$('explainer');if(e.hidden){renderExplainer()
 function renderExplainer(){
   const air=state.sel!==null?classColor(cls()[state.sel]):COL['--sA'];
   const rows=[
-    ['<i class="ky-catch" style="--c:'+air+';display:inline-block"></i>','<b>Where Singapore\'s air comes from.</b> The air that will be over Singapore on the day you pick passed over this area in the 4 days before. Brighter means more of the '+FC.members+' weather forecasts agree. Fires inside it send smoke to Singapore; fires outside it mostly don\'t. It is not the wind: most air in the region goes elsewhere.'],
+    ['<i class="ky-catch" style="--c:'+air+';display:inline-block"></i>','<b>Where '+PLACEP()+' air comes from.</b> The air that will be over '+PLACE()+' on the day you pick passed over this area in the 4 days before. Brighter means more of the '+FC.members+' weather forecasts agree. Fires inside it send smoke to Singapore; fires outside it mostly don\'t. It is not the wind: most air in the region goes elsewhere.'],
     ['<i class="ky-fire" style="display:inline-block"></i>','<b>Fire hotspots</b> seen by NASA satellites in the last day. Bigger and brighter means a hotter fire.'],
     ['<i class="ky-smoke" style="display:inline-block"></i>','<b>Smoke</b> from those fires, drifting with the forecast winds. This is the model\'s picture, not a satellite photo.'],
     ['<i class="ky-wind" style="display:inline-block"></i>','<b>Wind</b> about 1 km up, where most of the smoke travels. It shows which way the air and smoke are moving.'],
@@ -1171,7 +1176,7 @@ function renderExplainer(){
   $('explainer').innerHTML='<div class="xh"><h2 id="exTitle">What\'s on the map</h2><button type="button" aria-label="Close" id="exClose">×</button></div><dl>'+rows.map(r=>'<dt>'+r[0]+'</dt><dd>'+r[1]+'</dd>').join('')+'</dl><p class="note">Pick a day below the map, or press Play, to see how this changes. Point at the shaded area, an airport or Singapore for details.</p>';
   $('exClose').addEventListener('click',toggleExplainer);
 }
-const LAYERS=[['futures','Where Singapore\'s air comes from'],['smoke','Smoke'],['hot','Fire hotspots'],['wind','Wind'],['air','Airport visibility'],['st','Air quality stations'],['sat','Satellite photo','yesterday']];
+const LAYERS=[['futures','Where the air comes from'],['smoke','Smoke'],['hot','Fire hotspots'],['wind','Wind'],['air','Airport visibility'],['st','Air quality stations'],['sat','Satellite photo','yesterday']];
 function renderLayers(){
   const m=$('layerMenu');m.innerHTML='';
   LAYERS.forEach(l=>{const lab=document.createElement('label');lab.innerHTML='<input type="checkbox"><span></span>'+(l[2]?'<small>'+l[2]+'</small>':'');lab.children[1].textContent=l[1];const inp=lab.children[0];inp.checked=state.layers[l[0]];
@@ -1384,7 +1389,7 @@ function render(now){
   const sg=P(SG[0],SG[1]);
   if(!reduced){const ph=(tSec%2.2)/2.2;c.strokeStyle=rgba(COL['--sky'],0.9*(1-ph));c.lineWidth=1.5;c.beginPath();c.arc(sg[0],sg[1],5+ph*24,0,Math.PI*2);c.stroke();}
   c.fillStyle=COL['--ink'];c.strokeStyle='#09131A';c.lineWidth=2;c.beginPath();c.arc(sg[0],sg[1],5,0,Math.PI*2);c.fill();c.stroke();
-  c.font='600 14px '+SANS();c.textAlign='left';c.lineWidth=3;c.strokeStyle='rgba(9,19,26,0.85)';c.strokeText('Singapore',sg[0]+10,sg[1]+20);c.fillStyle=COL['--ink'];c.fillText('Singapore',sg[0]+10,sg[1]+20);
+  c.font='600 14px '+SANS();c.textAlign='left';c.lineWidth=3;c.strokeStyle='rgba(9,19,26,0.85)';c.strokeText(PLACE(),sg[0]+10,sg[1]+20);c.fillStyle=COL['--ink'];c.fillText(PLACE(),sg[0]+10,sg[1]+20);
   if(state.running){const f=state.runFrac;const x=f*V.w;const g=c.createLinearGradient(x-140,0,x,0);g.addColorStop(0,'rgba(134,203,230,0)');g.addColorStop(1,'rgba(134,203,230,0.18)');c.fillStyle=g;c.fillRect(x-140,0,140,V.h);}
   requestAnimationFrame(render);
 }
@@ -1433,7 +1438,7 @@ function localAnswer(qRaw){
     if(FC.season)P.push('The haze season itself most likely ends around '+FC.season.median+', when steady rain sets in over the fires (80% chance between '+FC.season.p10+' and '+FC.season.p90+'). This estimate is experimental.');
     return P;}
   if(/where|source|from|which fire|who|indonesia|kalimantan|sumatra|malaysia/.test(q)){
-    const L=(FC.sourceRegions||[]).slice(0,4);P.push('Over the next 3 days, the smoke reaching Singapore comes mostly from '+L.map(r=>r.name+' ('+Math.round(r.share)+'%)').join(', ')+'.');
+    const L=(FC.sourceRegions||[]).slice(0,4);P.push('Over the next 3 days, the smoke reaching '+PLACE()+' comes mostly from '+L.map(r=>r.name+' ('+Math.round(r.share)+'%)').join(', ')+'.');
     P.push('That depends on both how much is burning there and whether the winds carry it here.');return P;}
   if(/worse|hazardous|300|peak|bad/.test(q)){const w=cs.find(c=>c.id==='worse');P.push('Chance it gets worse in the next 6 days: '+pct(w?w.odds:0)+'.'+(w&&w.outcome?' In those cases: '+w.outcome:''));if(w&&w.watch)P.push('What would cause it: '+w.watch);return P;}
   if(/rain|monsoon|weather/.test(q)){const rn=(INP.summary||{}).rain_mm_0_120h||{};P.push('Rain expected over the fires in the next 5 days: Sumatra about '+Math.round(rn.Sumatra||0)+' mm, Kalimantan about '+Math.round(rn.Kalimantan||0)+' mm. Peat fires usually need days of steady rain to go out.');if(FC.season)P.push('Steady monsoon rain is most likely around '+FC.season.median+'.');return P;}
@@ -1491,10 +1496,10 @@ function whyLines(i){
   // sources that day
   const row=[];let tot=0;for(let q=0;q<Rn;q++){const v=W.C[a*Rn+q];row.push([INP.regions[q].name,v]);tot+=v;}
   row.sort((x,y)=>y[1]-x[1]);
-  if(tot>0){const top=row.filter(r=>r[1]/tot>=0.1).slice(0,3);lines.push(['Smoke from','The smoke reaching Singapore that day would mostly come from '+top.map(r=>'<b>'+esc(r[0])+'</b> ('+Math.round(r[1]/tot*100)+'%)').join(', ')+'.']);}
+  if(tot>0){const top=row.filter(r=>r[1]/tot>=0.1).slice(0,3);lines.push(['Smoke from','The smoke reaching '+PLACE()+' that day would mostly come from '+top.map(r=>'<b>'+esc(r[0])+'</b> ('+Math.round(r[1]/tot*100)+'%)').join(', ')+'.']);}
   // winds vs today
   let t0v=0;for(let q=0;q<Rn;q++)t0v+=W.C[a0*Rn+q];
-  if(t0v>0){const ratio=tot/t0v;lines.push(['Winds',ratio>1.25?'Winds point <b>more</b> of the fires\' smoke straight at Singapore than today.':ratio<0.8?'Winds point <b>less</b> of the fires\' smoke at Singapore than today'+(ratio<0.4?', a big shift.':'.'):'Winds point about as much of the fires\' smoke at Singapore as today.']);}
+  if(t0v>0){const ratio=tot/t0v;lines.push(['Winds',ratio>1.25?'Winds point <b>more</b> of the fires\' smoke straight at '+PLACE()+' than today.':ratio<0.8?'Winds point <b>less</b> of the fires\' smoke at Singapore than today'+(ratio<0.4?', a big shift.':'.'):'Winds point about as much of the fires\' smoke at Singapore as today.']);}
   const dd=h/24;const g=(INP.signals&&INP.signals.growthShift)||0;const act=Math.pow(0.5,dd/12.6)*Math.exp(g*dd);
   if(dd>1.5)lines.push(['Fires',act<0.92?'Without heavy rain, fires are expected to burn down slowly: by then roughly <b>'+Math.round(act*100)+'%</b> as active as now in the middle estimate.':'Fires are expected to keep burning at about today\'s level.']);
   // rain on the fires by then
@@ -1664,11 +1669,34 @@ $('btnTour').addEventListener('click',startTour);
 
 /* ---------- boot ---------- */
 async function getJSON(p){const r=await fetch(p,{cache:'no-cache'});if(!r.ok)throw new Error(p+': HTTP '+r.status);return r.json();}
+// home cities: the same model traced back from another city; Singapore keeps NEA's areas, record and learning
+let SGDATA=null;
+async function loadPlace(id,quiet){
+  try{
+    if(id==='sg'||!id){if(!SGDATA)return;CITY=null;SG=SGC;INP=SGDATA.inp;FC=SGDATA.fc;}
+    else{const base='data/cities/'+encodeURIComponent(id)+'/';const [inp,fc]=await Promise.all([getJSON(base+'inputs.json'),getJSON(base+'forecast.json')]);
+      INP=inp;FC=fc;CITY=inp.city;SG=inp.receptor||SGC;}
+    state.official=FC;state.region='national';$('app').classList.toggle('city',!!CITY);
+    $('brandSub').textContent='Odds for '+PLACEP()+' haze over the next 15 days';document.title='Haze Twin: '+PLACE()+' haze odds';
+    if(WHY)WHY.cache={};whyMapKey='';try{prepWhy();}catch(e){WHY=null;}
+    selectLikely();buildHot();buildWinds();buildThreads();renderAll();layout();syncT();syncCases();needWarm=true;threadsDirty=true;
+    try{localStorage.setItem('hazeCity',id);}catch(e){}
+    try{const u=new URL(location.href);if(id==='sg')u.searchParams.delete('city');else u.searchParams.set('city',id);history.replaceState(null,'',u.pathname+u.search+u.hash);}catch(e){}
+    $('citySel').value=id;
+  }catch(e){if(!quiet)showError('That city\'s forecast could not be loaded. Showing Singapore.');if(id!=='sg')loadPlace('sg',true);}
+}
+async function initCities(){
+  let idx=null;try{idx=await getJSON('data/cities/index.json');}catch(e){}
+  const sel=$('citySel');(idx&&idx.cities||[]).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;sel.appendChild(o);});
+  sel.addEventListener('change',()=>loadPlace(sel.value));
+  let want=null;try{want=new URL(location.href).searchParams.get('city')||localStorage.getItem('hazeCity');}catch(e){}
+  if(want&&want!=='sg'&&idx&&(idx.cities||[]).some(c=>c.id===want))loadPlace(want,true);
+}
 async function boot(){
   renderLayers();layout();requestAnimationFrame(render);
   try{
     const [coast,inp,fc]=await Promise.all([getJSON('data/coast.json'),getJSON('data/inputs.json'),getJSON('data/forecast.json')]);
-    COAST=coast;INP=inp;FC=fc;state.official=fc;
+    COAST=coast;INP=inp;FC=fc;state.official=fc;SGDATA={inp,fc};
     try{REC=await getJSON('data/record.json');}catch(e){REC=null;}
     try{RPL=await getJSON('data/replay.json');}catch(e){RPL=null;}
     try{LEARN=await getJSON('data/learn.json');}catch(e){LEARN=null;}
@@ -1676,6 +1704,7 @@ async function boot(){
     loadAQ();setInterval(loadAQ,15*60e3);
     try{prepWhy();}catch(e){WHY=null;}
     selectLikely();buildHot();buildWinds();buildThreads();renderAll();layout();initWind();syncT();syncCases();
+    initCities();
     let seen=false;try{seen=localStorage.getItem('hazeTourSeen')==='1';}catch(e){}if(!seen)setTimeout(()=>{if(PAGE==='map')startTour();},900);
   }catch(e){showError('The latest forecast could not be loaded ('+e.message+'). Reload the page to try again.');$('statusText').textContent='No forecast loaded';$('headline').textContent='The latest forecast could not be loaded.';}
 }

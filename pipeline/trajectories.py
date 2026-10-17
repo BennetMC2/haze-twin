@@ -38,7 +38,7 @@ def _interp(field, lons, lats, times, plon, plat, pt):
     return out
 
 
-def trace_member(u, v, rain, lons, lats, times, cells, rng, path_arrivals):
+def trace_member(u, v, rain, lons, lats, times, cells, rng, path_arrivals, receptor=None):
     """Trace one member.
 
     u, v: [T, ny, nx] m/s; rain: [T, ny, nx] mm per 6 h; times: hours rel. t0.
@@ -54,8 +54,9 @@ def trace_member(u, v, rain, lons, lats, times, cells, rng, path_arrivals):
     P = PARTICLES
     arr = np.repeat(np.array(ARRIVALS_H, dtype=float), P)
     aidx = np.repeat(np.arange(A), P)
-    plon = SG_LON + rng.normal(0, 0.05, A * P)
-    plat = SG_LAT + rng.normal(0, 0.04, A * P)
+    rlon, rlat = receptor or (SG_LON, SG_LAT)
+    plon = rlon + rng.normal(0, 0.05, A * P)
+    plat = rlat + rng.normal(0, 0.04, A * P)
     pt = arr.copy()
     cumrain = np.zeros(A * P)
     alive = np.ones(A * P, dtype=bool)
@@ -131,7 +132,7 @@ def make_fire_cells(fires, grid_deg, west, south, east, north):
             "lookup": lookup, "n": len(cells), "cells": cells}
 
 
-def footprints(weather, cells, seed=1, path_arrivals=None, log=print):
+def footprints(weather, cells, seed=1, path_arrivals=None, log=print, receptor=None):
     """Run all members. Returns S[M, A, R, B] (FRP-weighted, per region) and paths."""
     M = len(weather["members"])
     A, B, R = len(ARRIVALS_H), len(EMIS_BINS_H), len(REGIONS)
@@ -149,10 +150,10 @@ def footprints(weather, cells, seed=1, path_arrivals=None, log=print):
         if cells["n"] == 0:
             sens = np.zeros((A, B, 0))
             _, p = trace_member(weather["u"][m], weather["v"][m], weather["rain"][m], weather["lons"],
-                                weather["lats"], weather["times"], cells, rng, path_arrivals)
+                                weather["lats"], weather["times"], cells, rng, path_arrivals, receptor)
         else:
             sens, p = trace_member(weather["u"][m], weather["v"][m], weather["rain"][m], weather["lons"],
-                                   weather["lats"], weather["times"], cells, rng, path_arrivals)
+                                   weather["lats"], weather["times"], cells, rng, path_arrivals, receptor)
             # FRP-weighted sum per region: S_r = sum_c sens_c * frp_c  (units: hours * MW, scaled later)
             weighted = sens * frp_w[None, None, :]
             for r in range(R):

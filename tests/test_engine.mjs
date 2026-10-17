@@ -120,3 +120,14 @@ test('"gets worse" needs a material rise, not one point over a band edge', () =>
   const m = /Peaks (\d+)/.exec(w.outcome || '');
   if (m) assert.ok(+m[1] >= Math.min(Math.round(f.regions.national.now * 1.3 / 5) * 5, 500) - 5);
 });
+
+test('a home city forecasts one place, with best and worst cases kept apart from the storylines', () => {
+  const inp = fixture({ pm: 90 }); inp.city = { id: 'kl', name: 'Kuala Lumpur' }; inp.obs.time = inp.t0;
+  const f = run(inp, 6000);
+  assert.deepEqual(Object.keys(f.regions), ['national']);
+  const cs = f.regions.national.classes;
+  assert.equal(cs.filter(c => !c.hidden).length, 4);
+  assert.deepEqual(cs.filter(c => c.hidden).map(c => c.id), ['bestcase', 'worstcase']);
+  const sum = cs.filter(c => !c.hidden).reduce((a, c) => a + c.odds, 0);
+  assert.ok(Math.abs(sum - 100) < 0.5, 'storylines split all futures');
+});

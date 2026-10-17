@@ -158,6 +158,7 @@
     const camsPsi = (hh) => { if (!camsRatio) return null; const c = camsMean(hh); return c ? psiOf(c * camsRatio) : null; };
     // checks that decide whether this run is fit to publish
     const degraded = [];
+    if (inputs.city && obs.time && (t0 - new Date(obs.time)) / 3600e3 > 12) degraded.push('the city reading is more than 12 hours old');
     if (!nat) degraded.push('no valid NEA PM2.5 reading');
     for (const src of (inputs.sources || [])) {
       if (src.status === 'failed' && /FIRMS|GEFS/i.test(src.name || '')) degraded.push((src.name || 'a data source') + ' failed');
@@ -374,8 +375,9 @@
     out.sampleMember = sampleIdx.map(s => sim.memb[sim.idx[s]]);
     const stride = Math.max(1, Math.ceil(N / 20000));
     const psiAll = new Float32Array(Math.ceil(N / stride) + 1);
-    for (let rr = 0; rr < NEA_REGIONS.length; rr++) {
-      const reg = NEA_REGIONS[rr];
+    const REGS = model.inputs.city ? ['national'] : NEA_REGIONS;   // a home city has one reading, no NEA areas
+    for (let rr = 0; rr < REGS.length; rr++) {
+      const reg = REGS[rr];
       const now = psiNowObs[reg] != null ? psiNowObs[reg] : Math.round(regionPsi(sim, 0, 0, rr));
       const mode = now > 100 ? 'haze' : 'clear';
       const defs = CLASS_DEFS[mode];

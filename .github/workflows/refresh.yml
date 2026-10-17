@@ -47,6 +47,11 @@ jobs:
           cp .work/run.log site/data/run-log.txt
           cp history/replay/summary.json site/data/replay.json 2>/dev/null || true
           cp history/learn/log.json site/data/learn.json 2>/dev/null || true
+          # home cities: latest saved run, re-anchored to each city's newest reading
+          CREL=$(gh api "repos/${GITHUB_REPOSITORY}/releases?per_page=4" -q '[.[] | select(.tag_name|startswith("archive-"))] | .[].tag_name' | head -2)
+          for R in $CREL; do CA=$(gh release view "$R" --json assets -q '[.assets[].name | select(startswith("cities-"))] | sort | last'); if [ -n "$CA" ]; then gh release download "$R" -p "$CA" -D .work --clobber && tar -xzf ".work/$CA" -C site/data && break; fi; done
+          python tools/refresh_city_obs.py site/data/cities || true
+          node engine/run_city.js --n 60000 || true
           python tools/fetch_aq.py site/data/aq.json || true
           mkdir -p .work/fonts
           for f in barlow/Barlow-Bold barlow/Barlow-Medium barlow/Barlow-SemiBold barlowsemicondensed/BarlowSemiCondensed-Bold; do

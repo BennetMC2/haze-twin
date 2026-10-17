@@ -32,6 +32,8 @@ def b64(arr, dtype):
 def quant_log16(S):
     """Store sensitivities as log-scaled uint16 (about 4 significant digits, half the size)."""
     smax = float(S.max()) if S.size else 1.0
+    if not smax > 0:
+        smax = 1.0           # no fire air reaches the receptor at all: store zeros
     s0 = max(smax * 1e-6, 1e-9)
     q = np.round(np.log1p(np.maximum(S, 0) / s0) / np.log1p(smax / s0) * 65535).astype(np.uint16)
     out = b64(q, np.uint16)
@@ -41,6 +43,63 @@ def quant_log16(S):
 
 def round_hour(t):
     return t.replace(minute=0, second=0, microsecond=0)
+
+
+_PSI_BP = [(0, 0), (12, 50), (55, 100), (150, 200), (250, 300), (350, 400), (500, 500)]
+
+
+def BREAK_PSI(pm):
+    """PSI sub-index for 24-hour PM2.5 (same breakpoints as engine.js)."""
+    if pm is None or pm <= 0:
+        return 0.0
+    for (c0, s0), (c1, s1) in zip(_PSI_BP, _PSI_BP[1:]):
+        if pm <= c1:
+            return s0 + (pm - c0) * (s1 - s0) / (c1 - c0)
+    return 500.0
+
+
+def build_cities(base, weather, cells, t0, log=print):
+    """Home cities: trace the same weather (GEFS members only) back from each city and write
+    site/data/cities/<id>/inputs.json. A city without a reading is skipped (no forecast is better than an
+    unanchored one)."""
+    import fetch_city
+    from config import CITIES
+    keep = [i for i, m in enumerate(weather["members"]) if not str(m).startswith(("a", "e"))]
+    w = dict(weather)
+    for k in ("u", "v", "rain"):
+        w[k] = weather[k][keep]
+    w["members"] = [weather["members"][i] for i in keep]
+    rain_reg, rain_t = region_rain(w, cells)
+    done = []
+    for c in CITIES:
+        r = fetch_city.reading(c, log=log)
+        if not r or r.get("pm25") is None:
+            continue
+        log(f"back-tracing from {c['name']} ({len(keep)} forecasts); reading PM2.5 {r['pm25']} at {r.get('station')}")
+        S, paths, path_arrivals = trajectories.footprints(w, cells, log=None, receptor=(c["lon"], c["lat"]))
+        out = dict(base)
+        out.update({
+            "city": {k: c[k] for k in ("id", "name", "country", "lon", "lat")},
+            "members": list(w["members"]), "receptor": [c["lon"], c["lat"]],
+            "S": quant_log16(S), "rain": {"t_h": [float(x) for x in rain_t], "data": b64(rain_reg, np.float32)},
+            "obs": fetch_city.obs_block(r, t0),
+            "paths": {"arrivals_h": path_arrivals, "step_h": 3,
+                      "members": [[[[round(x, 2), round(y, 2)] for x, y in p] for p in mem] for mem in paths]},
+            "summary": summary(S, cells, rain_reg, rain_t, w),
+            "analogs": None,                      # past-season analogs are Singapore readings
+            "extras": {k: v for k, v in (base.get("extras") or {}).items() if k not in ("cams", "stations")},
+            "sources": [s for s in base.get("sources", []) if "NEA" not in s.get("name", "")] + [
+                {"name": "World Air Quality Index Project", "status": "ok", "detail": f"{r.get('station')}: PM2.5 {r['pm25']} ug/m3 (from US AQI)",
+                 "time": r["time"]}],
+        })
+        d = SITE_DATA / "cities" / c["id"]
+        d.mkdir(parents=True, exist_ok=True)
+        (d / "inputs.json").write_text(json.dumps(out, separators=(",", ":")))
+        done.append(c["id"])
+    (SITE_DATA / "cities" ).mkdir(parents=True, exist_ok=True)
+    (SITE_DATA / "cities" / "index.json").write_text(json.dumps({"built": datetime.now(timezone.utc).isoformat(),
+        "cities": [{k: c[k] for k in ("id", "name", "country")} for c in CITIES if c["id"] in done]}))
+    log(f"home cities written: {', '.join(done) or 'none'}")
 
 
 def obs_block(nea, t0):
@@ -278,6 +337,11 @@ def main():
     path = SITE_DATA / "inputs.json"
     path.write_text(json.dumps(out, separators=(",", ":")))
     log(f"wrote {path} ({path.stat().st_size / 1e6:.2f} MB) in {out['build_seconds']} s")
+    if not args.sample and __import__("os").environ.get("CITIES", "1") != "0":
+        try:
+            build_cities(out, weather, cells, t0, log=log)
+        except Exception as e:
+            log(f"home cities failed: {e}")
 
 
 if __name__ == "__main__":

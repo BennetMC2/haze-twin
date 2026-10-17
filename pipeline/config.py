@@ -54,6 +54,15 @@ REGIONS = [
     {"id": "java",   "name": "Java",               "island": "Java",      "lon": 110.0, "lat": -7.2},
 ]
 
+# Home cities: the same fires and weather, traced back from each city (GEFS members only, to keep runs short).
+# Readings come from the World Air Quality Index Project's nearest station (US AQI, converted to PM2.5).
+CITIES = [
+    {"id": "kl", "name": "Kuala Lumpur", "country": "Malaysia", "lon": 101.69, "lat": 3.14},
+    {"id": "penang", "name": "Penang", "country": "Malaysia", "lon": 100.33, "lat": 5.41},
+    {"id": "jb", "name": "Johor Bahru", "country": "Malaysia", "lon": 103.76, "lat": 1.49},
+    {"id": "jakarta", "name": "Jakarta", "country": "Indonesia", "lon": 106.85, "lat": -6.21},
+]
+
 # NEA regions
 NEA_REGIONS = ["national", "north", "south", "east", "west", "central"]
 
