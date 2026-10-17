@@ -1,5 +1,5 @@
 {
- "built": "2026-10-17T03:38:26.310073+00:00",
+ "built": "2026-10-17T03:44:47.422453+00:00",
  "seasons": {
   "2014": {
    "summary": {
@@ -5900,32 +5900,26 @@
     2023
    ],
    "happened_overall": 2,
-   "brier": 0.041,
-   "brier_skill_vs_base_rate": -0.87,
+   "brier": 0.022,
+   "brier_skill_vs_base_rate": 0.01,
    "bins": [
     {
      "range": "0-10%",
-     "n": 97,
+     "n": 124,
      "forecast": 1,
-     "happened": 0
+     "happened": 2
     },
     {
      "range": "10-30%",
-     "n": 21,
-     "forecast": 18,
-     "happened": 5
+     "n": 5,
+     "forecast": 21,
+     "happened": 0
     },
     {
      "range": "30-60%",
-     "n": 10,
-     "forecast": 44,
-     "happened": 10
-    },
-    {
-     "range": "60-90%",
-     "n": 5,
-     "forecast": 65,
-     "happened": 20
+     "n": 4,
+     "forecast": 45,
+     "happened": 25
     }
    ]
   },
@@ -5938,37 +5932,37 @@
     2023
    ],
    "happened_overall": 8,
-   "brier": 0.097,
-   "brier_skill_vs_base_rate": -0.39,
+   "brier": 0.078,
+   "brier_skill_vs_base_rate": -0.12,
    "bins": [
     {
      "range": "0-10%",
-     "n": 83,
-     "forecast": 2,
-     "happened": 1
+     "n": 105,
+     "forecast": 1,
+     "happened": 4
     },
     {
      "range": "10-30%",
-     "n": 20,
-     "forecast": 20,
-     "happened": 10
+     "n": 10,
+     "forecast": 17,
+     "happened": 20
     },
     {
      "range": "30-60%",
-     "n": 16,
-     "forecast": 43,
-     "happened": 25
+     "n": 9,
+     "forecast": 42,
+     "happened": 11
     },
     {
      "range": "60-90%",
-     "n": 12,
-     "forecast": 75,
-     "happened": 17
+     "n": 7,
+     "forecast": 74,
+     "happened": 29
     },
     {
      "range": "90-100%",
      "n": 2,
-     "forecast": 96,
+     "forecast": 95,
      "happened": 50
     }
    ]
@@ -5982,32 +5976,32 @@
     2023
    ],
    "happened_overall": 6,
-   "brier": 0.104,
-   "brier_skill_vs_base_rate": -0.84,
+   "brier": 0.066,
+   "brier_skill_vs_base_rate": -0.17,
    "bins": [
     {
      "range": "0-10%",
-     "n": 88,
-     "forecast": 2,
-     "happened": 5
-    },
-    {
-     "range": "10-30%",
-     "n": 18,
-     "forecast": 20,
-     "happened": 11
-    },
-    {
-     "range": "30-60%",
-     "n": 16,
-     "forecast": 40,
+     "n": 120,
+     "forecast": 1,
      "happened": 6
     },
     {
+     "range": "10-30%",
+     "n": 4,
+     "forecast": 21,
+     "happened": 0
+    },
+    {
+     "range": "30-60%",
+     "n": 8,
+     "forecast": 40,
+     "happened": 12
+    },
+    {
      "range": "60-90%",
-     "n": 11,
-     "forecast": 74,
-     "happened": 9
+     "n": 1,
+     "forecast": 65,
+     "happened": 0
     }
    ]
   },
