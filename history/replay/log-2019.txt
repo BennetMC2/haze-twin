@@ -1,287 +1,486 @@
-[14:31:08]   2019-08-20: PSI 60, fires {'VIIRS_SNPP_SP': 3747, 'VIIRS_NOAA20_SP': 4323}, PM2.5 hours 41
-[14:31:15]     member c00: done (8s)
-[14:31:22]     member p01: done (14s)
-[14:31:28]     member p02: done (20s)
-[14:31:34]     member p03: done (26s)
-[14:31:40]     member p04: done (32s)
-[14:31:44]     reforecast: 220/225 member-steps, 16 history steps, 36s
-[14:31:46]   traced member 1/5
-[14:31:48]   traced member 5/5
-[14:31:48]   wrote 2019-08-20.json (0.3 MB) in 44s
-[14:31:51]   2019-08-22: PSI 59, fires {'VIIRS_SNPP_SP': 4807, 'VIIRS_NOAA20_SP': 4435}, PM2.5 hours 41
-[14:31:58]     member c00: done (7s)
-[14:32:05]     member p01: done (14s)
-[14:32:11]     member p02: done (20s)
-[14:32:18]     member p03: done (26s)
-[14:32:24]     member p04: done (32s)
-[14:32:28]     reforecast: 220/225 member-steps, 16 history steps, 36s
-[14:32:30]   traced member 1/5
-[14:32:32]   traced member 5/5
-[14:32:32]   wrote 2019-08-22.json (0.3 MB) in 44s
-[14:32:36]   2019-08-24: PSI 59, fires {'VIIRS_SNPP_SP': 4116, 'VIIRS_NOAA20_SP': 4753}, PM2.5 hours 38
-[14:32:43]     member c00: done (7s)
-[14:32:49]     member p01: done (13s)
-[14:32:55]     member p02: done (20s)
-[14:33:01]     member p03: done (26s)
-[14:33:07]     member p04: done (32s)
-[14:33:11]     reforecast: 220/225 member-steps, 16 history steps, 36s
-[14:33:14]   traced member 1/5
-[14:33:16]   traced member 5/5
-[14:33:16]   wrote 2019-08-24.json (0.3 MB) in 44s
-[14:33:19]   2019-08-26: PSI 79, fires {'VIIRS_SNPP_SP': 1493, 'VIIRS_NOAA20_SP': 1215}, PM2.5 hours 41
-[14:33:26]     member c00: done (7s)
-[14:33:32]     member p01: done (13s)
-[14:33:38]     member p02: done (19s)
-[14:33:44]     member p03: done (25s)
-[14:33:50]     member p04: done (31s)
-[14:33:54]     reforecast: 220/225 member-steps, 16 history steps, 35s
-[14:33:55]   traced member 1/5
-[14:33:56]   traced member 5/5
-[14:33:56]   wrote 2019-08-26.json (0.3 MB) in 41s
-[14:34:00]   2019-08-28: PSI 60, fires {'VIIRS_SNPP_SP': 1484, 'VIIRS_NOAA20_SP': 1397}, PM2.5 hours 41
-[14:34:06]     member c00: done (6s)
-[14:34:11]     member p01: done (11s)
-[14:34:16]     member p02: done (16s)
-[14:34:21]     member p03: done (21s)
-[14:34:26]     member p04: done (26s)
-[14:34:30]     reforecast: 160/225 member-steps, 16 history steps, 30s
-[14:34:30]   traced member 1/5
-[14:34:32]   traced member 5/5
-[14:34:32]   wrote 2019-08-28.json (0.3 MB) in 35s
-[14:34:35]   2019-08-30: PSI 60, fires {'VIIRS_SNPP_SP': 3684, 'VIIRS_NOAA20_SP': 4378}, PM2.5 hours 41
-[14:34:42]     member c00: done (7s)
-[14:34:48]     member p01: done (13s)
-[14:34:54]     member p02: done (19s)
-[14:35:01]     member p03: done (25s)
-[14:35:07]     member p04: done (31s)
-[14:35:11]     reforecast: 220/225 member-steps, 16 history steps, 35s
-[14:35:13]   traced member 1/5
-[14:35:14]   traced member 5/5
-[14:35:14]   wrote 2019-08-30.json (0.3 MB) in 43s
-[14:35:18]   2019-09-01: PSI 64, fires {'VIIRS_SNPP_SP': 5188, 'VIIRS_NOAA20_SP': 5456}, PM2.5 hours 41
-[14:35:25]     member c00: done (7s)
-[14:35:31]     member p01: done (13s)
-[14:35:36]     member p02: done (18s)
-[14:35:42]     member p03: done (24s)
-[14:35:48]     member p04: done (30s)
-[14:35:52]     reforecast: 220/225 member-steps, 16 history steps, 34s
-[14:35:56]   traced member 1/5
-[14:35:58]   traced member 5/5
-[14:35:58]   wrote 2019-09-01.json (0.3 MB) in 43s
-[14:36:01]   2019-09-03: PSI 65, fires {'VIIRS_SNPP_SP': 6610, 'VIIRS_NOAA20_SP': 5975}, PM2.5 hours 41
-[14:36:08]     member c00: done (7s)
-[14:36:14]     member p01: done (13s)
-[14:36:20]     member p02: done (19s)
-[14:36:26]     member p03: done (25s)
-[14:36:32]     member p04: done (31s)
-[14:36:36]     reforecast: 220/225 member-steps, 16 history steps, 35s
-[14:36:41]   traced member 1/5
-[14:36:43]   traced member 5/5
-[14:36:43]   wrote 2019-09-03.json (0.3 MB) in 45s
-[14:36:47]   2019-09-05: PSI 63, fires {'VIIRS_SNPP_SP': 11074, 'VIIRS_NOAA20_SP': 13633}, PM2.5 hours 41
-[14:36:53]     member c00: done (7s)
-[14:36:59]     member p01: done (13s)
-[14:37:05]     member p02: done (19s)
-[14:37:11]     member p03: done (25s)
-[14:37:17]     member p04: done (31s)
-[14:37:21]     reforecast: 220/225 member-steps, 16 history steps, 35s
-[14:37:39]   traced member 1/5
-[14:37:41]   traced member 5/5
-[14:37:41]   wrote 2019-09-05.json (0.3 MB) in 58s
-[14:37:45]   2019-09-07: PSI 72, fires {'VIIRS_SNPP_SP': 10169, 'VIIRS_NOAA20_SP': 7477}, PM2.5 hours 41
-[14:37:52]     member c00: done (7s)
-[14:37:58]     member p01: done (13s)
-[14:38:04]     member p02: done (19s)
-[14:38:10]     member p03: done (25s)
-[14:38:16]     member p04: done (31s)
-[14:38:20]     reforecast: 220/225 member-steps, 16 history steps, 35s
-[14:38:30]   traced member 1/5
-[14:38:31]   traced member 5/5
-[14:38:31]   wrote 2019-09-07.json (0.3 MB) in 50s
-[14:38:36]   2019-09-09: PSI 80, fires {'VIIRS_SNPP_SP': 10568, 'VIIRS_NOAA20_SP': 11503}, PM2.5 hours 41
-[14:38:44]     member c00: done (7s)
-[14:38:50]     member p01: done (14s)
-[14:38:56]     member p02: done (20s)
-[14:39:03]     member p03: done (26s)
-[14:39:09]     member p04: done (32s)
-[14:39:13]     reforecast: 220/225 member-steps, 16 history steps, 36s
-[14:39:27]   traced member 1/5
-[14:39:29]   traced member 5/5
-[14:39:29]   wrote 2019-09-09.json (0.3 MB) in 58s
-[14:39:43]   2019-09-11: PSI 79, fires {'VIIRS_SNPP_SP': 18217, 'VIIRS_NOAA20_SP': 17667}, PM2.5 hours 38
-[14:39:49]     member c00: done (6s)
-[14:39:54]     member p01: done (11s)
-[14:39:59]     member p02: done (16s)
-[14:40:04]     member p03: done (21s)
-[14:40:09]     member p04: done (26s)
-[14:40:13]     reforecast: 160/225 member-steps, 16 history steps, 30s
-[14:40:57]   traced member 1/5
-[14:40:59]   traced member 5/5
-[14:40:59]   wrote 2019-09-11.json (0.3 MB) in 90s
-[14:41:03]   2019-09-13: PSI 96, fires {'VIIRS_SNPP_SP': 22472, 'VIIRS_NOAA20_SP': 18522}, PM2.5 hours 41
-[14:41:10]     member c00: done (7s)
-[14:41:16]     member p01: done (13s)
-[14:41:23]     member p02: done (20s)
-[14:41:29]     member p03: done (26s)
-[14:41:35]     member p04: done (32s)
-[14:41:39]     reforecast: 220/225 member-steps, 16 history steps, 36s
-[14:42:30]   traced member 1/5
-[14:42:31]   traced member 5/5
-[14:42:31]   wrote 2019-09-13.json (0.3 MB) in 93s
-[14:42:36]   2019-09-15: PSI 121, fires {'VIIRS_SNPP_SP': 16381, 'VIIRS_NOAA20_SP': 20801}, PM2.5 hours 41
-[14:42:43]     member c00: done (7s)
-[14:42:48]     member p01: done (13s)
-[14:42:55]     member p02: done (19s)
-[14:43:00]     member p03: done (25s)
-[14:43:06]     member p04: done (31s)
-[14:43:10]     reforecast: 220/225 member-steps, 16 history steps, 35s
-[14:43:52]   traced member 1/5
-[14:43:53]   traced member 5/5
-[14:43:53]   wrote 2019-09-15.json (0.3 MB) in 82s
-[14:43:57]   2019-09-17: PSI 95, fires {'VIIRS_SNPP_SP': 13301, 'VIIRS_NOAA20_SP': 10610}, PM2.5 hours 41
-[14:44:04]     member c00: done (7s)
-[14:44:10]     member p01: done (13s)
-[14:44:17]     member p02: done (19s)
-[14:44:23]     member p03: done (25s)
-[14:44:29]     member p04: done (31s)
-[14:44:33]     reforecast: 220/225 member-steps, 16 history steps, 35s
-[14:44:50]   traced member 1/5
-[14:44:52]   traced member 5/5
-[14:44:52]   wrote 2019-09-17.json (0.3 MB) in 58s
-[14:45:01]   2019-09-19: PSI 128, fires {'VIIRS_SNPP_SP': 15150, 'VIIRS_NOAA20_SP': 16449}, PM2.5 hours 41
-[14:45:08]     member c00: done (7s)
-[14:45:14]     member p01: done (13s)
-[14:45:20]     member p02: done (19s)
-[14:45:26]     member p03: done (25s)
-[14:45:32]     member p04: done (31s)
-[14:45:36]     reforecast: 220/225 member-steps, 16 history steps, 35s
-[14:46:06]   traced member 1/5
-[14:46:08]   traced member 5/5
-[14:46:08]   wrote 2019-09-19.json (0.3 MB) in 77s
-[14:46:12]   2019-09-21: PSI 100, fires {'VIIRS_SNPP_SP': 15194, 'VIIRS_NOAA20_SP': 16117}, PM2.5 hours 41
-[14:46:19]     member c00: done (7s)
-[14:46:25]     member p01: done (13s)
-[14:46:31]     member p02: done (19s)
-[14:46:37]     member p03: done (25s)
-[14:46:43]     member p04: done (31s)
-[14:46:47]     reforecast: 220/225 member-steps, 16 history steps, 35s
-[14:47:16]   traced member 1/5
-[14:47:18]   traced member 5/5
-[14:47:18]   wrote 2019-09-21.json (0.3 MB) in 70s
-[14:47:24]   2019-09-23: PSI 119, fires {'VIIRS_SNPP_SP': 15874, 'VIIRS_NOAA20_SP': 13922}, PM2.5 hours 41
-[14:47:31]     member c00: done (7s)
-[14:47:36]     member p01: done (13s)
-[14:47:42]     member p02: done (18s)
-[14:47:48]     member p03: done (24s)
-[14:47:54]     member p04: done (30s)
-[14:47:58]     reforecast: 220/225 member-steps, 16 history steps, 34s
-[14:48:25]   traced member 1/5
-[14:48:26]   traced member 5/5
-[14:48:26]   wrote 2019-09-23.json (0.3 MB) in 68s
-[14:48:30]   2019-09-25: PSI 75, fires {'VIIRS_SNPP_SP': 10989, 'VIIRS_NOAA20_SP': 12753}, PM2.5 hours 41
-[14:48:36]     member c00: done (6s)
-[14:48:41]     member p01: done (11s)
-[14:48:46]     member p02: done (16s)
-[14:48:51]     member p03: done (21s)
-[14:48:56]     member p04: done (26s)
-[14:49:00]     reforecast: 160/225 member-steps, 16 history steps, 30s
-[14:49:17]   traced member 1/5
-[14:49:18]   traced member 5/5
-[14:49:18]   wrote 2019-09-25.json (0.3 MB) in 52s
-[14:49:22]   2019-09-27: PSI 76, fires {'VIIRS_SNPP_SP': 5407, 'VIIRS_NOAA20_SP': 7031}, PM2.5 hours 41
-[14:49:29]     member c00: done (7s)
-[14:49:35]     member p01: done (13s)
-[14:49:41]     member p02: done (19s)
-[14:49:47]     member p03: done (25s)
-[14:49:54]     member p04: done (32s)
-[14:50:00]     reforecast: 220/225 member-steps, 16 history steps, 38s
-[14:50:05]   traced member 1/5
-[14:50:06]   traced member 5/5
-[14:50:06]   wrote 2019-09-27.json (0.3 MB) in 48s
-[14:50:10]   2019-09-29: PSI 78, fires {'VIIRS_SNPP_SP': 3914, 'VIIRS_NOAA20_SP': 3404}, PM2.5 hours 41
-[14:50:17]     member c00: done (7s)
-[14:50:23]     member p01: done (13s)
-[14:50:29]     member p02: done (19s)
-[14:50:35]     member p03: done (25s)
-[14:50:41]     member p04: done (31s)
-[14:50:45]     reforecast: 220/225 member-steps, 16 history steps, 35s
-[14:50:47]   traced member 1/5
-[14:50:48]   traced member 5/5
-[14:50:48]   wrote 2019-09-29.json (0.3 MB) in 42s
-[14:50:57]   2019-10-01: PSI 66, fires {'VIIRS_SNPP_SP': 3164, 'VIIRS_NOAA20_SP': 3965}, PM2.5 hours 41
-[14:51:04]     member c00: done (7s)
-[14:51:10]     member p01: done (13s)
-[14:51:16]     member p02: done (19s)
-[14:51:22]     member p03: done (26s)
-[14:51:29]     member p04: done (32s)
-[14:51:33]     reforecast: 220/225 member-steps, 16 history steps, 36s
-[14:51:35]   traced member 1/5
-[14:51:36]   traced member 5/5
-[14:51:36]   wrote 2019-10-01.json (0.3 MB) in 48s
-[14:51:55]   2019-10-03: PSI 64, fires {'VIIRS_SNPP_SP': 2173, 'VIIRS_NOAA20_SP': 1970}, PM2.5 hours 41
-[14:52:02]     member c00: done (7s)
-[14:52:07]     member p01: done (13s)
-[14:52:13]     member p02: done (19s)
-[14:52:20]     member p03: done (25s)
-[14:52:26]     member p04: done (31s)
-[14:52:30]     reforecast: 220/225 member-steps, 16 history steps, 35s
-[14:52:31]   traced member 1/5
-[14:52:32]   traced member 5/5
-[14:52:32]   wrote 2019-10-03.json (0.3 MB) in 56s
-[14:52:49]   2019-10-05: PSI 51, fires {'VIIRS_SNPP_SP': 3587, 'VIIRS_NOAA20_SP': 3637}, PM2.5 hours 41
-[14:52:55]     member c00: done (7s)
-[14:53:01]     member p01: done (12s)
-[14:53:07]     member p02: done (18s)
-[14:53:13]     member p03: done (24s)
-[14:53:19]     member p04: done (30s)
-[14:53:22]     reforecast: 220/225 member-steps, 16 history steps, 34s
-[14:53:24]   traced member 1/5
-[14:53:26]   traced member 5/5
-[14:53:26]   wrote 2019-10-05.json (0.3 MB) in 54s
-[14:53:41]   2019-10-07: PSI 58, fires {'VIIRS_SNPP_SP': 2598, 'VIIRS_NOAA20_SP': 2851}, PM2.5 hours 41
-[14:53:47]     member c00: done (7s)
-[14:53:53]     member p01: done (12s)
-[14:53:59]     member p02: done (18s)
-[14:54:05]     member p03: done (24s)
-[14:54:11]     member p04: done (30s)
-[14:54:15]     reforecast: 220/225 member-steps, 16 history steps, 34s
-[14:54:16]   traced member 1/5
-[14:54:18]   traced member 5/5
-[14:54:18]   wrote 2019-10-07.json (0.3 MB) in 52s
-[14:54:38]   2019-10-09: PSI 59, fires {'VIIRS_SNPP_SP': 3736, 'VIIRS_NOAA20_SP': 3833}, PM2.5 hours 41
-[14:54:44]     member c00: done (6s)
-[14:54:49]     member p01: done (11s)
-[14:54:54]     member p02: done (16s)
-[14:54:59]     member p03: done (21s)
-[14:55:04]     member p04: done (26s)
-[14:55:08]     reforecast: 160/225 member-steps, 16 history steps, 30s
-[14:55:10]   traced member 1/5
-[14:55:11]   traced member 5/5
-[14:55:11]   wrote 2019-10-09.json (0.3 MB) in 54s
-[14:55:11] done: 26 issue dates built
-2019-08-20 now 60 p50 61 61 61 61 61 61 3.5s
-2019-08-22 now 59 p50 60 59 60 60 60 61 3.3s
-2019-08-24 now 59 p50 62 63 61 60 61 61 3.2s
-2019-08-26 now 79 p50 78 73 73 71 70 69 3.3s
-2019-08-28 now 60 p50 61 62 61 61 62 63 3.4s
-2019-08-30 now 60 p50 61 62 61 62 62 61 3.3s
-2019-09-01 now 64 p50 69 65 66 65 65 64 3.1s
-2019-09-03 now 65 p50 69 68 71 68 65 66 3.4s
-2019-09-05 now 63 p50 65 64 64 64 65 64 3.2s
-2019-09-07 now 72 p50 74 71 70 68 69 69 3.3s
-2019-09-09 now 80 p50 86 74 75 75 77 78 3.2s
-2019-09-11 now 79 p50 74 100 125 112 96 88 3.4s
-2019-09-13 now 96 p50 103 95 92 93 86 85 3.4s
-2019-09-15 now 121 p50 113 107 92 89 87 94 3.6s
-2019-09-17 now 95 p50 95 89 88 89 90 91 3.4s
-2019-09-19 now 128 p50 119 112 110 124 109 96 3.4s
-2019-09-21 now 100 p50 102 117 90 85 84 84 3.4s
-2019-09-23 now 119 p50 103 97 100 95 88 84 3.3s
-2019-09-25 now 75 p50 94 101 90 75 69 73 3.4s
-2019-09-27 now 76 p50 80 73 68 67 67 67 3.3s
-2019-09-29 now 78 p50 75 73 76 75 72 70 3.3s
-2019-10-01 now 66 p50 66 69 67 64 64 64 3.3s
-2019-10-03 now 64 p50 64 63 65 66 67 65 3.3s
-2019-10-05 now 51 p50 54 54 54 53 54 54 3.2s
-2019-10-07 now 58 p50 58 58 58 58 59 59 3.2s
-2019-10-09 now 59 p50 61 61 63 63 62 60 3.3s
+[02:20:02]   2019-08-20: PSI 60, fires {'VIIRS_SNPP_SP': 3747, 'VIIRS_NOAA20_SP': 4323}, PM2.5 hours 41
+[02:20:10]     member c00: done (7s)
+[02:20:16]     member p01: done (13s)
+[02:20:22]     member p02: done (19s)
+[02:20:28]     member p03: done (26s)
+[02:20:34]     member p04: done (32s)
+[02:20:38]     reforecast: 220/225 member-steps, 16 history steps, 36s
+[02:20:40]   traced member 1/5
+[02:20:42]   traced member 5/5
+[02:20:42]   wrote 2019-08-20.json (0.3 MB) in 251s
+[02:22:36]   2019-08-22: PSI 59, fires {'VIIRS_SNPP_SP': 4807, 'VIIRS_NOAA20_SP': 4435}, PM2.5 hours 41
+[02:22:43]     member c00: done (7s)
+[02:22:48]     member p01: done (13s)
+[02:22:54]     member p02: done (18s)
+[02:23:00]     member p03: done (24s)
+[02:23:06]     member p04: done (30s)
+[02:23:10]     reforecast: 220/225 member-steps, 16 history steps, 34s
+[02:23:13]   traced member 1/5
+[02:23:14]   traced member 5/5
+[02:23:14]   wrote 2019-08-22.json (0.3 MB) in 153s
+[02:25:00]   2019-08-24: PSI 59, fires {'VIIRS_SNPP_SP': 4116, 'VIIRS_NOAA20_SP': 4753}, PM2.5 hours 38
+[02:25:06]     member c00: done (7s)
+[02:25:12]     member p01: done (12s)
+[02:25:18]     member p02: done (18s)
+[02:25:23]     member p03: done (24s)
+[02:25:29]     member p04: done (29s)
+[02:25:33]     reforecast: 220/225 member-steps, 16 history steps, 34s
+[02:25:36]   traced member 1/5
+[02:25:37]   traced member 5/5
+[02:25:37]   wrote 2019-08-24.json (0.3 MB) in 143s
+[02:26:32]   2019-08-26: PSI 79, fires {'VIIRS_SNPP_SP': 1493, 'VIIRS_NOAA20_SP': 1215}, PM2.5 hours 41
+[02:26:39]     member c00: done (7s)
+[02:26:45]     member p01: done (12s)
+[02:26:50]     member p02: done (18s)
+[02:26:56]     member p03: done (24s)
+[02:27:01]     member p04: done (29s)
+[02:27:05]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[02:27:06]   traced member 1/5
+[02:27:07]   traced member 5/5
+[02:27:08]   wrote 2019-08-26.json (0.3 MB) in 90s
+[02:27:33]   2019-08-28: PSI 60, fires {'VIIRS_SNPP_SP': 1484, 'VIIRS_NOAA20_SP': 1397}, PM2.5 hours 41
+[02:27:39]     member c00: done (6s)
+[02:27:44]     member p01: done (10s)
+[02:27:48]     member p02: done (15s)
+[02:27:53]     member p03: done (20s)
+[02:27:58]     member p04: done (24s)
+[02:28:01]     reforecast: 160/225 member-steps, 16 history steps, 28s
+[02:28:02]   traced member 1/5
+[02:28:04]   traced member 5/5
+[02:28:04]   wrote 2019-08-28.json (0.3 MB) in 56s
+[02:28:55]   2019-08-30: PSI 60, fires {'VIIRS_SNPP_SP': 3684, 'VIIRS_NOAA20_SP': 4378}, PM2.5 hours 41
+[02:29:01]     member c00: done (7s)
+[02:29:07]     member p01: done (12s)
+[02:29:13]     member p02: done (18s)
+[02:29:18]     member p03: done (24s)
+[02:29:24]     member p04: done (29s)
+[02:29:28]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[02:29:30]   traced member 1/5
+[02:29:32]   traced member 5/5
+[02:29:32]   wrote 2019-08-30.json (0.3 MB) in 88s
+[02:30:05]   2019-09-01: PSI 64, fires {'VIIRS_SNPP_SP': 5188, 'VIIRS_NOAA20_SP': 5456}, PM2.5 hours 41
+[02:30:11]     member c00: done (6s)
+[02:30:17]     member p01: done (12s)
+[02:30:22]     member p02: done (17s)
+[02:30:27]     member p03: done (23s)
+[02:30:33]     member p04: done (28s)
+[02:30:37]     reforecast: 220/225 member-steps, 16 history steps, 32s
+[02:30:41]   traced member 1/5
+[02:30:42]   traced member 5/5
+[02:30:42]   wrote 2019-09-01.json (0.3 MB) in 71s
+[02:31:41]   2019-09-03: PSI 65, fires {'VIIRS_SNPP_SP': 6610, 'VIIRS_NOAA20_SP': 5975}, PM2.5 hours 41
+[02:31:48]     member c00: done (7s)
+[02:31:54]     member p01: done (12s)
+[02:31:59]     member p02: done (18s)
+[02:32:05]     member p03: done (24s)
+[02:32:11]     member p04: done (29s)
+[02:32:15]     reforecast: 220/225 member-steps, 16 history steps, 34s
+[02:32:20]   traced member 1/5
+[02:32:21]   traced member 5/5
+[02:32:21]   wrote 2019-09-03.json (0.3 MB) in 99s
+[02:33:44]   2019-09-05: PSI 63, fires {'VIIRS_SNPP_SP': 11074, 'VIIRS_NOAA20_SP': 13633}, PM2.5 hours 41
+[02:33:51]     member c00: done (7s)
+[02:33:57]     member p01: done (12s)
+[02:34:02]     member p02: done (18s)
+[02:34:08]     member p03: done (23s)
+[02:34:14]     member p04: done (29s)
+[02:34:17]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[02:34:35]   traced member 1/5
+[02:34:37]   traced member 5/5
+[02:34:37]   wrote 2019-09-05.json (0.3 MB) in 135s
+[02:35:14]   2019-09-07: PSI 72, fires {'VIIRS_SNPP_SP': 10169, 'VIIRS_NOAA20_SP': 7477}, PM2.5 hours 41
+[02:35:21]     member c00: done (7s)
+[02:35:26]     member p01: done (12s)
+[02:35:32]     member p02: done (18s)
+[02:35:37]     member p03: done (24s)
+[02:35:43]     member p04: done (29s)
+[02:35:47]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[02:35:57]   traced member 1/5
+[02:35:58]   traced member 5/5
+[02:35:58]   wrote 2019-09-07.json (0.3 MB) in 81s
+[02:37:04]   2019-09-09: PSI 80, fires {'VIIRS_SNPP_SP': 10568, 'VIIRS_NOAA20_SP': 11503}, PM2.5 hours 41
+[02:37:11]     member c00: done (7s)
+[02:37:16]     member p01: done (13s)
+[02:37:22]     member p02: done (18s)
+[02:37:28]     member p03: done (24s)
+[02:37:34]     member p04: done (30s)
+[02:37:38]     reforecast: 220/225 member-steps, 16 history steps, 34s
+[02:37:53]   traced member 1/5
+[02:37:54]   traced member 5/5
+[02:37:54]   wrote 2019-09-09.json (0.3 MB) in 116s
+[02:39:32]   2019-09-11: PSI 79, fires {'VIIRS_SNPP_SP': 18217, 'VIIRS_NOAA20_SP': 17667}, PM2.5 hours 38
+[02:39:38]     member c00: done (6s)
+[02:39:42]     member p01: done (10s)
+[02:39:47]     member p02: done (15s)
+[02:39:51]     member p03: done (20s)
+[02:39:56]     member p04: done (24s)
+[02:40:00]     reforecast: 160/225 member-steps, 16 history steps, 28s
+[02:40:37]   traced member 1/5
+[02:40:39]   traced member 5/5
+[02:40:39]   wrote 2019-09-11.json (0.3 MB) in 164s
+[02:41:03]   2019-09-13: PSI 96, fires {'VIIRS_SNPP_SP': 22472, 'VIIRS_NOAA20_SP': 18522}, PM2.5 hours 41
+[02:41:09]     member c00: done (7s)
+[02:41:15]     member p01: done (12s)
+[02:41:21]     member p02: done (18s)
+[02:41:27]     member p03: done (24s)
+[02:41:32]     member p04: done (30s)
+[02:41:36]     reforecast: 220/225 member-steps, 16 history steps, 34s
+[02:42:25]   traced member 1/5
+[02:42:27]   traced member 5/5
+[02:42:27]   wrote 2019-09-13.json (0.3 MB) in 108s
+[02:42:40]   2019-09-15: PSI 121, fires {'VIIRS_SNPP_SP': 16381, 'VIIRS_NOAA20_SP': 20801}, PM2.5 hours 41
+[02:42:47]     member c00: done (7s)
+[02:42:52]     member p01: done (12s)
+[02:42:58]     member p02: done (18s)
+[02:43:03]     member p03: done (23s)
+[02:43:09]     member p04: done (29s)
+[02:43:13]     reforecast: 220/225 member-steps, 16 history steps, 32s
+[02:43:53]   traced member 1/5
+[02:43:54]   traced member 5/5
+[02:43:55]   wrote 2019-09-15.json (0.3 MB) in 88s
+[02:44:07]   2019-09-17: PSI 95, fires {'VIIRS_SNPP_SP': 13301, 'VIIRS_NOAA20_SP': 10610}, PM2.5 hours 41
+[02:44:13]     member c00: done (7s)
+[02:44:19]     member p01: done (12s)
+[02:44:25]     member p02: done (18s)
+[02:44:31]     member p03: done (24s)
+[02:44:36]     member p04: done (29s)
+[02:44:40]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[02:44:57]   traced member 1/5
+[02:44:59]   traced member 5/5
+[02:44:59]   wrote 2019-09-17.json (0.3 MB) in 64s
+[02:45:18]   2019-09-19: PSI 128, fires {'VIIRS_SNPP_SP': 15150, 'VIIRS_NOAA20_SP': 16449}, PM2.5 hours 41
+[02:45:25]     member c00: done (7s)
+[02:45:31]     member p01: done (12s)
+[02:45:36]     member p02: done (18s)
+[02:45:42]     member p03: done (23s)
+[02:45:47]     member p04: done (29s)
+[02:45:51]     reforecast: 220/225 member-steps, 16 history steps, 32s
+[02:46:20]   traced member 1/5
+[02:46:22]   traced member 5/5
+[02:46:22]   wrote 2019-09-19.json (0.3 MB) in 83s
+[02:46:35]   2019-09-21: PSI 100, fires {'VIIRS_SNPP_SP': 15194, 'VIIRS_NOAA20_SP': 16117}, PM2.5 hours 41
+[02:46:41]     member c00: done (7s)
+[02:46:47]     member p01: done (12s)
+[02:46:52]     member p02: done (18s)
+[02:46:58]     member p03: done (23s)
+[02:47:03]     member p04: done (29s)
+[02:47:07]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[02:47:36]   traced member 1/5
+[02:47:38]   traced member 5/5
+[02:47:38]   wrote 2019-09-21.json (0.3 MB) in 76s
+[02:47:52]   2019-09-23: PSI 119, fires {'VIIRS_SNPP_SP': 15874, 'VIIRS_NOAA20_SP': 13922}, PM2.5 hours 41
+[02:47:59]     member c00: done (7s)
+[02:48:04]     member p01: done (12s)
+[02:48:10]     member p02: done (18s)
+[02:48:15]     member p03: done (23s)
+[02:48:21]     member p04: done (29s)
+[02:48:25]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[02:48:51]   traced member 1/5
+[02:48:53]   traced member 5/5
+[02:48:53]   wrote 2019-09-23.json (0.3 MB) in 75s
+[02:49:01]   2019-09-25: PSI 75, fires {'VIIRS_SNPP_SP': 10989, 'VIIRS_NOAA20_SP': 12753}, PM2.5 hours 41
+[02:49:07]     member c00: done (6s)
+[02:49:11]     member p01: done (10s)
+[02:49:16]     member p02: done (15s)
+[02:49:20]     member p03: done (19s)
+[02:49:25]     member p04: done (24s)
+[02:49:29]     reforecast: 160/225 member-steps, 16 history steps, 28s
+[02:49:46]   traced member 1/5
+[02:49:47]   traced member 5/5
+[02:49:48]   wrote 2019-09-25.json (0.3 MB) in 55s
+[02:49:53]   2019-09-27: PSI 76, fires {'VIIRS_SNPP_SP': 5407, 'VIIRS_NOAA20_SP': 7031}, PM2.5 hours 41
+[02:49:59]     member c00: done (7s)
+[02:50:05]     member p01: done (12s)
+[02:50:11]     member p02: done (18s)
+[02:50:16]     member p03: done (23s)
+[02:50:22]     member p04: done (29s)
+[02:50:25]     reforecast: 220/225 member-steps, 16 history steps, 32s
+[02:50:30]   traced member 1/5
+[02:50:32]   traced member 5/5
+[02:50:32]   wrote 2019-09-27.json (0.3 MB) in 44s
+[02:50:42]   2019-09-29: PSI 78, fires {'VIIRS_SNPP_SP': 3914, 'VIIRS_NOAA20_SP': 3404}, PM2.5 hours 41
+[02:50:48]     member c00: done (7s)
+[02:50:54]     member p01: done (12s)
+[02:51:00]     member p02: done (18s)
+[02:51:05]     member p03: done (24s)
+[02:51:11]     member p04: done (29s)
+[02:51:15]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[02:51:17]   traced member 1/5
+[02:51:18]   traced member 5/5
+[02:51:18]   wrote 2019-09-29.json (0.3 MB) in 47s
+[02:51:33]   2019-10-01: PSI 66, fires {'VIIRS_SNPP_SP': 3164, 'VIIRS_NOAA20_SP': 3965}, PM2.5 hours 41
+[02:51:40]     member c00: done (7s)
+[02:51:46]     member p01: done (12s)
+[02:51:51]     member p02: done (18s)
+[02:51:57]     member p03: done (24s)
+[02:52:03]     member p04: done (29s)
+[02:52:06]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[02:52:08]   traced member 1/5
+[02:52:10]   traced member 5/5
+[02:52:10]   wrote 2019-10-01.json (0.3 MB) in 52s
+[02:52:19]   2019-10-03: PSI 64, fires {'VIIRS_SNPP_SP': 2173, 'VIIRS_NOAA20_SP': 1970}, PM2.5 hours 41
+[02:52:26]     member c00: done (7s)
+[02:52:32]     member p01: done (13s)
+[02:52:38]     member p02: done (18s)
+[02:52:44]     member p03: done (24s)
+[02:52:49]     member p04: done (30s)
+[02:52:53]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[02:52:54]   traced member 1/5
+[02:52:55]   traced member 5/5
+[02:52:55]   wrote 2019-10-03.json (0.3 MB) in 45s
+[02:53:07]   2019-10-05: PSI 51, fires {'VIIRS_SNPP_SP': 3587, 'VIIRS_NOAA20_SP': 3637}, PM2.5 hours 41
+[02:53:13]     member c00: done (7s)
+[02:53:19]     member p01: done (12s)
+[02:53:25]     member p02: done (18s)
+[02:53:30]     member p03: done (23s)
+[02:53:36]     member p04: done (29s)
+[02:53:39]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[02:53:41]   traced member 1/5
+[02:53:43]   traced member 5/5
+[02:53:43]   wrote 2019-10-05.json (0.3 MB) in 47s
+[02:53:51]   2019-10-07: PSI 58, fires {'VIIRS_SNPP_SP': 2598, 'VIIRS_NOAA20_SP': 2851}, PM2.5 hours 41
+[02:53:58]     member c00: done (6s)
+[02:54:03]     member p01: done (12s)
+[02:54:09]     member p02: done (17s)
+[02:54:14]     member p03: done (23s)
+[02:54:20]     member p04: done (29s)
+[02:54:24]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[02:54:25]   traced member 1/5
+[02:54:27]   traced member 5/5
+[02:54:27]   wrote 2019-10-07.json (0.3 MB) in 44s
+[02:54:36]   2019-10-09: PSI 59, fires {'VIIRS_SNPP_SP': 3736, 'VIIRS_NOAA20_SP': 3833}, PM2.5 hours 41
+[02:54:41]     member c00: done (5s)
+[02:54:46]     member p01: done (10s)
+[02:54:51]     member p02: done (15s)
+[02:54:55]     member p03: done (19s)
+[02:55:00]     member p04: done (24s)
+[02:55:04]     reforecast: 160/225 member-steps, 16 history steps, 28s
+[02:55:06]   traced member 1/5
+[02:55:07]   traced member 5/5
+[02:55:07]   wrote 2019-10-09.json (0.3 MB) in 40s
+[02:55:17]   2019-10-11: PSI 68, fires {'VIIRS_SNPP_SP': 4477, 'VIIRS_NOAA20_SP': 4867}, PM2.5 hours 41
+[02:55:24]     member c00: done (6s)
+[02:55:29]     member p01: done (12s)
+[02:55:35]     member p02: done (18s)
+[02:55:41]     member p03: done (24s)
+[02:55:46]     member p04: done (29s)
+[02:55:50]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[02:55:53]   traced member 1/5
+[02:55:55]   traced member 5/5
+[02:55:55]   wrote 2019-10-11.json (0.3 MB) in 48s
+[02:56:03]   2019-10-13: PSI 66, fires {'VIIRS_SNPP_SP': 5441, 'VIIRS_NOAA20_SP': 4320}, PM2.5 hours 41
+[02:56:09]     member c00: done (7s)
+[02:56:15]     member p01: done (12s)
+[02:56:21]     member p02: done (18s)
+[02:56:26]     member p03: done (23s)
+[02:56:32]     member p04: done (29s)
+[02:56:35]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[02:56:39]   traced member 1/5
+[02:56:40]   traced member 5/5
+[02:56:40]   wrote 2019-10-13.json (0.3 MB) in 45s
+[02:56:47]   2019-10-15: PSI 62, fires {'VIIRS_SNPP_SP': 7406, 'VIIRS_NOAA20_SP': 8408}, PM2.5 hours 41
+[02:56:54]     member c00: done (7s)
+[02:57:00]     member p01: done (12s)
+[02:57:05]     member p02: done (18s)
+[02:57:11]     member p03: done (23s)
+[02:57:16]     member p04: done (29s)
+[02:57:20]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[02:57:28]   traced member 1/5
+[02:57:29]   traced member 5/5
+[02:57:29]   wrote 2019-10-15.json (0.3 MB) in 49s
+[02:57:39]   2019-10-17: PSI 54, fires {'VIIRS_SNPP_SP': 3406, 'VIIRS_NOAA20_SP': 3674}, PM2.5 hours 41
+[02:57:45]     member c00: done (7s)
+[02:57:51]     member p01: done (12s)
+[02:57:57]     member p02: done (19s)
+[02:58:03]     member p03: done (24s)
+[02:58:08]     member p04: done (29s)
+[02:58:12]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[02:58:14]   traced member 1/5
+[02:58:15]   traced member 5/5
+[02:58:15]   wrote 2019-10-17.json (0.3 MB) in 46s
+[02:58:30]   2019-10-19: PSI 61, fires {'VIIRS_SNPP_SP': 2832, 'VIIRS_NOAA20_SP': 2104}, PM2.5 hours 41
+[02:58:37]     member c00: done (7s)
+[02:58:42]     member p01: done (12s)
+[02:58:49]     member p02: done (18s)
+[02:58:54]     member p03: done (24s)
+[02:59:00]     member p04: done (29s)
+[02:59:03]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[02:59:04]   traced member 1/5
+[02:59:06]   traced member 5/5
+[02:59:06]   wrote 2019-10-19.json (0.3 MB) in 51s
+[02:59:21]   2019-10-21: PSI 56, fires {'VIIRS_SNPP_SP': 5624, 'VIIRS_NOAA20_SP': 5566}, PM2.5 hours 41
+[02:59:27]     member c00: done (7s)
+[02:59:33]     member p01: done (12s)
+[02:59:38]     member p02: done (18s)
+[02:59:44]     member p03: done (23s)
+[02:59:50]     member p04: done (29s)
+[02:59:53]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[02:59:58]   traced member 1/5
+[02:59:59]   traced member 5/5
+[02:59:59]   wrote 2019-10-21.json (0.3 MB) in 53s
+[03:00:20]   2019-10-23: PSI 56, fires {'VIIRS_SNPP_SP': 7794, 'VIIRS_NOAA20_SP': 7186}, PM2.5 hours 41
+[03:00:26]     member c00: done (6s)
+[03:00:30]     member p01: done (11s)
+[03:00:35]     member p02: done (15s)
+[03:00:40]     member p03: done (20s)
+[03:00:45]     member p04: done (25s)
+[03:00:49]     reforecast: 160/225 member-steps, 16 history steps, 29s
+[03:00:56]   traced member 1/5
+[03:00:57]   traced member 5/5
+[03:00:57]   wrote 2019-10-23.json (0.3 MB) in 58s
+[03:01:13]   2019-10-25: PSI 61, fires {'VIIRS_SNPP_SP': 6929, 'VIIRS_NOAA20_SP': 6007}, PM2.5 hours 41
+[03:01:20]     member c00: done (7s)
+[03:01:26]     member p01: done (13s)
+[03:01:32]     member p02: done (19s)
+[03:01:38]     member p03: done (25s)
+[03:01:43]     member p04: done (30s)
+[03:01:47]     reforecast: 220/225 member-steps, 16 history steps, 34s
+[03:01:53]   traced member 1/5
+[03:01:54]   traced member 5/5
+[03:01:54]   wrote 2019-10-25.json (0.3 MB) in 57s
+[03:02:08]   2019-10-27: PSI 55, fires {'VIIRS_SNPP_SP': 2108, 'VIIRS_NOAA20_SP': 2975}, PM2.5 hours 41
+[03:02:15]     member c00: done (7s)
+[03:02:21]     member p01: done (12s)
+[03:02:26]     member p02: done (18s)
+[03:02:32]     member p03: done (24s)
+[03:02:38]     member p04: done (30s)
+[03:02:42]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[03:02:43]   traced member 1/5
+[03:02:44]   traced member 5/5
+[03:02:44]   wrote 2019-10-27.json (0.3 MB) in 50s
+[03:03:02]   2019-10-29: PSI 59, fires {'VIIRS_SNPP_SP': 2319, 'VIIRS_NOAA20_SP': 1980}, PM2.5 hours 41
+[03:03:08]     member c00: done (7s)
+[03:03:14]     member p01: done (12s)
+[03:03:20]     member p02: done (18s)
+[03:03:26]     member p03: done (24s)
+[03:03:32]     member p04: done (30s)
+[03:03:35]     reforecast: 220/225 member-steps, 16 history steps, 34s
+[03:03:36]   traced member 1/5
+[03:03:38]   traced member 5/5
+[03:03:38]   wrote 2019-10-29.json (0.3 MB) in 53s
+[03:03:54]   2019-10-31: PSI 71, fires {'VIIRS_SNPP_SP': 2131, 'VIIRS_NOAA20_SP': 2712}, PM2.5 hours 41
+[03:04:01]     member c00: done (7s)
+[03:04:06]     member p01: done (12s)
+[03:04:12]     member p02: done (18s)
+[03:04:18]     member p03: done (24s)
+[03:04:24]     member p04: done (30s)
+[03:04:28]     reforecast: 220/225 member-steps, 16 history steps, 34s
+[03:04:29]   traced member 1/5
+[03:04:31]   traced member 5/5
+[03:04:31]   wrote 2019-10-31.json (0.3 MB) in 53s
+[03:04:38]   2019-11-02: PSI 72, fires {'VIIRS_SNPP_SP': 1547, 'VIIRS_NOAA20_SP': 1780}, PM2.5 hours 41
+[03:04:45]     member c00: done (7s)
+[03:04:50]     member p01: done (13s)
+[03:04:56]     member p02: done (18s)
+[03:05:02]     member p03: done (24s)
+[03:05:08]     member p04: done (30s)
+[03:05:12]     reforecast: 220/225 member-steps, 16 history steps, 34s
+[03:05:12]   traced member 1/5
+[03:05:14]   traced member 5/5
+[03:05:14]   wrote 2019-11-02.json (0.3 MB) in 43s
+[03:05:22]   2019-11-04: PSI 70, fires {'VIIRS_SNPP_SP': 2403, 'VIIRS_NOAA20_SP': 1989}, PM2.5 hours 41
+[03:05:29]     member c00: done (7s)
+[03:05:34]     member p01: done (13s)
+[03:05:40]     member p02: done (19s)
+[03:05:46]     member p03: done (24s)
+[03:05:52]     member p04: done (30s)
+[03:05:55]     reforecast: 220/225 member-steps, 16 history steps, 34s
+[03:05:56]   traced member 1/5
+[03:05:58]   traced member 5/5
+[03:05:58]   wrote 2019-11-04.json (0.3 MB) in 44s
+[03:06:11]   2019-11-06: PSI 77, fires {'VIIRS_SNPP_SP': 3299, 'VIIRS_NOAA20_SP': 3281}, PM2.5 hours 41
+[03:06:16]     member c00: done (6s)
+[03:06:21]     member p01: done (11s)
+[03:06:26]     member p02: done (16s)
+[03:06:31]     member p03: done (21s)
+[03:06:36]     member p04: done (25s)
+[03:06:40]     reforecast: 160/225 member-steps, 16 history steps, 29s
+[03:06:42]   traced member 1/5
+[03:06:43]   traced member 5/5
+[03:06:43]   wrote 2019-11-06.json (0.3 MB) in 45s
+[03:06:56]   2019-11-08: PSI 69, fires {'VIIRS_SNPP_SP': 4919, 'VIIRS_NOAA20_SP': 5558}, PM2.5 hours 41
+[03:07:02]     member c00: done (7s)
+[03:07:08]     member p01: done (13s)
+[03:07:14]     member p02: done (18s)
+[03:07:20]     member p03: done (24s)
+[03:07:25]     member p04: done (30s)
+[03:07:29]     reforecast: 220/225 member-steps, 16 history steps, 34s
+[03:07:33]   traced member 1/5
+[03:07:35]   traced member 5/5
+[03:07:35]   wrote 2019-11-08.json (0.3 MB) in 51s
+[03:07:37]   hourly PM2.5 not available: GET failed for https://api-open.data.gov.sg/v2/real-time/api/pm25: HTTP 404: {"c
+[03:07:45]   2019-11-10: PSI 68, fires {'VIIRS_SNPP_SP': 5111, 'VIIRS_NOAA20_SP': 3755}, PM2.5 hours 0
+[03:07:52]     member c00: done (7s)
+[03:07:58]     member p01: done (12s)
+[03:08:03]     member p02: done (18s)
+[03:08:09]     member p03: done (24s)
+[03:08:14]     member p04: done (29s)
+[03:08:18]     reforecast: 220/225 member-steps, 16 history steps, 33s
+[03:08:21]   traced member 1/5
+[03:08:22]   traced member 5/5
+[03:08:22]   wrote 2019-11-10.json (0.3 MB) in 48s
+[03:08:29]   2019-11-12: PSI 69, fires {'VIIRS_SNPP_SP': 3171, 'VIIRS_NOAA20_SP': 4224}, PM2.5 hours 41
+[03:08:36]     member c00: done (7s)
+[03:08:42]     member p01: done (13s)
+[03:08:48]     member p02: done (18s)
+[03:08:54]     member p03: done (24s)
+[03:09:00]     member p04: done (30s)
+[03:09:04]     reforecast: 220/225 member-steps, 16 history steps, 34s
+[03:09:06]   traced member 1/5
+[03:09:07]   traced member 5/5
+[03:09:07]   wrote 2019-11-12.json (0.3 MB) in 45s
+[03:09:14]   2019-11-14: PSI 82, fires {'VIIRS_SNPP_SP': 1475, 'VIIRS_NOAA20_SP': 1241}, PM2.5 hours 41
+[03:09:21]     member c00: done (7s)
+[03:09:27]     member p01: done (13s)
+[03:09:33]     member p02: done (19s)
+[03:09:39]     member p03: done (25s)
+[03:09:45]     member p04: done (31s)
+[03:09:49]     reforecast: 220/225 member-steps, 16 history steps, 35s
+[03:09:49]   traced member 1/5
+[03:09:51]   traced member 5/5
+[03:09:51]   wrote 2019-11-14.json (0.3 MB) in 44s
+[03:09:51] done: 44 issue dates built
+2019-08-20 now 60 p50 60 60 60 60 60 61 8.1s
+2019-08-22 now 59 p50 60 59 60 60 60 61 8.0s
+2019-08-24 now 59 p50 62 63 61 60 61 61 8.1s
+2019-08-26 now 79 p50 77 73 72 70 70 68 8.0s
+2019-08-28 now 60 p50 60 61 61 61 62 62 8.1s
+2019-08-30 now 60 p50 61 61 61 61 62 61 8.1s
+2019-09-01 now 64 p50 70 65 65 64 64 64 8.0s
+2019-09-03 now 65 p50 69 69 72 70 66 66 8.1s
+2019-09-05 now 63 p50 64 63 63 63 65 64 7.9s
+2019-09-07 now 72 p50 73 71 70 68 68 69 8.2s
+2019-09-09 now 80 p50 85 74 74 74 77 78 8.3s
+2019-09-11 now 79 p50 74 99 128 117 98 91 8.5s
+2019-09-13 now 96 p50 109 98 94 95 86 86 8.6s
+2019-09-15 now 121 p50 121 113 98 93 89 97 8.8s
+2019-09-17 now 95 p50 90 86 85 85 86 87 8.6s
+2019-09-19 now 128 p50 129 121 120 136 121 98 8.7s
+2019-09-21 now 100 p50 107 125 94 83 84 84 8.6s
+2019-09-23 now 119 p50 103 95 99 95 88 84 8.9s
+2019-09-25 now 75 p50 122 144 127 88 75 82 8.5s
+2019-09-27 now 76 p50 84 75 68 68 67 67 8.3s
+2019-09-29 now 78 p50 75 72 75 75 71 70 8.3s
+2019-10-01 now 66 p50 66 69 67 65 65 64 8.2s
+2019-10-03 now 64 p50 64 63 65 68 68 66 8.2s
+2019-10-05 now 51 p50 56 56 55 54 55 55 8.1s
+2019-10-07 now 58 p50 58 58 58 58 59 59 8.0s
+2019-10-09 now 59 p50 61 62 66 64 63 61 8.2s
+2019-10-11 now 68 p50 68 67 64 64 64 64 8.0s
+2019-10-13 now 66 p50 69 67 71 68 68 66 8.2s
+2019-10-15 now 62 p50 67 63 63 63 63 62 8.1s
+2019-10-17 now 54 p50 56 58 58 56 57 57 8.2s
+2019-10-19 now 61 p50 64 61 61 62 63 63 8.1s
+2019-10-21 now 56 p50 58 59 62 60 59 59 8.2s
+2019-10-23 now 56 p50 58 59 59 58 59 59 8.1s
+2019-10-25 now 61 p50 61 61 61 62 62 63 8.2s
+2019-10-27 now 55 p50 57 57 57 57 60 58 8.2s
+2019-10-29 now 59 p50 65 62 62 62 62 62 8.2s
+2019-10-31 now 71 p50 72 66 67 68 66 64 8.2s
+2019-11-02 now 72 p50 73 70 69 71 71 72 8.3s
+2019-11-04 now 70 p50 72 85 82 86 78 74 8.4s
+2019-11-06 now 77 p50 112 128 83 78 88 86 8.5s
+2019-11-08 now 69 p50 63 63 62 62 62 62 8.2s
+2019-11-10 now 68 p50 72 85 77 70 66 63 8.3s
+2019-11-12 now 69 p50 70 65 64 63 63 63 8.1s
+2019-11-14 now 82 p50 72 72 119 141 94 75 8.5s

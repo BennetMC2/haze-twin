@@ -1,0 +1,61 @@
+{
+ "years": [
+  {
+   "year": 2014,
+   "roni_jas": -0.09,
+   "dmi_aug": -0.372,
+   "predicted_end": "2014-11-07",
+   "last_day_above_100": "2014-11-03",
+   "error_days": 4,
+   "haze_days": 6
+  },
+  {
+   "year": 2015,
+   "roni_jas": 1.54,
+   "dmi_aug": 0.568,
+   "predicted_end": "2015-11-22",
+   "last_day_above_100": "2015-10-28",
+   "error_days": 25,
+   "haze_days": 37
+  },
+  {
+   "year": 2016,
+   "roni_jas": -0.81,
+   "dmi_aug": -0.443,
+   "predicted_end": "2016-11-07",
+   "last_day_above_100": "2016-08-29",
+   "error_days": 70,
+   "haze_days": 2
+  },
+  {
+   "year": 2019,
+   "roni_jas": -0.12,
+   "dmi_aug": 0.436,
+   "predicted_end": "2019-11-11",
+   "last_day_above_100": "2019-11-13",
+   "error_days": -2,
+   "haze_days": 6
+  },
+  {
+   "year": 2023,
+   "roni_jas": 0.79,
+   "dmi_aug": 0.826,
+   "predicted_end": "2023-11-20",
+   "last_day_above_100": "2023-10-08",
+   "error_days": 43,
+   "haze_days": 2
+  },
+  {
+   "year": 2026,
+   "roni_jas": 1.69,
+   "dmi_aug": null,
+   "predicted_end": "2026-11-17",
+   "last_day_above_100": "2026-10-16",
+   "error_days": 32,
+   "haze_days": 22
+  }
+ ],
+ "mean_error_days": 28.0,
+ "mean_abs_error_days": 28.8,
+ "note": "Positive error: the prior expected the season to end later than the last day above 100."
+}
