@@ -403,7 +403,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     <div class="ohead"><button class="btn" type="button" data-back>← Back to forecast</button><h2 id="oddsTitle">Odds</h2><span class="note" id="oddsSub"></span></div>
     <p class="note"><b>Not an official forecast.</b> This is an experimental, independent model. For health advice, follow <a href="https://www.haze.gov.sg/" target="_blank" rel="noopener">NEA</a>.</p>
     <div class="degraded" id="degOdds" hidden></div>
-    <p class="note"><b>Not yet validated.</b> These yes/no odds have not been tested against past seasons with the current model, so treat them as rough.</p>
+    <p class="note" id="oddsVal"><b>Not yet validated.</b> These yes/no odds have not been tested against past seasons with the current model, so treat them as rough.</p>
     <div class="markets" id="markets"></div>
     <h2>Day by day</h2>
     <div class="chart-wrap"><table class="otab" id="oddsTable"></table></div>
@@ -1216,6 +1216,19 @@ function replayHTML(){
     '<p>Typical miss of the best guess vs "same as today", in PSI points: '+[1,2,3].map(k=>mm(k)?'day '+k+' '+mm(k):null).filter(Boolean).join(', ')+(o7?', days 7 to 15 '+f1(o7.mae)+' vs '+f1(o7.mae_persist):'')+'.</p>'+
     '<p>Before the correction only '+o.coverage90+'% of readings fell inside the possible range. The correction widens the ranges; it was fitted on these same seasons.</p></details>';
   h+='<div class="rplctl" id="rplCtl"></div><div class="chart-wrap" id="rplChart"></div><p class="note" id="rplNote"></p>';
+  h+=validationHTML();
+  return h;
+}
+// independent checks: ranges on a season the correction was not fitted on, the yes/no odds, the season-end estimate
+const EVNAME={hazardous6:'Above 300 within 6 days',above200_6:'Above 200 within 6 days',hazardous15:'Above 300 within 15 days',below100_15:'Back to 100 or below within 15 days'};
+function validationHTML(){
+  if(!RPL)return '';let h='';
+  const L=RPL.loso;if(Array.isArray(L)&&L.length){const by={};L.forEach(x=>{(by[x.lead]=by[x.lead]||[]).push(x.inside90);});
+    h+='<h3>Checked on seasons it was not tuned on</h3><p>The range correction was refitted without each season in turn, then tested on that season. Share of readings inside the 90% range: '+Object.entries(by).map(([k,v])=>esc(k)+' '+Math.min(...v)+'–'+Math.max(...v)+'%').join(', ')+'.</p>';}
+  const M=(RPL.markets&&Object.keys(RPL.markets).length)?RPL.markets:null,MR=RPL.markets_raw;const use=M||MR;
+  if(use){h+='<h3>Yes/no odds on past seasons'+(M?'':' (earlier model version)')+'</h3><div class="chart-wrap"><table class="ltab"><thead><tr><th>Question</th><th>Times asked</th><th>Happened</th><th>When the twin said…</th><th>Skill vs always saying the usual rate</th></tr></thead><tbody>'+
+    Object.entries(use).map(([k,v])=>'<tr><td>'+esc(EVNAME[k]||k)+'</td><td>'+v.n+'</td><td>'+v.happened_overall+'%</td><td style="text-align:left">'+v.bins.filter(b=>b.n>=3).map(b=>b.forecast+'%: happened '+b.happened+'% ('+b.n+')').join('; ')+'</td><td>'+(v.brier_skill_vs_base_rate==null?'–':(v.brier_skill_vs_base_rate>0?'+':'')+v.brier_skill_vs_base_rate)+'</td></tr>').join('')+'</tbody></table></div><p class="note">Above 0 means more useful than always quoting how often it happened. Checked on NEA\'s noon readings only.</p>';}
+  const S=RPL.season_backtest;if(S&&S.years&&S.years.length)h+='<h3>Season-end estimate on past years</h3><p>The climate part of the season-end estimate was off by '+S.mean_abs_error_days+' days on average ('+(S.mean_error_days>0?'too late':'too early')+' by '+Math.abs(S.mean_error_days)+' days overall), across '+S.years.filter(y=>y.year<new Date().getFullYear()).length+' past haze years.</p>';
   return h;
 }
 function wireReplay(){
@@ -1521,7 +1534,8 @@ function renderOddsTable(){
     h+='<tr class="'+(ext?'ext':'')+'"><td><b>'+esc(d.dow)+'</b> '+esc(dshort(d))+'</td>'+dd.bands.map((v,k)=>'<td class="b'+(v<0.5?' z':'')+'" style="--c:'+COL.b[k]+';--a:'+Math.min(1,v/80).toFixed(2)+'" data-tip="'+esc(dfull(d)+': '+BANDS[k].name)+'|<b>'+pctTxt(v)+'</b> of futures">'+(v<0.5?'–':pctTxt(v))+'</td>').join('')+'<td class="bg">'+dd.p50+'</td></tr>';});
   t.innerHTML=h+'</tbody>';
 }
-function renderOdds(){if(!FC)return;renderMarkets();renderOddsTable();const sub=$('oddsSub');if(sub)sub.textContent=regionName()+', 24-hour PSI. Each % is the share of 100,000 simulated futures.';}
+function renderOdds(){if(!FC)return;
+  const M=RPL&&RPL.markets&&RPL.markets.hazardous6;if(M&&$('oddsVal')){const sk=M.brier_skill_vs_base_rate;$('oddsVal').innerHTML='<b>Tested on past seasons:</b> '+(sk!=null&&sk>0.05?'the yes/no odds were more useful than always quoting the usual rate.':'the yes/no odds were no more useful than always quoting the usual rate, so treat them as rough.')+' Details under Track record.';}renderMarkets();renderOddsTable();const sub=$('oddsSub');if(sub)sub.textContent=regionName()+', 24-hour PSI. Each % is the share of 100,000 simulated futures.';}
 let PAGE='map';
 function setView(v){PAGE=v;const paged=v!=='map';if(paged&&typeof tourI!=='undefined'&&tourI>=0)endTour();
   $('app').classList.toggle('paged',paged);$('oddsView').classList.toggle('on',v==='odds');$('recordView').classList.toggle('on',v==='record');
@@ -1543,8 +1557,8 @@ function renderLearn(){
   if(!last){h+='<p class="note">No reviews yet. They run daily at 1:30 pm, once forecasts have reached their target day.</p>';box.innerHTML=h+learnHow();return;}
   h+=learnEntry(last,true);
   const cur=last.after||{bias:[0,0,0],spread:[1,1,1]};
-  h+='<h3>Corrections in use now</h3><div class="chart-wrap"><table class="ltab"><thead><tr><th></th><th>Best guess moved</th><th>Range</th></tr></thead><tbody>'+
-    GN.map((g,i)=>'<tr><td>'+g+'</td><td>'+pctB(cur.bias[i])+'</td><td>'+spr(cur.spread[i])+'</td></tr>').join('')+'</tbody></table></div>';
+  h+='<h3>Corrections in use now</h3><div class="chart-wrap"><table class="ltab"><thead><tr><th></th><th>Best guess moved</th><th>Range</th><th>Pull towards CAMS</th></tr></thead><tbody>'+
+    GN.map((g,i)=>'<tr><td>'+g+'</td><td>'+pctB(cur.bias[i])+'</td><td>'+spr(cur.spread[i])+'</td><td>'+(cur.cams&&cur.cams[i]?Math.round(cur.cams[i]*100)+'%':'none')+'</td></tr>').join('')+'</tbody></table></div>';
   const older=L.slice(0,-1).reverse();
   if(older.length)h+='<details class="more"><summary>Earlier days ('+older.length+')</summary>'+older.map(e=>'<div class="lold">'+learnEntry(e,false)+'</div>').join('')+'</details>';
   box.innerHTML=h+learnHow();
@@ -1554,13 +1568,13 @@ function learnEntry(e,full){
   if(e.review&&e.review.note)h+='<div class="lnote"><p>'+esc(e.review.note)+'</p><div class="by">Review by Claude Opus 5.5'+(e.agree?'. Its suggested direction matched the code\'s change for '+e.agree[0]+' of '+e.agree[1]+' forecast ranges.':'.')+'</div></div>';
   else if(e.review_error)h+='<p class="note">No AI review this day ('+esc(String(e.review_error).slice(0,80))+').</p>';
   const sc=(e.scores||[]).filter(g=>g.n);
-  if(sc.length)h+='<div class="chart-wrap"><table class="ltab"><thead><tr><th>How far ahead</th><th>Days scored</th><th>Typical miss</th><th>"Same as today" missed by</th><th>Inside possible range</th><th>Readings vs best guess</th></tr></thead><tbody>'+
-    sc.map(g=>'<tr><td>'+esc(g.name)+'</td><td>'+g.days+'</td><td>'+g.mae+'</td><td>'+g.mae_persistence+'</td><td>'+g.coverage90+'%</td><td>'+(g.bias_pct>0?'+':'')+g.bias_pct+'%</td></tr>').join('')+'</tbody></table></div>';
+  if(sc.length)h+='<div class="chart-wrap"><table class="ltab"><thead><tr><th>How far ahead</th><th>Days scored</th><th>Typical miss</th><th>"Same as today" missed by</th><th>Inside possible range</th><th>Readings vs best guess</th><th>CAMS missed by</th></tr></thead><tbody>'+
+    sc.map(g=>'<tr><td>'+esc(g.name)+'</td><td>'+g.days+'</td><td>'+g.mae+'</td><td>'+g.mae_persistence+'</td><td>'+g.coverage90+'%</td><td>'+(g.bias_pct>0?'+':'')+g.bias_pct+'%</td><td>'+(g.mae_cams!=null?g.mae_cams+' (twin '+g.mae_twin_same+')':'–')+'</td></tr>').join('')+'</tbody></table></div>';
   if(full&&e.latest&&e.latest.length)h+='<p class="note">'+e.latest.map(x=>esc(x.group)+': said '+x.p50+' (range '+x.p5+' to '+x.p95+'), measured '+x.obs).join('. ')+'.</p>';
   const ch=(e.changes||[]);if(ch.length)h+='<ul class="lchg">'+ch.map(c=>'<li><b>'+esc(c.group)+':</b> '+esc(c.what)+'. '+esc(c.why)+'.</li>').join('')+'</ul>';
   return h;
 }
-function learnHow(){return '<details class="more"><summary>How the learning works</summary><p>1. Score: each forecast from the last 15 days is checked against NEA\'s 24-hour PSI at noon, split by how far ahead it was made.</p><p>2. Review: Claude Opus 5.5 gets the scores plus what the fires, rain and winds did, and writes the most likely reason for the biggest misses.</p><p>3. Correct: the code moves the best guess halfway toward fixing the past week\'s leftover error, by at most 8% a day and 50% in total. It widens the range if fewer than 75% of readings fell inside it, and narrows it if nearly all did. The AI explains; it does not set the numbers.</p></details>';}
+function learnHow(){return '<details class="more"><summary>How the learning works</summary><p>1. Score: each forecast from the last 15 days is checked against NEA\'s 24-hour PSI at noon, split by how far ahead it was made.</p><p>2. Review: Claude Opus 5.5 gets the scores plus what the fires, rain and winds did, and writes the most likely reason for the biggest misses.</p><p>3. Correct: the code moves the best guess halfway toward fixing the past week\'s leftover error, by at most 8% a day and 50% in total. It widens the range if fewer than 75% of readings fell inside it, and narrows it if nearly all did. It also scores CAMS, another smoke model, on the same days; once CAMS has scored better over at least 5 days, the best guess is pulled part of the way towards it (at most half way). The AI explains; it does not set the numbers.</p></details>';}
 
 
 /* ---------- main reading from AQICN (World Air Quality Index), US AQI scale ---------- */

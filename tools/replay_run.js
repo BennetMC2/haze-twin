@@ -12,14 +12,20 @@ for (const f of fs.readdirSync(dir).filter(f => f.endsWith('.json')).sort()) {
   try {
     const inp = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
     const t = Date.now();
-    const res = E.run(inp, { n: N, seed: 7 });
+    // raw run (no calibration): what tools/replay_score.py calibrates once, and the leave-one-season-out fit uses
+    const res = E.run(inp, { n: N, seed: 7, calibrate: false });
     const r = res.regions.national;
+    // production run (calibrated, exactly as the live site): for checking the yes/no odds and storylines
+    const pro = E.run(inp, { n: N, seed: 7 });
+    const q = pro.regions.national;
     out[day] = {
-      t0: inp.t0, members: inp.members.length, now: r.now, ess: res.ess,
+      t0: inp.t0, members: inp.members.length, now: r.now, ess: res.ess, engine: E.CALIB.version,
       days: res.days.map((d, i) => ({ iso: d.iso, tier: d.tier, ...r.days[i] })),
       clearBy: r.clearBy, clear: r.clear, mode: r.mode, markets: r.markets,
       classes: r.classes.map(c => ({ id: c.id, odds: c.odds })), sourceShare: res.sourceShare,
       blend: res.blend ? res.blend.weight : null,
+      days_cal: pro.days.map((d, i) => ({ iso: d.iso, ...q.days[i] })), markets_cal: q.markets,
+      classes_cal: q.classes.map(c => ({ id: c.id, odds: c.odds })), clear_cal: q.clear, cams: pro.cams,
     };
     console.log(day, 'now', r.now, 'p50', r.days.slice(0, 6).map(d => d.p50).join(' '), ((Date.now() - t) / 1000).toFixed(1) + 's');
   } catch (e) { console.log(day, 'failed', e.message); }

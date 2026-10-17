@@ -60,7 +60,7 @@ const entry = {
   regions: Object.fromEntries(Object.entries(fc.regions).filter(([k]) => k === 'national').map(([k, v]) => [k, {
     now: v.now, mode: v.mode, clear: v.clear,
     classes: v.classes.map(c => ({ id: c.id, name: c.name, odds: c.odds })),
-    days: v.days.map((d, i) => ({ iso: fc.days[i].iso, p5: d.p5, p50: d.p50, p95: d.p95 }))
+    days: v.days.map((d, i) => ({ iso: fc.days[i].iso, p5: d.p5, p50: d.p50, p95: d.p95, cams: k === 'national' && fc.cams ? fc.cams.days[i] : undefined }))
   }]))
 };
 if (!runs.some(r => r.id === entry.id)) runs.push(entry);

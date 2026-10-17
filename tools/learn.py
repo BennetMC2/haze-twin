@@ -67,7 +67,7 @@ def score(runs, obs, today, cur):
                     wsp = ((r.get("learn") or {}).get("spread") or [1, 1, 1])[gi]
                     ksp = cur["spread"][gi] / (wsp or 1)
                     groups[gi]["pairs"].append({"day": k[:10], "lead_h": round(lead), "issued": r.get("issued") or r["t0"], "p5": d["p5"], "p50": d["p50"],
-                                                "p95": d["p95"], "obs": o, "persist": reg.get("now"), "adj": adj, "ksp": ksp})
+                                                "p95": d["p95"], "obs": o, "persist": reg.get("now"), "adj": adj, "ksp": ksp, "cams": d.get("cams")})
     out = []
     for g in groups:
         P = g["pairs"]
@@ -92,7 +92,13 @@ def score(runs, obs, today, cur):
         maep = mean_over_days(lambda p: abs((p["persist"] or p["obs"]) - p["obs"]))
         recent = sorted(byday)[-7:]
         e7 = sum(sum(math.log(max(1, p["obs"]) / max(1, p["p50"] * p["adj"])) for p in byday[d]) / len(byday[d]) for d in recent) / len(recent)
-        out.append({"name": g["name"], "n": len(P), "days": ndays, "bias_log": round(e, 3), "bias_log_7d": round(e7, 3), "bias_left_pct": round((math.exp(e7) - 1) * 100),
+        # second opinion: bias-corrected CAMS, on the same days and leads where it had a forecast
+        cp = [p for p in P if p.get("cams")]
+        cdays = len({p["day"] for p in cp})
+        mae_c = sum(abs(p["cams"] - p["obs"]) for p in cp) / len(cp) if cp else None
+        mae_t = sum(abs(p["p50"] - p["obs"]) for p in cp) / len(cp) if cp else None
+        out.append({"name": g["name"], "n": len(P), "days": ndays, "cams_days": cdays,
+                    "mae_cams": round(mae_c, 1) if mae_c is not None else None, "mae_twin_same": round(mae_t, 1) if mae_t is not None else None, "bias_log": round(e, 3), "bias_log_7d": round(e7, 3), "bias_left_pct": round((math.exp(e7) - 1) * 100),
                     "bias_pct": round((math.exp(e) - 1) * 100), "coverage90": round(cov * 100), "mae": round(mae, 1),
                     "mae_persistence": round(maep, 1)})
     latest = max((p["day"] for g in groups for p in g["pairs"]), default=None)
@@ -165,12 +171,22 @@ def main():
     runs = load(HIST / "runs.json", [])
     obs = load(HIST / "obs.json", {})
     params = load(OUT / "params.json", {"bias": [0, 0, 0], "spread": [1, 1, 1]})
+    params.setdefault("cams", [0, 0, 0])
     log = load(OUT / "log.json", [])
     stats, latest, detail = score(runs, obs, today, params)
     cond = conditions(runs, latest)
 
     # the rule-based step: move half way toward correcting what is still left over after today's correction, capped
-    new_bias, new_spread, changes = list(params["bias"]), list(params["spread"]), []
+    new_bias, new_spread, new_cams, changes = list(params["bias"]), list(params["spread"]), list(params["cams"]), []
+    # how much to lean on CAMS: only after 5 scored days, and only as far as it actually beat the twin
+    for i, g in enumerate(stats):
+        if g.get("cams_days", 0) >= 5 and g.get("mae_twin_same"):
+            target = max(0.0, min(0.5, (g["mae_twin_same"] - g["mae_cams"]) / g["mae_twin_same"] * 2))
+            step = max(-0.1, min(0.1, 0.5 * (target - params["cams"][i])))
+            if abs(step) >= 0.01:
+                new_cams[i] = round(params["cams"][i] + step, 3)
+                changes.append({"group": g["name"], "what": f"leaning on CAMS {'more' if step > 0 else 'less'} (weight now {round(new_cams[i] * 100)}%)",
+                                "why": f"typical miss: twin {g['mae_twin_same']}, CAMS {g['mae_cams']} over {g['cams_days']} days"})
     for i, g in enumerate(stats):
         if g.get("days", 0) < MIN_DAYS:
             changes.append({"group": g["name"], "what": "no change", "why": f"only {g.get('days', 0)} scored days so far; waiting for {MIN_DAYS}"})
@@ -205,12 +221,12 @@ def main():
 
     entry = {"date": today.isoformat(), "at": now.isoformat(), "scored_day": latest, "scores": stats, "latest": detail,
              "conditions": cond, "changes": changes, "before": params,
-             "after": {"bias": new_bias, "spread": new_spread},
+             "after": {"bias": new_bias, "spread": new_spread, "cams": new_cams},
              "review": review, "review_error": err, "agree": agree}
     log = [e for e in log if e.get("date") != entry["date"]] + [entry]
     log = log[-120:]
     OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / "params.json").write_text(json.dumps({"date": today.isoformat(), "bias": new_bias, "spread": new_spread}))
+    (OUT / "params.json").write_text(json.dumps({"date": today.isoformat(), "bias": new_bias, "spread": new_spread, "cams": new_cams}))
     (OUT / "log.json").write_text(json.dumps(log))
     print(json.dumps({k: entry[k] for k in ("date", "scored_day", "changes", "after", "agree", "review_error")}, indent=1))
     if review:

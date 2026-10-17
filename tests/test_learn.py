@@ -18,7 +18,7 @@ def synthetic(bias_at_issue=0.0):
     for d in range(14):
         t0 = base + timedelta(days=d)
         days = [{"iso": (datetime(t0.year, t0.month, t0.day, 4, tzinfo=timezone.utc) + timedelta(days=k)).isoformat().replace("+00:00", ".000Z"),
-                 "p5": 90, "p50": 150, "p95": 260} for k in range(1, 16)]
+                 "p5": 90, "p50": 150, "p95": 260, "cams": 185 if k <= 3 else None} for k in range(1, 16)]
         runs.append({"t0": t0.isoformat(), "issued": t0.isoformat(), "learn": {"bias": [bias_at_issue] * 3, "spread": [1, 1, 1]},
                      "regions": {"national": {"now": 160, "days": days}}})
     for d in range(16):
@@ -46,6 +46,15 @@ class LearnTest(unittest.TestCase):
         obs = dict(list(sorted(obs.items()))[-1:])
         stats, _, _ = L.score(runs, obs, datetime(2026, 10, 18).date(), {"bias": [0, 0, 0], "spread": [1, 1, 1]})
         self.assertTrue(all(g.get("days", 0) < L.MIN_DAYS for g in stats))
+
+
+class CamsTest(unittest.TestCase):
+    def test_cams_scored_on_same_days(self):
+        runs, obs = synthetic()
+        stats, _, _ = L.score(runs, obs, datetime(2026, 10, 18).date(), {"bias": [0, 0, 0], "spread": [1, 1, 1]})
+        g = stats[0]
+        self.assertGreaterEqual(g["cams_days"], 5)
+        self.assertLess(g["mae_cams"], g["mae_twin_same"])
 
 
 if __name__ == "__main__":

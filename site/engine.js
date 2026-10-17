@@ -145,6 +145,17 @@
     const analogs = inputs.analogs && inputs.analogs.paths && inputs.analogs.paths.length ? inputs.analogs : null;
     // the news signal is shown on the page but no longer moves the numbers: its effect has not been validated
     const growthShift = 0;
+    // second opinion: CAMS (Copernicus) PM2.5 forecast for Singapore, scaled so it matches NEA's reading at the
+    // reading's time. Used to report the disagreement, and (only once the daily learning has shown it scores
+    // better) to pull the twin's middle towards it.
+    let camsMean = () => null, camsRatio = null;
+    const cser = inputs.extras && inputs.extras.cams && Array.isArray(inputs.extras.cams.pm25) ? inputs.extras.cams.pm25 : null;
+    if (cser && cser.length > 24) {
+      const ch = cser.map(([t, v]) => [(new Date(t) - t0) / 3600e3, v]).filter(x => isFinite(x[0]) && x[1] > 0);
+      camsMean = (hh) => { let sum = 0, n = 0; for (const [h, v] of ch) if (h > hh - 24 && h <= hh) { sum += v; n++; } return n >= 20 ? sum / n : null; };
+      const c0 = camsMean(obsH); if (c0 && nat) camsRatio = Math.max(0.25, Math.min(4, nat / c0));
+    }
+    const camsPsi = (hh) => { if (!camsRatio) return null; const c = camsMean(hh); return c ? psiOf(c * camsRatio) : null; };
     // checks that decide whether this run is fit to publish
     const degraded = [];
     if (!nat) degraded.push('no valid NEA PM2.5 reading');
@@ -152,7 +163,7 @@
       if (src.status === 'failed' && /FIRMS|GEFS/i.test(src.name || '')) degraded.push((src.name || 'a data source') + ' failed');
     }
     if (!isFinite(meanFire)) degraded.push('the air-path calculation returned invalid numbers');
-    return { inputs, M, A, R, B, S, cum, isl, islands, ratio, binMid, arrIdx, futA, days, obs, nat, regRatio, K0, anchored, t0, trans, win24, fw, win72, nowBin, analogs, growthShift, ageTabs, anchorA, obsH, degraded };
+    return { inputs, M, A, R, B, S, cum, isl, islands, ratio, binMid, arrIdx, futA, days, obs, nat, regRatio, K0, anchored, t0, trans, win24, fw, win72, nowBin, analogs, growthShift, ageTabs, anchorA, obsH, degraded, camsPsi, camsRatio };
   }
 
   /* ---------- Monte Carlo ---------- */
@@ -272,7 +283,7 @@
     // each future is widened around the median in log-PSI space, CALIB_LO below and CALIB_HI above, and
     // capped at PSI 500. This changes the samples themselves, so every percentile, band odds, storyline and
     // yes/no question below comes from this one distribution. tools/replay_score.py reads the same constants.
-    {
+    if (opts.calibrate !== false) {
       const tmp = new Float64Array(Math.min(N, 20000)); const stp = Math.max(1, Math.floor(N / tmp.length));
       for (let f = 0; f < F; f++) {
         const hh = model.inputs.arrivals_h[futA[f]];
@@ -288,8 +299,9 @@
     }
     // daily learning (tools/learn.py): a small, capped correction for recent bias and spread, by lead
     // group (days 1-3, 4-6, 7-15). Comes from history/learn/params.json via inputs.learn.
+    // learned weights pull the middle towards bias-corrected CAMS. Everything in log-PSI, like the calibration.
     const L = opts.learn || model.inputs.learn || null;
-    if (L && (L.bias || L.spread)) {
+    if (L && (L.bias || L.spread || L.cams) && opts.calibrate !== false) {
       const g = (hh) => hh <= 84 ? 0 : hh <= 156 ? 1 : 2;
       const tmp = new Float64Array(Math.min(N, 20000)); const stp = Math.max(1, Math.floor(N / tmp.length));
       for (let f = 0; f < F; f++) {
@@ -297,10 +309,12 @@
         const ramp = Math.min(1, hh / 24);
         const b = Math.max(-0.4, Math.min(0.4, ((L.bias || [])[g(hh)] || 0))) * ramp;
         const k = 1 + (Math.max(0.7, Math.min(1.5, (L.spread || [])[g(hh)] || 1)) - 1) * ramp;
-        if (!b && k === 1) continue;
-        let n = 0; for (let s = 0; s < N && n < tmp.length; s += stp) tmp[n++] = Math.log(Math.max(1, pm24[s * F + f]));
+        const wc = Math.max(0, Math.min(0.5, (L.cams || [])[g(hh)] || 0)) * ramp; const cp = wc ? model.camsPsi(hh) : null;
+        if (!b && k === 1 && !cp) continue;
+        let n = 0; for (let s = 0; s < N && n < tmp.length; s += stp) tmp[n++] = Math.log(Math.max(1, psiOf(pm24[s * F + f])));
         const srt = Array.from(tmp.subarray(0, n)).sort((a, c) => a - c); const med = srt[Math.floor(n / 2)];
-        for (let s = 0; s < N; s++) { const v = Math.log(Math.max(1, pm24[s * F + f])); pm24[s * F + f] = Math.exp(med + b + k * (v - med)); }
+        const shift = b + (cp ? wc * (Math.log(Math.max(1, cp)) - med) : 0);
+        for (let s = 0; s < N; s++) { const v = Math.log(Math.max(1, psiOf(pm24[s * F + f]))); pm24[s * F + f] = pmOfPsi(Math.exp(Math.min(Math.log(500), med + shift + k * (v - med)))); }
       }
     }
     if (report) report(0.9);
@@ -643,8 +657,9 @@
     if (sim.ess < 30) reasons.push('very few simulated futures match NEA\'s readings (effective sample ' + Math.round(sim.ess) + ')');
     res.degraded = reasons.length ? { reasons } : null;
     res.obsH = model.obsH;
+    res.cams = { ratio: model.camsRatio ? Math.round(model.camsRatio * 100) / 100 : null, days: model.days.map(d => { const v = model.camsPsi(d.h); return v == null ? null : Math.round(v); }) };
     const L = opts.learn || inputs.learn || null;
-    res.learn = L ? { date: L.date || null, bias: L.bias || null, spread: L.spread || null } : null;
+    res.learn = L ? { date: L.date || null, bias: L.bias || null, spread: L.spread || null, cams: L.cams || null } : null;
     if (opts.onProgress) opts.onProgress(1);
     return res;
   }

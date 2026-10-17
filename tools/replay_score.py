@@ -120,8 +120,53 @@ def summarise(rows):
             "by_lead": by_lead}
 
 
+EVENTS = {  # yes/no question -> (days ahead, test on NEA noon PSI over those days)
+    "hazardous6": (6, lambda v: max(v) > 300), "above200_6": (6, lambda v: max(v) > 200),
+    "hazardous15": (15, lambda v: max(v) > 300), "below100_15": (15, lambda v: min(v) <= 100),
+}
+
+
+def markets(key):
+    """Reliability of the yes/no odds: forecast % against how often it happened (NEA noon readings only,
+    so short spikes between noons are missed; the engine checks every 6-12 h)."""
+    out = {}
+    for ev, (span, test) in EVENTS.items():
+        rows = []
+        for f in sorted(REPLAY.glob("[0-9][0-9][0-9][0-9].json")):
+            for issue, fc in json.loads(f.read_text()).items():
+                m = fc.get(key)
+                if not isinstance(m, dict) or m.get(ev) is None:
+                    continue
+                d0 = date.fromisoformat(issue)
+                vals = [daily.get((d0 + timedelta(days=k)).isoformat()) for k in range(1, span + 1)]
+                vals = [v for v in vals if v is not None]
+                if len(vals) < span - 1:
+                    continue
+                rows.append((m[ev] / 100, 1.0 if test(vals) else 0.0, int(f.stem)))
+        if not rows:
+            continue
+        base = sum(o for _, o, _ in rows) / len(rows)
+        brier = sum((p - o) ** 2 for p, o, _ in rows) / len(rows)
+        bclim = sum((base - o) ** 2 for _, o, _ in rows) / len(rows)
+        bins = []
+        for lo, hi in ((0, .1), (.1, .3), (.3, .6), (.6, .9), (.9, 1.01)):
+            b = [(p, o) for p, o, _ in rows if lo <= p < hi]
+            if b:
+                bins.append({"range": f"{int(lo * 100)}-{min(100, int(hi * 100))}%", "n": len(b),
+                             "forecast": round(100 * sum(p for p, _ in b) / len(b)), "happened": round(100 * sum(o for _, o in b) / len(b))})
+        out[ev] = {"n": len(rows), "seasons": sorted({y for *_, y in rows}), "happened_overall": round(100 * base),
+                   "brier": round(brier, 3), "brier_skill_vs_base_rate": round(1 - brier / bclim, 2) if bclim > 0 else None, "bins": bins}
+    return out
+
+
 def main():
     out = {"built": datetime.now(timezone.utc).isoformat(), "seasons": {}}
+    out["markets_raw"] = markets("markets")
+    out["markets"] = markets("markets_cal")
+    for name in ("loso", "season_backtest"):
+        f = REPLAY / f"{name}.json"
+        if f.exists():
+            out[name] = json.loads(f.read_text())
     allrows = []
     for f in sorted(REPLAY.glob("[0-9][0-9][0-9][0-9].json")):
         season = int(f.stem)

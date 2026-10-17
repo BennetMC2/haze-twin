@@ -14,7 +14,7 @@ GROUPS = ["days 1-3", "days 4-6", "days 7-15"]
 def load_rows():
     daily = json.loads((ROOT / "history" / "psi_daily.json").read_text())["daily"]
     rows = {}
-    for y in (2015, 2019, 2023):
+    for y in sorted(int(f.stem) for f in (ROOT / "history" / "replay").glob("[0-9][0-9][0-9][0-9].json")):
         for issue, f in json.loads((ROOT / "history" / "replay" / f"{y}.json").read_text()).items():
             d0 = date.fromisoformat(issue)
             for d in f["days"]:
@@ -51,8 +51,10 @@ def main():
     rows = load_rows()
     out = []
     for g in range(3):
-        for hold in (2015, 2019, 2023):
+        for hold in sorted({y for (y, _) in rows}):
             train = [x for (y, gg), v in rows.items() if gg == g and y != hold for x in v]
+            if (hold, g) not in rows:
+                continue
             test = rows[(hold, g)]
             klo, khi = fit(train)
             b, a = misses(test, klo, khi)

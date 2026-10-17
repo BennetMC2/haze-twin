@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        season: ["2015", "2019", "2023"]
+        season: ["2014", "2015", "2019", "2023"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -24,6 +24,12 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: "20"}
       - run: pip install -r pipeline/requirements.txt
+      - name: Reuse inputs built before (release replay-inputs)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p .work/replay
+          gh release download replay-inputs -p "inputs-${{ matrix.season }}.tar.gz" -D .work --clobber && tar -xzf .work/inputs-${{ matrix.season }}.tar.gz -C .work/replay || echo "no saved inputs; building"
       - name: Build historical inputs
         env:
           FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
@@ -34,6 +40,14 @@ jobs:
           import json;c=json.load(open('tools/replay.json'));s=c['seasons']['${{ matrix.season }}']
           print(s['start'], s['start'] if c.get('smoke') else s['end'], s['every'], s['members'])")
           python pipeline/replay.py --season ${{ matrix.season }} --start $START --end $END --every $EVERY --members $MEMBERS 2>&1 | tee replay-${{ matrix.season }}.log
+      - name: Save inputs for next time
+        env:
+          GH_TOKEN: ${{ github.token }}
+        continue-on-error: true
+        run: |
+          gh release view replay-inputs >/dev/null 2>&1 || gh release create replay-inputs --title "Replay inputs" --notes "Inputs rebuilt for past-season replays, so the engine can be re-run without rebuilding them." --latest=false
+          tar -czf .work/inputs-${{ matrix.season }}.tar.gz -C .work/replay inputs
+          gh release upload replay-inputs .work/inputs-${{ matrix.season }}.tar.gz --clobber
       - name: Run the twin on each date
         run: |
           set -o pipefail
@@ -52,16 +66,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
       - uses: actions/download-artifact@v4
         with: {path: art}
       - name: Score
         run: |
           mkdir -p history/replay
-          for s in 2015 2019 2023; do
+          for s in 2014 2015 2019 2023; do
             [ -f art/replay-$s/out/$s.json ] && cp art/replay-$s/out/$s.json history/replay/
             [ -f art/replay-$s/out/log-$s.txt ] && tail -c 60000 art/replay-$s/out/log-$s.txt > history/replay/log-$s.txt
             [ -f art/replay-$s/replay-$s.log ] && [ ! -f history/replay/log-$s.txt ] && tail -c 60000 art/replay-$s/replay-$s.log > history/replay/log-$s.txt
           done
+          pip install requests numpy
+          python tools/replay_loso.py || echo "leave-one-season-out failed"
+          python tools/season_backtest.py || echo "season back-test failed"
           python tools/replay_score.py || echo "scoring failed"
       - name: Save
         run: |
