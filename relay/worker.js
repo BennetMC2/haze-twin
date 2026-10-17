@@ -1,4 +1,4 @@
-// Haze Twin relay (Cloudflare Worker): answers "Ask about the haze" questions.
+// Singapore Haze Prediction Model relay (Cloudflare Worker): answers "Ask about the haze" questions.
 //
 // POST /  body {question, code?}  ->  {answer, tier}
 //   (The site also sends `context`; it is ignored. The forecast is fetched here, server-side.)
@@ -26,7 +26,7 @@ const UPSTREAM_TIMEOUT_MS = 20000;
 const FALLBACK_RATE = { tokens: 10, perMs: 60000 }; // per IP, per isolate
 const DEFAULT_PREMIUM_DAILY_MAX = 200;
 
-const SYSTEM = `You answer questions from the public about haze in Singapore, on the Haze Twin website.
+const SYSTEM = `You answer questions from the public about haze in Singapore, on the Singapore Haze Prediction Model website.
 Use only the forecast data provided plus general knowledge about haze, PSI and Southeast Asian fires.
 These numbers come from an independent experimental model, not NEA's official forecast.
 Rules:
@@ -226,7 +226,7 @@ function summarise(fc) {
   if (!nat) return null;
   const labels = Array.isArray(fc.days) ? fc.days : [];
   const lines = [];
-  lines.push("Source: Haze Twin, an independent experimental model (not NEA's official forecast).");
+  lines.push("Source: Singapore Haze Prediction Model, an independent experimental model (not NEA's official forecast).");
   lines.push("Issued: " + (str(fc.issued, 40) || "unknown") + (fc.built ? "; built " + str(fc.built, 40) : ""));
   lines.push("Singapore national 24-hour PSI now: " + num(nat.now) + "; mode: " + (str(nat.mode, 30) || "unknown"));
   if (typeof nat.clear === "number") lines.push("Chance PSI is down to 100 or below by " + (str(nat.clearDayLabel, 30) || "day 6") + ": " + num(nat.clear) + "%");
