@@ -186,3 +186,11 @@ test("daily premium budget falls back to free above PREMIUM_DAILY_MAX", async ()
   assert.deepEqual(tiers, ["premium", "premium", "free"]);
   assert.equal(store.get("premium:" + new Date().toISOString().slice(0, 10)), "2");
 });
+
+test("custom domain origin is allowed and echoed", async () => {
+  const r = await worker.fetch(req({ question: "Will it clear?" }, { origin: "https://singaporehaze.io" }), {});
+  assert.notEqual(r.status, 403);
+  assert.equal(r.headers.get("Access-Control-Allow-Origin"), "https://singaporehaze.io");
+  const bad = await worker.fetch(req({ question: "x" }, { origin: "https://evil.example" }), {});
+  assert.equal(bad.status, 403);
+});

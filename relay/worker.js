@@ -12,7 +12,9 @@
 //   PREMIUM_DAILY_MAX   plain variable, premium calls allowed per day (200)      optional
 
 const SITE = "https://bennetmc2.github.io";
-const FORECAST_URL = "https://bennetmc2.github.io/haze-twin/data/forecast.json";
+// pages allowed to call the relay (the GitHub Pages address and the custom domain)
+const SITES = [SITE, "https://singaporehaze.io", "https://www.singaporehaze.io"];
+const FORECAST_URL = "https://bennetmc2.github.io/haze-twin/data/forecast.json"; // redirects to the custom domain once it is live
 const PREMIUM_MODEL = "claude-haiku-5-5";
 const FREE_MODEL = "@cf/meta/llama-3.1-8b-instruct";
 const MAX_BODY = 4096; // bytes
@@ -48,12 +50,19 @@ const CORS = {
 export default {
   async fetch(req, env) {
     env = env || {};
+    let res;
     try {
-      return await handle(req, env);
+      res = await handle(req, env);
     } catch (e) {
       // Never echo internal or upstream error text.
-      return reply({ error: "server error" }, 500);
+      res = reply({ error: "server error" }, 500);
     }
+    const o = req.headers.get("Origin");
+    if (SITES.includes(o) && o !== SITE) {
+      res = new Response(res.body, res);
+      res.headers.set("Access-Control-Allow-Origin", o);
+    }
+    return res;
   },
 };
 
@@ -62,7 +71,7 @@ async function handle(req, env) {
   if (url.pathname !== "/") return reply({ error: "not found" }, 404);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
   if (req.method !== "POST") return reply({ error: "method not allowed" }, 405, { Allow: "POST, OPTIONS" });
-  if (req.headers.get("Origin") !== SITE) return reply({ error: "not allowed" }, 403);
+  if (!SITES.includes(req.headers.get("Origin"))) return reply({ error: "not allowed" }, 403);
 
   const ip = req.headers.get("CF-Connecting-IP") || "unknown";
   if (!(await allowed(env, ip))) return reply({ error: "too many requests" }, 429, { "Retry-After": "60" });
