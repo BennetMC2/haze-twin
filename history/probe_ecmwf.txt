@@ -1,0 +1,43 @@
+     ECMWF aifs-ens 2026-10-16 18Z: downloading u/v 850 hPa and rain, 50 members, 31 steps
+aifs-ens: FAILED after 32s
+ack (most recent call last):
+  File "/home/runner/work/haze-twin/haze-twin/tools/probe_ecmwf.py", line 17, in <module>
+    e = fetch_ecmwf.fetch(log=lambda m: lines.append("   " + str(m)), model=model)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/haze-twin/haze-twin/pipeline/fetch_ecmwf.py", line 92, in fetch
+    client.retrieve(**base, levtype="pl", levelist=[850], param=["u", "v"], target=str(pl))
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/ecmwf/opendata/client.py", line 173, in retrieve
+    result = self._get_urls(request, target=target, use_index=True, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/ecmwf/opendata/client.py", line 285, in _get_urls
+    data_urls = self.get_parts(data_urls, for_index)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/ecmwf/opendata/client.py", line 322, in get_parts
+    r.raise_for_status()
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/requests/models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 503 Server Error: Slow Down for url: https://ecmwf-forecasts.s3.eu-central-1.amazonaws.com/20261016/18z/aifs-ens/0p25/enfo/20261016180000-0h-enfo-pf.index
+
+     ECMWF ifs 2026-10-16 12Z: downloading u/v 850 hPa and rain, 50 members, 21 steps
+ifs: FAILED after 142s
+
+                  ^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/multiurl/downloader.py", line 111, in download
+    return Downloader(url, **kwargs).download(target)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/multiurl/base.py", line 129, in download
+    total = self.transfer(f, pbar)
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/multiurl/multiurl.py", line 42, in transfer
+    downloader.transfer(f, pbar)
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/multiurl/http.py", line 135, in transfer
+    for chunk in stream(chunk_size=self.chunk_size):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/multiurl/http.py", line 492, in iterate_requests
+    yield from stream(chunk_size)
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/multiurl/multipart.py", line 61, in __call__
+    request.raise_for_status()
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/requests/models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 503 Server Error: Slow Down for url: https://ecmwf-forecasts.s3.eu-central-1.amazonaws.com/20261016/12z/ifs/0p25/enfo/20261016120000-0h-enfo-ef.grib2
+
