@@ -55,6 +55,7 @@
 
   const NEA_REGIONS = ['national', 'north', 'south', 'east', 'west', 'central'];
   const DAYNAME = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   function sgt(date) { return new Date(date.getTime() + 8 * 3600e3); } // use getUTC* on the result
 
   /* ---------- prepare ---------- */
@@ -97,7 +98,7 @@
       if (h > lastH + 3) break;
       let best = futA[0]; for (const i of futA) if (Math.abs(inputs.arrivals_h[i] - h) < Math.abs(inputs.arrivals_h[best] - h)) best = i;
       const dd = sgt(new Date(noon));
-      days.push({ d, h, ai: best, label: DAYNAME[dd.getUTCDay()] + ' ' + dd.getUTCDate(), dow: DAYNAME[dd.getUTCDay()], iso: new Date(noon).toISOString(), tier: d <= 6 ? 'core' : 'extended' });
+      days.push({ d, h, ai: best, label: DAYNAME[dd.getUTCDay()] + ' ' + dd.getUTCDate() + ' ' + MONTHS[dd.getUTCMonth()], short: dd.getUTCDate() + ' ' + MONTHS[dd.getUTCMonth()], dow: DAYNAME[dd.getUTCDay()], iso: new Date(noon).toISOString(), tier: d <= 6 ? 'core' : 'extended' });
     }
     // arrivals inside the 24 hours ending at each arrival (for 24-hour means)
     const win24 = inputs.arrivals_h.map((a) => { const w = []; inputs.arrivals_h.forEach((b, j) => { if (b > a - 24 && b <= a) w.push(j); }); return w; });
@@ -293,7 +294,7 @@
     const dayF = days.map(d => fOf[d.ai]);
     const psiNowObs = (model.obs.psi_now || {});
     const out = { issued: model.inputs.t0, built: new Date().toISOString(), n: N, members: model.M, ess: Math.round(sim.ess),
-      anchored: model.anchored, sample: !!model.inputs.sample, days: days.map(d => ({ label: d.label, dow: d.dow, iso: d.iso, h: d.h, tier: d.tier })),
+      anchored: model.anchored, sample: !!model.inputs.sample, days: days.map(d => ({ label: d.label, short: d.short, dow: d.dow, iso: d.iso, h: d.h, tier: d.tier })),
       arrivals_h: model.futA.map(ai => model.inputs.arrivals_h[ai]), regions: {}, blend: sim.blend, signals: model.inputs.signals || null };
     const sampleIdx = []; { const r = rng(99); for (let k = 0; k < 240; k++) sampleIdx.push(Math.floor(r() * N)); }
     out.samples = sampleIdx.map(s => Array.from(sim.pm24.subarray(s * F, s * F + F), v => Math.round(v * 10) / 10));
@@ -368,7 +369,7 @@
         o.median = med;
         const cds = [], pks = [], pkds = []; for (let s = 0; s < N; s += Math.max(1, Math.floor(N / 8000))) if (cls[s] === c) { if (clearDay[s] > 0) cds.push(clearDay[s]); pks.push(peakV[s]); pkds.push(peakD[s]); }
         cds.sort((x, y) => x - y); pks.sort((x, y) => x - y); pkds.sort((x, y) => x - y);
-        const dl = (k) => days[Number.isFinite(k) ? Math.max(0, Math.min(days.length - 1, k - 1)) : nC - 1].dow;
+        const dl = (k) => days[Number.isFinite(k) ? Math.max(0, Math.min(days.length - 1, k - 1)) : nC - 1].label;
         if (def.id === 'early' || def.id === 'later') o.outcome = 'PSI 100 or below by ' + dl(quantile(cds, 0.5)) + '.';
         else if (def.id === 'stays') { let lastAbove = 0; days.slice(0, nC).forEach((d, k) => { if (med[dayF[k]] > 100) lastAbove = k + 1; }); o.outcome = 'Above 100 through ' + dl(lastAbove || nC) + '. Middle path near ' + Math.round(med[dayF[Math.min(2, days.length - 1)]] / 5) * 5 + '.'; }
         else if (def.id === 'worse') o.outcome = 'Peaks ' + Math.round(quantile(pks, 0.1) / 5) * 5 + '–' + Math.round(quantile(pks, 0.9) / 5) * 5 + ' around ' + dl(quantile(pkds, 0.5)) + '.';
@@ -431,11 +432,11 @@
         for (let d = 0; d < days.length - 1; d++) {
           if (days[d].dow !== 'Sat') continue;
           let ok = 0, bad = 0; for (let s2 = 0; s2 < N; s2++) { const a1 = dayVals[d][s2], a2 = dayVals[d + 1][s2]; if (a1 <= 100.5 && a2 <= 100.5) ok++; if (a1 > 200.5 || a2 > 200.5) bad++; }
-          m.weekends.push({ label: days[d].label + '–' + days[d + 1].label.split(' ')[1], clear: r1(ok), bad: r1(bad), extended: d >= nC });
+          m.weekends.push({ label: (days[d].short.split(' ')[1] === days[d + 1].short.split(' ')[1] ? days[d].short.split(' ')[0] : days[d].short) + '–' + days[d + 1].short, clear: r1(ok), bad: r1(bad), extended: d >= nC });
         }
         return m;
       })();
-      out.regions[reg] = { now: now, mode, factor: model.regRatio[rr], clear: Math.round(clearCount / N * 1000) / 10, clearDayLabel: days[nC - 1].dow, clearBy, days: dayStats, pct, classes, memberClass: mw, sampleClass, markets };
+      out.regions[reg] = { now: now, mode, factor: model.regRatio[rr], clear: Math.round(clearCount / N * 1000) / 10, clearDayLabel: days[nC - 1].label, clearBy, days: dayStats, pct, classes, memberClass: mw, sampleClass, markets };
     }
     const shares = [0, 0, 0]; for (let s = 0; s < N; s++) for (let k = 0; k < 3; k++) shares[k] += sim.share[sim.idx[s] * 3 + k];
     { const R = model.R, rs = new Float64Array(R); for (let s = 0; s < N; s++) { const j = sim.idx[s]; for (let q = 0; q < R; q++) rs[q] += sim.rshare[j * R + q]; }
@@ -510,13 +511,28 @@
     const s0 = sgt(model.t0);
     for (let mo = 0; mo < 4; mo++) for (const day of [1, 15]) {
       const d = new Date(Date.UTC(s0.getUTCFullYear(), s0.getUTCMonth() + mo, day) - 8 * 3600e3);
-      const h = (d - model.t0) / 3600e3; if (h <= 24 || h > 24 * 80) continue;
+      const h = (d - model.t0) / 3600e3; if (h <= 24 || d.getTime() > Date.UTC(s0.getUTCFullYear() + 1, 0, 1)) continue;
       let c = 0; for (let k = 0; k < N; k++) if (ends[k] <= h) c++;
       dates.push({ iso: d.toISOString(), label: label(d), p: Math.round(c / N * 100) });
     }
+    // weekly outlook from the end of the 15-day forecast to the end of the year: chance the season is still going mid-week
+    const weeks = [];
+    {
+      const lastDay = model.days && model.days.length ? sgt(new Date(model.days[model.days.length - 1].iso)) : sgt(new Date(model.t0.getTime() + 15 * 864e5));
+      let ws = Date.UTC(lastDay.getUTCFullYear(), lastDay.getUTCMonth(), lastDay.getUTCDate() + 1) - 8 * 3600e3;
+      const yearEnd = Date.UTC(s0.getUTCFullYear(), 11, 31) - 8 * 3600e3;
+      while (ws <= yearEnd) {
+        const we = Math.min(ws + 6 * 864e5, yearEnd);
+        const hm = ((ws + we) / 2 + 12 * 3600e3 - model.t0.getTime()) / 3600e3;
+        let c = 0; for (let k = 0; k < N; k++) if (ends[k] > hm) c++;
+        const a = sgt(new Date(ws)), b = sgt(new Date(we));
+        weeks.push({ start: new Date(ws).toISOString(), label: (a.getUTCMonth() === b.getUTCMonth() ? a.getUTCDate() : label(new Date(ws))) + '–' + label(new Date(we)), on: Math.round(c / N * 100) });
+        ws = we + 864e5;
+      }
+    }
     const medOn = ons.map(a => label(toDate(quantile(Float64Array.from(a).sort(), 0.5))));
     return {
-      dates, median: label(toDate(quantile(sorted, 0.5))), p10: label(toDate(quantile(sorted, 0.1))), p90: label(toDate(quantile(sorted, 0.9))),
+      dates, weeks, median: label(toDate(quantile(sorted, 0.5))), p10: label(toDate(quantile(sorted, 0.1))), p90: label(toDate(quantile(sorted, 0.9))),
       onset: { Kalimantan: medOn[0], Sumatra: medOn[1] }, seenInForecast: Math.round(seen / N * 100),
       climate: { roni: clim.roni, roniPeriod: clim.roni_period, dmi: clim.dmi, dmiPeriod: clim.dmi_period, shiftDays: Math.round(shiftDays) },
       lagDays: Math.round(lagMean), dryness: dry,
