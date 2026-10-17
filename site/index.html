@@ -47,11 +47,11 @@ a{color:var(--sky)}
 
 .app{display:grid;grid-template-columns:minmax(340px,410px) minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto;max-width:1680px;margin:0 auto;
   grid-template-areas:"top top top" "hero map map" "hero time time" "left right right";gap:12px;padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px))}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px}
+.panel{background:var(--panel);border:1px solid rgba(255,255,255,.045);border-radius:10px}
 
 /* top bar */
 .top{grid-area:top;display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;padding:2px 0}
-.brand{font-weight:700;font-size:20px;letter-spacing:.01em}
+.brand{font-weight:700;font-size:18px;letter-spacing:.01em}
 .brand span{font-weight:500;color:var(--ink-3);margin-left:8px;font-size:15px}
 .status{flex:1 1 auto;display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;color:var(--ink-2);font-size:14px}
 .live{display:inline-flex;align-items:center;gap:6px}
@@ -61,7 +61,7 @@ a{color:var(--sky)}
 .live.stale i{background:var(--vunh)}
 #nextText.warn{color:var(--vunh)}
 .actions{display:flex;gap:8px}
-.btn{min-height:38px;padding:0 14px;border-radius:5px;border:1px solid var(--line-hi);background:transparent;cursor:pointer;font-weight:500;font-size:14px}
+.btn{min-height:34px;padding:0 12px;border-radius:17px;border:1px solid var(--line);background:transparent;cursor:pointer;font-weight:500;font-size:13.5px}
 .btn:hover{border-color:var(--sky)}
 .btn.primary{background:var(--sky);border-color:var(--sky);color:#0B1A22;font-weight:600}
 .btn.primary:hover{background:#A5DAEE}
@@ -81,8 +81,8 @@ a{color:var(--sky)}
 .playhint::after{content:'';position:absolute;left:28px;top:100%;border:6px solid transparent;border-top-color:var(--sky)}
 @keyframes bob2{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 @media (prefers-reduced-motion: reduce){.morecue,.play.attn,.playhint{animation:none}}
-.card{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
-h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
+.card{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+h2{margin:0;font-size:15px;font-weight:600;line-height:1.25;letter-spacing:.01em}
 .note{margin:0;font-size:13px;color:var(--ink-3)}
 .sub{margin:0;color:var(--ink-2);font-size:14.5px}
 .ask{display:flex;gap:6px}
@@ -101,9 +101,10 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .board li.note{list-style:none;margin-left:-22px}
 .board{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:4px;font-size:14px}
 .board b{font-family:var(--num)}
-.cases{margin-bottom:6px;align-self:flex-start}
+.cases{margin:0}
 .seg{display:inline-flex;border:1px solid var(--line-hi);border-radius:6px;overflow:hidden}
-.seg button{border:0;background:transparent;cursor:pointer;padding:5px 11px;font-size:13px;color:var(--ink-2);min-height:30px}
+.showing .seg{border:0;border-radius:15px;background:rgba(255,255,255,.05)}
+.seg button{border:0;background:transparent;cursor:pointer;padding:3px 10px;font-size:12.5px;color:var(--ink-2);min-height:26px}
 .seg button+button{border-left:1px solid var(--line)}
 .seg button[aria-pressed="true"]{background:var(--raise);color:var(--ink);box-shadow:inset 0 -2px 0 var(--sky)}
 .cases button[data-case="best"][aria-pressed="true"]{box-shadow:inset 0 -2px 0 var(--sD)}
@@ -159,13 +160,16 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 #lede .ll{display:block}
 #lede .ll+.ll{margin-top:4px}
 @media (max-width:560px){.otab{min-width:0;font-size:12.5px}.otab th,.otab td{padding:5px 3px}.otab thead th{font-size:11px}}
-.markets{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
-.mkt{background:var(--raise);border:1px solid var(--line);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
-.mkt .mq{font-size:14px;font-weight:600;line-height:1.3}
-.mkt .mrow{display:flex;align-items:center;gap:10px}
-.mkt .mbar{flex:1;height:8px;border-radius:4px;background:var(--line);overflow:hidden}
-.mkt .mbar i{display:block;height:100%;border-radius:4px;background:var(--c,var(--sky))}
-.mkt .mp{font-family:var(--num);font-weight:700;font-size:22px;line-height:1;min-width:52px;text-align:right}
+.markets{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.mkt{background:var(--raise);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.mkt .mq{font-size:14px;font-weight:600;line-height:1.3;min-height:2.6em}
+.mkt .mbar{height:4px;border-radius:2px;background:rgba(240,122,154,.35);overflow:hidden}
+.mkt .mbar i{display:block;height:100%;background:var(--sD)}
+.mkt .yn{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mkt .yn span{display:flex;justify-content:space-between;align-items:baseline;padding:7px 10px;border-radius:8px;font-size:13px;font-weight:500;cursor:default}
+.mkt .yn b{font-family:var(--num);font-size:17px;font-weight:700}
+.mkt .yes{background:rgba(124,214,154,.13);color:var(--sD)}
+.mkt .no{background:rgba(240,122,154,.13);color:var(--sC)}
 .mkt .mn{font-size:12px;color:var(--ink-3)}
 .gtip{position:fixed;z-index:60;pointer-events:none;background:#0A141B;border:1px solid var(--line-hi);border-radius:6px;padding:7px 10px;font-size:13px;color:var(--ink-2);display:flex;flex-direction:column;gap:1px;max-width:260px;box-shadow:0 6px 20px rgba(0,0,0,.4)}
 .gtip[hidden]{display:none}
@@ -182,11 +186,11 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 
 /* now */
 .now{display:flex;align-items:center;gap:16px}
-.psi{font-family:var(--num);font-weight:600;font-size:34px;line-height:.9;letter-spacing:-.01em}
+.psi{font-family:var(--num);font-weight:600;font-size:28px;line-height:.9;letter-spacing:-.01em}
 .nowlab{font-size:12.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;align-self:center}
 .now{border-top:1px solid var(--line);padding-top:10px;margin-top:2px}
 .strip{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px;margin-top:2px}
-.strip .st{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 0 4px;border-radius:5px;background:color-mix(in srgb,var(--c) calc(var(--a)*60%),var(--raise));border:1px solid var(--line);min-width:0}
+.strip .st{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 0 4px;border-radius:5px;background:color-mix(in srgb,var(--c) calc(var(--a)*32%),var(--raise));border:0;min-width:0}
 .strip .st.ext{opacity:.6}
 .strip .st.cur{outline:2px solid var(--sky);outline-offset:1px}
 .strip .st .d{font-size:10.5px;color:var(--ink-2);line-height:1.1;white-space:nowrap}
@@ -201,9 +205,15 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .reg{min-height:32px;padding:0 10px;border:1px solid var(--line);background:transparent;border-radius:16px;cursor:pointer;font-size:13px;color:var(--ink-2);display:inline-flex;align-items:center;gap:6px}
 .reg b{font-family:var(--num);font-weight:600;color:var(--ink)}
 .reg[aria-pressed="true"]{border-color:var(--sky);color:var(--ink)}
-.headline{margin:0;font-size:26px;line-height:1.18;font-weight:600;text-wrap:balance;letter-spacing:-.005em}
-.lede{margin:0;font-size:15.5px;color:var(--ink-2);line-height:1.5}
-.lede b{color:var(--ink);font-weight:600}
+.headline{margin:0;font-size:22px;line-height:1.2;font-weight:600;text-wrap:balance;letter-spacing:-.005em}
+.lede{margin:0;display:flex;flex-direction:column;gap:2px}
+.qa{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1px 10px;padding:8px 0;border-top:1px solid rgba(255,255,255,.06)}
+.qa:first-child{border-top:0;padding-top:2px}
+.qq{font-size:14.5px;color:var(--ink-2)}
+.qv{text-align:right;white-space:nowrap;font-size:14.5px}
+.qv b{font-weight:600;color:var(--ink)}
+.qp{font-family:var(--num);font-weight:600;font-size:16px;margin-left:4px}
+.qd{grid-column:1/3;font-size:13px;color:var(--ink-3)}
 
 /* 15-day range list */
 .scale,.drow{display:grid;grid-template-columns:84px minmax(0,1fr) 40px;align-items:center;gap:10px}
@@ -232,16 +242,16 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .k-dot{width:8px;height:8px;border-radius:50%;background:var(--ink)}
 
 /* scenarios */
-.dots{display:grid;grid-template-columns:repeat(20,minmax(0,1fr));gap:3px}
-.dots i{aspect-ratio:1;border-radius:2px;background:var(--line);transition:opacity .15s}
+.dots{display:flex;gap:2px;height:10px;border-radius:5px;overflow:hidden}
+.dots i{flex:1 1 0;min-width:3px;background:var(--line);transition:opacity .15s}
 .dots.dim i:not(.on){opacity:.22}
 .scen{display:flex;flex-direction:column;gap:6px}
-.sc{border:1px solid var(--line);border-radius:5px;background:transparent}
+.sc{border:1px solid transparent;border-radius:8px;background:transparent}
 .sc.on{border-color:var(--c);background:var(--raise)}
 .scbtn{all:unset;box-sizing:border-box;width:100%;cursor:pointer;display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:4px 10px;padding:9px 12px;align-items:baseline}
 .scbtn:focus-visible{outline:2px solid var(--sky);outline-offset:-2px}
 .scbtn .sw{width:10px;height:10px;border-radius:2px;background:var(--c);align-self:center}
-.scbtn .nm{font-weight:600;font-size:15px}
+.scbtn .nm{font-weight:600;font-size:14px}
 .scbtn .od{font-family:var(--num);font-weight:600;font-size:15px;white-space:nowrap}
 .scbtn .od small{font-family:var(--sans);font-weight:400;font-size:12.5px;color:var(--ink-3)}
 .scbtn .oc{grid-column:2 / 4;font-size:13.5px;color:var(--ink-2)}
@@ -305,7 +315,8 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 #map{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
 #map.drag{cursor:grabbing}
 .ov{position:absolute;z-index:2}
-.showing{top:12px;left:12px;max-width:min(460px,calc(100% - 200px));max-height:calc(100% - 90px);overflow-y:auto;background:rgba(14,24,32,.92);border:1px solid var(--line);border-radius:6px;padding:8px 12px;display:flex;flex-direction:column;gap:1px}
+.showing{top:10px;left:10px;max-width:calc(100% - 150px);background:rgba(14,24,32,.72);backdrop-filter:blur(6px);border:0;border-radius:18px;padding:3px 12px 3px 3px;display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:2px 10px}
+.showing #showing2,.showing .whyday{display:none}
 .whyday{margin-top:6px;border-top:1px solid var(--line);padding-top:6px}
 .whyday summary{cursor:pointer;color:var(--sky);font-size:14px;font-weight:500;list-style:none;min-height:24px;display:flex;align-items:center;gap:6px}
 .whyday summary::-webkit-details-marker{display:none}
@@ -316,7 +327,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .whylist li span:first-child{color:var(--ink-3);font-size:13px;padding-top:1px}
 .whylist b{color:var(--ink);font-weight:600}
 
-.showing b{font-size:15px;font-weight:600}
+.showing b{font-size:12.5px;font-weight:500;color:var(--ink-2)}
 .showing span{font-size:13.5px;color:var(--ink-2)}
 .tools{top:12px;right:12px;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 .zoom{display:flex;flex-direction:column;border:1px solid var(--line-hi);border-radius:6px;overflow:hidden;background:rgba(14,24,32,.9)}
@@ -390,6 +401,8 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 dialog{background:var(--panel);color:var(--ink);border:1px solid var(--line-hi);border-radius:8px;padding:0;width:min(680px,calc(100vw - 32px));max-height:calc(100vh - 48px)}
 dialog::backdrop{background:rgba(4,8,12,.7)}
 .dlghead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel)}
+.howtech code{font-size:12.5px;background:var(--raise);padding:1px 5px;border-radius:4px}
+.howtech h3{margin:14px 0 4px}
 .dlgbody{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
 .dlgbody p{margin:0;color:var(--ink-2);max-width:64ch}
 .dlgbody h3{margin:4px 0 0;font-size:15px}
@@ -468,7 +481,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     <section class="panel card" id="cardNow" tabindex="-1">
       <div class="degraded" id="degNow" hidden></div>
       <h1 class="headline" id="headline">Loading…</h1>
-      <p class="lede" id="lede"></p>
+      <div class="lede" id="lede"></div>
       <div class="strip" id="strip" role="list" aria-label="Chance PSI is above 100, day by day"></div>
       <p class="note striplab"><span id="stripLab">Chance the 24-hour PSI is above 100 each day.</span> Faded: 7 to 15 days ahead, wider ranges.</p>
       <p class="bestday" id="bestDay"></p>
@@ -483,7 +496,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
       </div>
       <p class="note psiline" id="psiLine" hidden></p>
       <div class="regions" role="group" aria-label="Area of Singapore" id="regions"></div>
-      <div class="bandscale" aria-label="NEA PSI bands"><span class="bslabel">PSI</span><span style="--c:var(--good)">0–50 Good</span><span style="--c:var(--mod)">51–100 Moderate</span><span style="--c:var(--unh)">101–200 Unhealthy</span><span style="--c:var(--vunh)">201–300 Very unhealthy</span><span style="--c:var(--haz)">300+ Hazardous</span></div>
+      <details class="more"><summary>PSI bands</summary><div class="bandscale" aria-label="NEA PSI bands"><span class="bslabel">PSI</span><span style="--c:var(--good)">0–50 Good</span><span style="--c:var(--mod)">51–100 Moderate</span><span style="--c:var(--unh)">101–200 Unhealthy</span><span style="--c:var(--vunh)">201–300 Very unhealthy</span><span style="--c:var(--haz)">300+ Hazardous</span></div></details>
       <p class="note"><b>Not an official forecast.</b> This is an experimental, independent model. For health advice, follow <a href="https://www.haze.gov.sg/" target="_blank" rel="noopener">NEA</a>.</p>
       <p class="note" id="camsWarn" hidden></p>
       <p class="note" id="cityNote" hidden></p>
@@ -512,7 +525,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
   <section class="mapcell" id="mapcell" aria-label="Map of fires, smoke and the air reaching Singapore">
     <canvas id="map" aria-hidden="true"></canvas>
     <button type="button" class="morecue" id="moreCue"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5"/></svg>Scroll for the 15-day forecast and odds</button>
-    <div class="ov showing"><div class="cases seg" role="group" aria-label="Which case to show" id="cases"><button type="button" data-case="best">Best case</button><button type="button" data-case="likely" aria-pressed="true">Most likely</button><button type="button" data-case="worst">Worst case</button></div><b id="showing1" aria-live="polite"></b><span id="showing2"></span><details class="whyday" id="whyMap" hidden><summary>Why this day looks like this</summary><ul class="whylist" id="whyMapList"></ul></details></div>
+    <div class="ov showing"><div class="cases seg" role="group" aria-label="Which case to show" id="cases"><button type="button" data-case="best">Best</button><button type="button" data-case="likely" aria-pressed="true">Likely</button><button type="button" data-case="worst">Worst</button></div><b id="showing1" aria-live="polite"></b><span id="showing2"></span><details class="whyday" id="whyMap" hidden><summary>Why this day looks like this</summary><ul class="whylist" id="whyMapList"></ul></details></div>
     <div class="ov tools">
       <div class="zoom" role="group" aria-label="Zoom">
         <button type="button" id="zIn" aria-label="Zoom in">+</button>
@@ -560,7 +573,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     <section class="panel card" id="cardScen" aria-labelledby="scTitle">
       <div class="head"><h2 id="scTitle">What could happen</h2><span class="note" id="scSpan"></span></div>
       <div class="dots" id="dots" role="img"></div>
-      <p class="note">Share of 100,000 simulated futures for the next 6 days. Each square is 1%.</p>
+      <p class="note">Share of 100,000 simulated futures, next 6 days.</p>
       <div class="scen" id="scen"></div>
     </section>
 
@@ -600,6 +613,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     <p class="note"><b>Not an official forecast.</b> This is an experimental, independent model. For health advice, follow <a href="https://www.haze.gov.sg/" target="_blank" rel="noopener">NEA</a>.</p>
     <div class="degraded" id="degOdds" hidden></div>
     <p class="note" id="oddsVal"><b>Not yet validated.</b> These yes/no odds have not been tested against past seasons with the current model, so treat them as rough.</p>
+    <p class="note">Laid out like a prediction market, with Yes and No adding up to 100%. Nothing to buy or sell.</p>
     <div class="markets" id="markets"></div>
     <h2>Day by day</h2>
     <div class="chart-wrap"><table class="otab" id="oddsTable"></table></div>
@@ -612,23 +626,42 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 
 <dialog id="dlgHow" aria-labelledby="howTitle">
   <div class="dlghead"><h2 id="howTitle">How it works</h2><button class="btn" type="button" data-close>Close</button></div>
-  <div class="dlgbody">
-    <p>The Singapore Haze Prediction Model is a computer model of the region's fires, smoke and winds. It simulates 100,000 versions of the next 15 days and counts how often each outcome happens.</p>
-    <ol class="steps">
-      <li>Every six hours it takes in Singapore's PSI from NEA, fire hotspots seen by NASA satellites, and <span class="nMembers">31</span> weather forecasts (NOAA GEFS, plus 25 forecasts from ECMWF's AI weather model, AIFS, when its download succeeds). Every hour in between, it reruns the odds with NEA's latest reading.</li>
-      <li>For each weather forecast it traces the air arriving in Singapore back up to four days. Where that air passed over fires, it picks up smoke.</li>
-      <li>It then varies what nobody knows for sure: how much smoke the fires give off, how long they keep burning, how much rain dims them, and new fires.</li>
-      <li>Futures that fit what NEA measured over the last day count for more, so the forecast starts from the real air.</li>
-      <li>Further ahead, it leans more on how similar days in past haze seasons (since 2014) played out.</li>
-      <li>News from the last three days is shown for context. It does not change the numbers.</li>
-      <li>The odds on the page are the share of futures with each outcome. Rerun repeats this on your device with NEA's latest reading.</li>
-      <li>Every forecast is kept. Two days later it is scored against what NEA measured, misses included.</li>
-    </ol>
-    <h3>How far ahead</h3>
+  <div class="dlgbody howtech">
+    <p>A probabilistic forecast of Singapore's 24-hour PSI for the next 15 days. Lagrangian transport over two weather ensembles, a 100,000-member Monte Carlo over the parts nobody measures, a Bayesian update on NEA's latest readings, and calibration against four replayed haze seasons.</p>
+    <h3>1. Inputs</h3>
     <ul class="steps">
-      <li><b>Days 1 to 6:</b> the full model, including the outcomes under 'What could happen'.</li>
-      <li><b>Days 7 to 15:</b> the same model on longer-range weather forecasts, blended more with past seasons. Weather forecasts lose skill after about a week, so the ranges are wider.</li>
-      <li><b>End of season (experimental):</b> when steady rain sets in over the fire areas. Within the weather forecasts it comes from them; beyond them, from normal onset dates adjusted for El Niño and the Indian Ocean Dipole.</li>
+      <li><b>Weather ensembles:</b> NOAA GEFS (31 members, 16 days) plus 25 members of ECMWF's machine-learned ensemble AIFS ENS when the download succeeds. Winds and precipitation at 6-hourly steps.</li>
+      <li><b>Fires:</b> NASA FIRMS VIIRS active-fire detections (375 m) with fire radiative power (FRP), grouped into 14 source regions across Sumatra, Kalimantan and Peninsular Malaysia.</li>
+      <li><b>Observations:</b> NEA 24-hour PSI and 1-hour PM2.5 for five areas (data.gov.sg), re-ingested hourly. Rain over the fire areas (Open-Meteo), airport visibility (METAR), regional PM2.5 (OpenAQ).</li>
+      <li><b>Second opinion:</b> Copernicus CAMS PM2.5 forecast, used for comparison and, once the daily scoring supports it, as a learned weight on the middle of the distribution.</li>
+    </ul>
+    <h3>2. Transport</h3>
+    <p>For every ensemble member and every arrival time (6-hourly to day 6, then 12-hourly to day 15), 300 particles are released at Singapore and integrated backwards 96 hours through that member's wind field, with a 2 m/s random-walk term for sub-grid turbulence. Where a particle passes over a fire cell it accumulates sensitivity to that cell's emissions, discounted by wet removal (8% per mm of rain along the path) and age (e-folding 96 h). The result is a source–receptor footprint <code>S[member, arrival, region, emission-day]</code>.</p>
+    <h3>3. Monte Carlo</h3>
+    <p>Each of 100,000 futures draws an ensemble member and the quantities that are not observed:</p>
+    <ul class="steps">
+      <li>Smoke yield per unit FRP (log-normal, σ 0.6, plus per-island factors σ 0.35)</li>
+      <li>Fire persistence: half-life 4–40 days without rain (peat smoulders), and suppression of 2–8% per mm of rain above about 6 mm/day</li>
+      <li>New ignitions (growth rate, σ 0.04/day), background PM2.5 (18 ± 5 µg/m³)</li>
+      <li>Regional reservoir share ρ 0.2–0.8 (aged haze not tied to today's winds) and a saturation scale 150–350 µg/m³ for direct plumes</li>
+    </ul>
+    <p>PM2.5 at each arrival is <code>bg + d·(1 − e<sup>−(1−ρ)·K·ΣS·E/d</sup>) + ρ·D₀·a(t)</code>, then converted to PSI with NEA's breakpoints over a time-weighted 24-hour window.</p>
+    <h3>4. Bayesian update</h3>
+    <p>Each future is weighted by the likelihood of what NEA measured: the latest 24-hour PM2.5 at its actual reading time (log-normal, σ 0.25) and the past day's hourly readings (σ 0.35·√n, since they are correlated). Futures are then resampled systematically. If the effective sample size falls below 30, or an input is missing, the run is marked degraded and not published.</p>
+    <h3>5. Calibration and long range</h3>
+    <ul class="steps">
+      <li>Spread is widened in log-PSI space by lead (×2.15, ×1.45, ×1.05 below the median for days 1–3, 4–6, 7–15), fitted on replays of the 2014 (held out), 2015, 2019 and 2023 seasons. One distribution drives every number on the page.</li>
+      <li>Days 7–15 blend in analogues from NEA's record since 2014, more with lead time.</li>
+      <li>End of season: monsoon onset over the fire areas from the ensemble while it reaches, beyond that a climatological onset shifted by the Relative Oceanic Niño Index and the Indian Ocean Dipole.</li>
+    </ul>
+    <h3>6. Outputs</h3>
+    <p>Storylines partition the 100,000 futures (clears early, clears later, stays above 100, gets worse: a peak into a higher band, above 200 and at least 30% and 40 points above now). Yes/no odds are evaluated on every simulated time step. Best and worst case are the lowest and highest 10% by 6-day mean PSI.</p>
+    <h3>7. Schedule, scoring and learning</h3>
+    <ul class="steps">
+      <li>Full run every 6 hours; odds re-anchored to NEA's newest reading every hour. Rerun executes the same engine in a Web Worker on your device.</li>
+      <li>Every issuance is archived as issued and scored against NEA two days later (range coverage, typical miss, Brier score).</li>
+      <li>A daily review by Claude Opus 5.5 reads the scores and applies small, capped bias and spread corrections by lead.</li>
+      <li>Replays so far: 85% of readings inside the 90% range for days 1–6 (82% for days 7–15). Typical miss 19 PSI for days 1–6 (no better than persistence) and 20 for days 7–15 (persistence 25). Yes/no odds are about as good as base rates.</li>
     </ul>
     <div class="srclist">
       <div><h3>Measured</h3><ul><li><a href="https://www.haze.gov.sg/" target="_blank" rel="noopener">NEA PSI and PM2.5</a> via <a href="https://data.gov.sg/" target="_blank" rel="noopener">data.gov.sg</a></li><li><a href="https://firms.modaps.eosdis.nasa.gov/map/" target="_blank" rel="noopener">NASA FIRMS fire hotspots</a> (VIIRS satellites)</li><li><a href="https://aviationweather.gov/data/metar/" target="_blank" rel="noopener">Airport visibility (METAR)</a> near the fires</li><li><a href="https://explore.openaq.org/" target="_blank" rel="noopener">Regional PM2.5 stations (OpenAQ)</a></li><li><a href="https://open-meteo.com/" target="_blank" rel="noopener">Recent rain over the fire areas (Open-Meteo)</a></li><li><a href="https://data.gov.sg/" target="_blank" rel="noopener">NEA PSI history since 2014</a></li><li><a href="https://worldview.earthdata.nasa.gov/" target="_blank" rel="noopener">Satellite imagery (NASA Worldview)</a></li><li><a href="https://www.cpc.ncep.noaa.gov/" target="_blank" rel="noopener">El Niño and Indian Ocean Dipole (NOAA)</a></li><li><a href="https://www.gdeltproject.org/" target="_blank" rel="noopener">News (GDELT)</a></li></ul></div>
@@ -1029,23 +1062,25 @@ function renderAnswer(){
     if(c.id==='returns')return 'haze returns, above 100 for three days or more';
     return o.charAt(0).toLowerCase()+o.slice(1);};
   const ranked=cs.filter(c=>!c.hidden&&c.odds>=1).slice().sort((x,y)=>y.odds-x.odds);
+  // plain answers: a question people ask, a one-word answer, the chance, and one short line of detail
+  const word=(v)=>v>=60?'Likely':v>=40?'Toss-up':'Unlikely';
+  const qa=(q,v,detail)=>'<div class="qa"><span class="qq">'+q+'</span><span class="qv"><b class="w'+(v>=60?'y':v>=40?'m':'n')+'">'+word(v)+'</b> <span class="qp">'+(v<1?'<1':v>99?'>99':Math.round(v))+'%</span></span>'+(detail?'<span class="qd">'+detail+'</span>':'')+'</div>';
   if(reg.mode==='haze'){
-    if(top.id==='stays')h='Haze likely to stay '+bandWord(typicalCore())+' through '+end+'.';
-    else if(top.id==='worse')h='Haze likely to get worse this week.';
-    else h='PSI likely to ease to 100 or below by '+end+'.';
-    // early + later are both "eases": count them together for the relief line
-    const clear=reg.clear;
-    ranked.slice(0,2).forEach((c,k)=>parts.push((k===0?'Most likely, '+pc(c.odds)+': ':'Next most likely, '+pc(c.odds)+': ')+say(c)+'.'));
-    if(!ranked.slice(0,2).some(c=>c.id==='early'||c.id==='later'))parts.push('<b>Back below 100</b> by '+end+': '+pc(clear)+'.');
+    const lk=top.odds>=50?'likely to':'could';
+    if(top.id==='stays')h='Haze '+lk+' stay '+bandWord(typicalCore())+' through '+end+'.';
+    else if(top.id==='worse')h='Haze '+lk+' get worse this week.';
+    else h='PSI '+lk+' ease to 100 or below by '+end+'.';
+    const w=by('worse');const m=String(w.outcome||'').match(/Peaks (\d+)–(\d+) around (.+?)\.?$/);
+    parts.push(qa('Will it get worse this week?',w.odds,m?'If it does, PSI peaks around '+m[1]+'–'+m[2]+' by '+esc(m[3])+'.':''));
+    parts.push(qa('Back below 100 by '+esc(end)+'?',reg.clear,''));
   }else{
     const clean=by('clean');const above=100-clean.odds;
     h=above>=50?'Haze likely to return this week.':'PSI likely to stay '+bandWord(typicalCore())+' this week.';
-    ranked.slice(0,2).forEach((c,k)=>parts.push((k===0?'Most likely, '+pc(c.odds)+': ':'Next most likely, '+pc(c.odds)+': ')+say(c)+'.'));
-    parts.push('Chance PSI goes above 100 by '+end+': '+pc(above)+'.');
+    parts.push(qa('Haze above 100 by '+esc(end)+'?',above,''));
   }
-  const se=FC.season;if(reg.mode==='haze'){const ob=(reg.overBy||[]).filter(v=>v!=null);const li=ob.length-1;
-    parts.push('<b>Haze over</b> (7 days in a row at 100 or below): '+(li>=0?pc(ob[li])+' chance it has started by '+esc(dfull(FC.days[li]))+'. ':'')+(se?'Most likely around '+esc(se.median)+', from the rain-season outlook (experimental).':''));}
-  $('headline').textContent=h;$('lede').innerHTML=parts.map(x=>'<span class="ll">'+x+'</span>').join('');
+  const se=FC.season;
+  if(reg.mode==='haze'&&se&&se.median)parts.push('<div class="qa"><span class="qq">When is the haze over?</span><span class="qv"><b>Around '+esc(se.median)+'</b></span><span class="qd">Rough estimate, from when the rains usually arrive.</span></div>');
+  $('headline').textContent=h;$('lede').innerHTML=parts.join('');
   REG.forEach(([k])=>{const el=$('reg-'+k);if(el)el.setAttribute('aria-pressed',String(k===state.region));});
 }
 // the 15-day strip: the chance PSI is above 100 each day (the decision people make), coloured by that chance
@@ -1128,7 +1163,7 @@ function renderScenarios(){
   raw.map((v,i)=>[v-fl[i],i]).sort((a,b)=>b[0]-a[0]).forEach(([,i])=>{if(left>0){fl[i]++;left--;}});
   const dots=$('dots');dots.innerHTML='';dots.classList.toggle('dim',state.sel!==null);
   const lab=[];
-  [3,2,1,0].forEach(ci=>{for(let k=0;k<fl[ci];k++){const i=document.createElement('i');i.style.background=classColor(cs[ci]);i.dataset.tip=plainName(cs[ci])+'|<b>'+Math.round(cs[ci].odds)+'%</b> of simulated futures|'+esc(cs[ci].outcome||'');if(state.sel===ci)i.classList.add('on');dots.appendChild(i);}if(fl[ci])lab.push(plainName(cs[ci])+' '+fl[ci]+'%');});
+  [3,2,1,0].forEach(ci=>{if(!fl[ci])return;const i=document.createElement('i');i.style.background=classColor(cs[ci]);i.style.flexGrow=fl[ci];i.dataset.tip=plainName(cs[ci])+'|<b>'+Math.round(cs[ci].odds)+'%</b> of simulated futures|'+esc(cs[ci].outcome||'');if(state.sel===ci)i.classList.add('on');dots.appendChild(i);lab.push(plainName(cs[ci])+' '+fl[ci]+'%');});
   dots.setAttribute('aria-label',lab.join(', '));
   $('scSpan').textContent='Next 6 days';
   const box=$('scen');box.innerHTML='';
@@ -1694,8 +1729,9 @@ function renderMarkets(){
   const box=$('markets');if(!box)return;box.innerHTML='';
   list.forEach(x=>{const el=document.createElement('div');el.className='mkt';el.style.setProperty('--c',x.col);
     const oneIn=x.v>0.5&&x.v<50?'About 1 in '+Math.round(100/x.v):x.v>=50&&x.v<99.5?'About '+Math.round(x.v/10)+' in 10':'';
-    el.innerHTML='<div class="mq"></div><div class="mrow"><span class="mbar"><i></i></span><span class="mp"></span></div><div class="mn"></div>';
-    el.querySelector('.mq').textContent=x.q;el.querySelector('i').style.width=Math.min(100,x.v)+'%';el.querySelector('.mp').textContent=pctTxt(x.v);el.querySelector('.mn').textContent=[oneIn,x.note].filter(Boolean).join('. ');box.appendChild(el);});
+    const y=Math.max(1,Math.min(99,Math.round(x.v)));
+    el.innerHTML='<div class="mq"></div><div class="mbar"><i></i></div><div class="yn"><span class="yes">Yes <b>'+y+'%</b></span><span class="no">No <b>'+(100-y)+'%</b></span></div><div class="mn"></div>';
+    el.querySelector('.mq').textContent=x.q;el.querySelector('i').style.width=y+'%';el.querySelector('.mn').textContent=x.note||'';if(!x.note)el.querySelector('.mn').remove();box.appendChild(el);});
 }
 
 /* ---------- odds tab ---------- */
@@ -1776,14 +1812,11 @@ document.querySelectorAll('#cases button').forEach(b=>b.addEventListener('click'
 
 /* ---------- guided tour ---------- */
 const TOUR=[
-  ['cardNow','Start here','NEA\'s latest 24-hour PSI, the most likely outcome and its odds, and the next most likely. This is an independent model, not an official forecast. For health advice, follow NEA.'],
-  ['cardDays','The next 15 days','One row per day. The number is the best guess. The coloured bar is the likely range (half of futures) and the thin grey bar the possible range (9 in 10). From day 7 the ranges are wider.'],
-  ['mapcell','The map','Orange dots are fires seen by satellite. Grey is their smoke. The yellow shading is where the air reaching Singapore is coming from: fires inside it matter most. Drag to move, scroll to zoom, and use "What\'s on the map?" for more.'],
-  ['timebar','Move through time','Pick a day, or press Play, to watch the fires, smoke and Singapore\'s air change over the coming days.'],
-  ['cardAsk','Ask a question','Ask in plain words, like "Will it be better by Sunday?". Answers come from today\'s forecast and can be wrong.'],
-  ['cardScen','What could happen','The model played out 100,000 versions of the next 6 days. Each coloured square is 1% of them. Tap an outcome to see it on the map and chart.'],
-  ['cardSrc','Where the smoke comes from','Which provinces are sending the most smoke our way, plus fires, rain and visibility near the fires.'],
-  ['actions','Check our work','"Track record" shows how past forecasts compared with what NEA measured. "How it works" explains the model. "Rerun" runs it again on your device with NEA\'s latest reading.'],
+  ['cardNow','The forecast','Plain answers to what people ask: will it get worse, when it drops below 100, and when the haze is over. Each % is the share of 100,000 simulated futures.'],
+  ['strip','Day by day','Each box is the chance the 24-hour PSI is above 100 that day. Tap a day to see it on the map.'],
+  ['timebar','Watch it unfold','Press Play to see fires, smoke and the air heading for Singapore over the next 15 days.'],
+  ['oddsView','The odds','Yes or No odds on specific questions, like "Above 200 in the next 6 days?".'],
+  ['actions','Check the model','Rerun runs the model again on your device. Track record shows how past forecasts did. How it works has the full method.'],
 ];
 let tourI=-1,tourHole=null,tourCard=null,tourLast=null;
 let tourScroll=[];
@@ -1850,7 +1883,7 @@ async function boot(){
     try{prepWhy();}catch(e){WHY=null;}
     selectLikely();buildHot();buildWinds();buildThreads();renderAll();layout();initWind();syncT();syncCases();
     initCities();setTimeout(ensureFull,300);
-    let seen=false;try{seen=localStorage.getItem('hazeTourSeen')==='1';}catch(e){}if(!seen)setTimeout(()=>{if(PAGE==='map')startTour();},900);
+    let seen=false;try{seen=localStorage.getItem('hazeTourSeen')==='1';}catch(e){}
   }catch(e){showError('The latest forecast could not be loaded ('+e.message+'). Reload the page to try again.');$('statusText').textContent='No forecast loaded';$('headline').textContent='The latest forecast could not be loaded.';}
 }
 let rz=0;window.addEventListener('resize',()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{layout();renderDays();});});
