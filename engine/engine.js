@@ -37,7 +37,8 @@
      These match NEA's published 1-hour bands (55/150/250); check against NEA's PSI table before relying on them. */
   const BP = [[0, 0], [12, 50], [55, 100], [150, 200], [250, 300], [350, 400], [500, 500]];
   function psiOf(pm) {
-    if (!(pm > 0)) return 0;
+    if (!(pm > 0)) return 0;          // NaN, missing or <= 0 all map to 0 (and bandOf(0) is Good), consistently
+    if (pm >= 500) return 500;        // top of the PSI scale
     for (let i = 1; i < BP.length; i++) {
       if (pm <= BP[i][0]) { const c0 = BP[i - 1][0], c1 = BP[i][0], s0 = BP[i - 1][1], s1 = BP[i][1]; return s0 + (pm - c0) * (s1 - s0) / (c1 - c0); }
     }
@@ -51,7 +52,7 @@
     return 500 + (psi - 500) * 2;
   }
   const BANDS = [{ max: 50, name: 'Good' }, { max: 100, name: 'Moderate' }, { max: 200, name: 'Unhealthy' }, { max: 300, name: 'Very unhealthy' }, { max: Infinity, name: 'Hazardous' }];
-  function bandOf(v) { const x = Math.round(v); for (let i = 0; i < BANDS.length; i++) if (x <= BANDS[i].max) return i; return 4; }
+  function bandOf(v) { if (!(v > 0)) return 0; const x = Math.round(v); for (let i = 0; i < BANDS.length; i++) if (x <= BANDS[i].max) return i; return 4; }
 
   const NEA_REGIONS = ['national', 'north', 'south', 'east', 'west', 'central'];
   const DAYNAME = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -100,19 +101,33 @@
       const dd = sgt(new Date(noon));
       days.push({ d, h, ai: best, label: DAYNAME[dd.getUTCDay()] + ' ' + dd.getUTCDate() + ' ' + MONTHS[dd.getUTCMonth()], short: dd.getUTCDate() + ' ' + MONTHS[dd.getUTCMonth()], dow: DAYNAME[dd.getUTCDay()], iso: new Date(noon).toISOString(), tier: d <= 6 ? 'core' : 'extended' });
     }
-    // arrivals inside the 24 hours ending at each arrival (for 24-hour means)
-    const win24 = inputs.arrivals_h.map((a) => { const w = []; inputs.arrivals_h.forEach((b, j) => { if (b > a - 24 && b <= a) w.push(j); }); return w; });
+    // 24-hour means: time-weighted over the arrivals in (a-24, a]. Each arrival stands for the interval
+    // half way to its neighbours, clipped to the window, so the 6-hourly and 12-hourly parts of the grid count by time.
+    const AH = inputs.arrivals_h;
+    const win24 = AH.map((a) => {
+      const w = [], wt = [];
+      AH.forEach((b, j) => {
+        const lo = Math.max(a - 24, j > 0 ? (AH[j - 1] + b) / 2 : b - 3), hi = Math.min(a, j < AH.length - 1 ? (b + AH[j + 1]) / 2 : b + 3);
+        if (hi - lo > 1e-9) { w.push(j); wt.push(hi - lo); }   // overlap of this arrival's interval with (a-24, a]
+      });
+      const t = wt.reduce((x, y) => x + y, 0) || 1; return { j: w, w: wt.map(x => x / t) };
+    });
+    // the latest 24-hour reading is compared with the simulated air at the time it was taken
+    const obsH = (inputs.obs && typeof inputs.obs.pm24_h === 'number') ? inputs.obs.pm24_h : 0;
+    let anchorA = 0; AH.forEach((a, j) => { if (a <= obsH + 3 && Math.abs(a - obsH) < Math.abs(AH[anchorA] - obsH)) anchorA = j; });
     // observed now
-    const pmNow = obs.pm24_now || {}; const nat = pmNow.national || Math.max(...NEA_REGIONS.slice(1).map(r => pmNow[r] || 0)) || null;
+    const pmNow = obs.pm24_now || {};
+    const okv = (v) => typeof v === 'number' && isFinite(v) && v > 0;
+    const nat = okv(pmNow.national) ? pmNow.national : (Math.max(0, ...NEA_REGIONS.slice(1).map(r => okv(pmNow[r]) ? pmNow[r] : 0)) || null);
     const regRatio = NEA_REGIONS.map(r => (nat && pmNow[r] ? pmNow[r] / nat : 1));
     // prior median for K from the observed level now
     const bg0 = 18;
-    let meanFire = 0; const past = [-18, -12, -6, 0].map(a => arrIdx[a]);
-    for (let m = 0; m < M; m++) for (const ai of past) for (let r = 0; r < R; r++) for (let b = 0; b < B; b++) {
-      if (binMid[b] >= 0) continue;
-      meanFire += S[((m * A + ai) * R + r) * B + b] * (binMid[b] < -24 ? ratio[r] : 1);
-    }
-    meanFire /= (M * past.length);
+    let meanFire = 0; const aw = win24[anchorA];
+    for (let m = 0; m < M; m++) aw.j.forEach((ai, k) => { for (let r = 0; r < R; r++) for (let b = 0; b < B; b++) {
+      if (binMid[b] >= AH[ai]) continue;
+      meanFire += aw.w[k] * S[((m * A + ai) * R + r) * B + b] * (binMid[b] < -24 ? ratio[r] : 1);
+    } });
+    meanFire /= M;
     let K0 = 0.12, anchored = false;
     if (nat && meanFire > 1e-6) { K0 = Math.max(2, nat - bg0) / meanFire; anchored = true; }
     // transport index per member: how much fire air reaches Singapore on days 2-4
@@ -128,8 +143,16 @@
     const ageTabs = [48, 64, 80].map(tau => { const g = new Float32Array(A * B); inputs.arrivals_h.forEach((a, i) => { binMid.forEach((h, b) => { const age = Math.max(0, a - h); g[i * B + b] = tau >= AGE_BUILT ? 1 : Math.exp(-age * (1 / tau - 1 / AGE_BUILT)); }); }); return g; });
     // past-season analogs from NEA history and the news signal
     const analogs = inputs.analogs && inputs.analogs.paths && inputs.analogs.paths.length ? inputs.analogs : null;
-    const growthShift = (inputs.signals && typeof inputs.signals.growthShift === 'number') ? inputs.signals.growthShift : 0;
-    return { inputs, M, A, R, B, S, cum, isl, islands, ratio, binMid, arrIdx, futA, days, obs, nat, regRatio, K0, anchored, t0, trans, win24, fw, win72, nowBin, analogs, growthShift, ageTabs };
+    // the news signal is shown on the page but no longer moves the numbers: its effect has not been validated
+    const growthShift = 0;
+    // checks that decide whether this run is fit to publish
+    const degraded = [];
+    if (!nat) degraded.push('no valid NEA PM2.5 reading');
+    for (const src of (inputs.sources || [])) {
+      if (src.status === 'failed' && /FIRMS|GEFS/i.test(src.name || '')) degraded.push((src.name || 'a data source') + ' failed');
+    }
+    if (!isFinite(meanFire)) degraded.push('footprints are not finite');
+    return { inputs, M, A, R, B, S, cum, isl, islands, ratio, binMid, arrIdx, futA, days, obs, nat, regRatio, K0, anchored, t0, trans, win24, fw, win72, nowBin, analogs, growthShift, ageTabs, anchorA, obsH, degraded };
   }
 
   /* ---------- Monte Carlo ---------- */
@@ -199,10 +222,13 @@
       for (let q = 0; q < R; q++) rshare[s * R + q] = rv[q] / st;
       // likelihood of what NEA measured
       let lw = 0;
-      for (const [ai, lo] of pastObs) { const d = (Math.log(C[s * A + ai]) - lo) / 0.35; lw -= 0.5 * d * d; }
+      // the 6-hour readings overlap the 24-hour mean and each other, so they share one effective weight:
+      // sigma grows with the square root of their number instead of counting each as independent
+      const sObs = 0.35 * Math.sqrt(Math.max(1, pastObs.length));
+      for (const [ai, lo] of pastObs) { const d = (Math.log(C[s * A + ai]) - lo) / sObs; lw -= 0.5 * d * d; }
       if (pmNowLog !== null) {
-        const w0 = model.win24[arrIdx[0]]; let pm24 = 0; for (const j of w0) pm24 += C[s * A + j]; pm24 /= w0.length;
-        const d = (Math.log(pm24) - pmNowLog) / 0.2; lw -= 0.5 * d * d;
+        const w0 = model.win24[model.anchorA]; let pm24 = 0; w0.j.forEach((j, k) => { pm24 += w0.w[k] * C[s * A + j]; });
+        const d = (Math.log(pm24) - pmNowLog) / 0.25; lw -= 0.5 * d * d;
       }
       logw[s] = lw;
       if (report && s % chunk === 0) report(s / N * 0.85);
@@ -217,7 +243,7 @@
     const pm24 = new Float32Array(N * F);
     for (let s = 0; s < N; s++) {
       const j = idx[s];
-      for (let f = 0; f < F; f++) { const w = model.win24[futA[f]]; let v = 0; for (const k of w) v += C[j * A + k]; pm24[s * F + f] = v / w.length; }
+      for (let f = 0; f < F; f++) { const w = model.win24[futA[f]]; let v = 0; w.j.forEach((k, q) => { v += w.w[q] * C[j * A + k]; }); pm24[s * F + f] = v; }
     }
     // blend with how past haze seasons evolved, more at longer leads (twin dominates the first days)
     let blend = null;
@@ -242,16 +268,22 @@
       }
       blend = { analogDays: an.paths.length, years: an.years, weight: Array.from(lam, x => Math.round(x * 100) / 100) };
     }
-    // calibration from replays of the 2015, 2019 and 2023 seasons: the raw spread was too narrow,
-    // so widen each future around its median (in log space), most for days 1-3
-    const calib = (hh) => calibK(CALIB_LO, hh);
+    // calibration fitted on replays of 2015, 2019 and 2023 (in-sample; see history/replay/summary.json):
+    // each future is widened around the median in log-PSI space, CALIB_LO below and CALIB_HI above, and
+    // capped at PSI 500. This changes the samples themselves, so every percentile, band odds, storyline and
+    // yes/no question below comes from this one distribution. tools/replay_score.py reads the same constants.
     {
       const tmp = new Float64Array(Math.min(N, 20000)); const stp = Math.max(1, Math.floor(N / tmp.length));
       for (let f = 0; f < F; f++) {
-        const k = calib(model.inputs.arrivals_h[futA[f]]); if (k === 1) continue; // low side only: see CALIB_HI
-        let n = 0; for (let s = 0; s < N && n < tmp.length; s += stp) tmp[n++] = Math.log(Math.max(1, pm24[s * F + f]));
-        const srt = Array.from(tmp.subarray(0, n)).sort((a, b) => a - b); const med = srt[Math.floor(n / 2)];
-        for (let s = 0; s < N; s++) { const v = Math.log(Math.max(1, pm24[s * F + f])); if (v < med) pm24[s * F + f] = Math.exp(med + k * (v - med)); }
+        const hh = model.inputs.arrivals_h[futA[f]];
+        const kl = calibK(CALIB_LO, hh), kh = calibK(CALIB_HI, hh); if (kl === 1 && kh === 1) continue;
+        let n = 0; for (let s = 0; s < N && n < tmp.length; s += stp) tmp[n++] = Math.log(Math.max(1, psiOf(pm24[s * F + f])));
+        const srt = Array.from(tmp.subarray(0, n)).sort((x, y) => x - y); const med = srt[Math.floor(n / 2)];
+        for (let s = 0; s < N; s++) {
+          const v = Math.log(Math.max(1, psiOf(pm24[s * F + f])));
+          const w = Math.min(Math.log(500), med + (v < med ? kl : kh) * (v - med));
+          pm24[s * F + f] = pmOfPsi(Math.exp(w));
+        }
       }
     }
     // daily learning (tools/learn.py): a small, capped correction for recent bias and spread, by lead
@@ -282,7 +314,11 @@
   const CALIB_LO = [2.15, 1.45, 1.05];
   const CALIB_HI = [1.95, 1.8, 1.9];
   const calibK = (C, hh) => hh <= 0 ? 1 : hh < 18 ? 1 + (C[0] - 1) * hh / 18 : hh <= 84 ? C[0] : hh <= 156 ? C[1] : C[2];
-  const upWiden = (q, med, hh) => { const k = calibK(CALIB_HI, hh); if (q <= med || med < 1) return Math.round(q); return Math.round(Math.min(500, Math.exp(Math.log(med) + k * (Math.log(q) - Math.log(med))))); };
+  // the same widening applied to a list of quantiles [p5, p25, p50, p75, p95] (for scoring and the replay chart)
+  function widenPsi(q, leadDays) {
+    const hh = leadDays * 24; const kl = calibK(CALIB_LO, hh), kh = calibK(CALIB_HI, hh); const m = Math.log(Math.max(1, q[2]));
+    return q.map(x => { const v = Math.log(Math.max(1, x)); return Math.round(Math.min(500, Math.exp(m + (v < m ? kl : kh) * (v - m)))); });
+  }
   const CLASS_DEFS = {
     haze: [
       { id: 'early', name: 'Clears early', color: '--sD' },
@@ -309,6 +345,12 @@
     const model = sim.model; const { N, F } = sim; const days = model.days;
     const fOf = {}; model.futA.forEach((ai, f) => (fOf[ai] = f));
     const dayF = days.map(d => fOf[d.ai]);
+    // each day's value is interpolated to exactly noon SGT between the two arrivals either side of it
+    const AHf = model.futA.map(ai => model.inputs.arrivals_h[ai]);
+    const dayI = days.map(d => { let j = 0; while (j < AHf.length - 2 && AHf[j + 1] < d.h) j++; const a = AHf[j], b = AHf[j + 1]; return [j, j + 1, b > a ? Math.min(1, Math.max(0, (d.h - a) / (b - a))) : 0]; });
+    const dayVal = (s, d, rr) => { const [i0, i1, w] = dayI[d]; return (1 - w) * regionPsi(sim, s, i0, rr) + w * regionPsi(sim, s, i1, rr); };
+    // yes/no questions are checked on every simulated time step, not just noon
+    const f6 = AHf.reduce((n, a) => n + (a <= 6 * 24 + 12 ? 1 : 0), 0);
     const psiNowObs = (model.obs.psi_now || {});
     const out = { issued: model.inputs.t0, built: new Date().toISOString(), n: N, members: model.M, ess: Math.round(sim.ess),
       anchored: model.anchored, sample: !!model.inputs.sample, days: days.map(d => ({ label: d.label, short: d.short, dow: d.dow, iso: d.iso, h: d.h, tier: d.tier })),
@@ -330,7 +372,7 @@
       for (let s = 0; s < N; s++) {
         let cd = -1, pk = -1, pkd = 0, fa = -1;
         for (let d = 0; d < days.length; d++) {
-          const v = regionPsi(sim, s, dayF[d], rr); dayVals[d][s] = v;
+          const v = dayVal(s, d, rr); dayVals[d][s] = v;
           if (fa < 0 && (mode === 'haze' ? v <= 100.5 : v > 100.5)) fa = d + 1;
           if (d >= nC) continue;
           if (cd < 0 && v <= 100.5) cd = d + 1;
@@ -339,7 +381,8 @@
         clearDay[s] = cd; peakV[s] = pk; peakD[s] = pkd; firstAll[s] = fa;
         let c;
         if (mode === 'haze') {
-          if (pk >= Math.max(200.5, now + 25) && bandOf(pk) > bandOf(now)) c = 3;
+          // "gets worse" needs a real rise: into a higher band, above 200, and at least 30% (and 40 points) above now
+          if (pk >= Math.max(200.5, now * 1.3, now + 40) && bandOf(pk) > bandOf(now)) c = 3;
           else if (cd > 0 && cd <= 3) c = 0;
           else if (cd > 0) c = 1;
           else c = 2;
@@ -355,14 +398,14 @@
         for (let s = 0; s < N; s++) b[bandOf(v[s])]++;
         const sub = []; for (let s = 0; s < N; s += stride) sub.push(v[s]); const sorted = Float32Array.from(sub).sort();
         const md = quantile(sorted, 0.5), hh = (k + 0.5) * 24;
-        return { bands: b.map(x => Math.round(x / N * 1000) / 10), p5: Math.round(quantile(sorted, 0.05)), p25: Math.round(quantile(sorted, 0.25)), p50: Math.round(md), p75: upWiden(quantile(sorted, 0.75), md, hh), p95: upWiden(quantile(sorted, 0.95), md, hh) };
+        return { bands: b.map(x => Math.round(x / N * 1000) / 10), p5: Math.round(quantile(sorted, 0.05)), p25: Math.round(quantile(sorted, 0.25)), p50: Math.round(md), p75: Math.round(quantile(sorted, 0.75)), p95: Math.round(quantile(sorted, 0.95)) };
       });
       const pct = { p5: [], p25: [], p50: [], p75: [], p95: [] };
       for (let f = 0; f < F; f++) {
         let nn = 0; for (let s = 0; s < N; s += stride) psiAll[nn++] = regionPsi(sim, s, f, rr);
         const sorted = Float32Array.from(psiAll.subarray(0, nn)).sort();
         const md = quantile(sorted, 0.5), hh = out.arrivals_h[f];
-        pct.p5.push(Math.round(quantile(sorted, 0.05))); pct.p25.push(Math.round(quantile(sorted, 0.25))); pct.p75.push(upWiden(quantile(sorted, 0.75), md, hh)); pct.p50.push(Math.round(md)); pct.p95.push(upWiden(quantile(sorted, 0.95), md, hh));
+        pct.p5.push(Math.round(quantile(sorted, 0.05))); pct.p25.push(Math.round(quantile(sorted, 0.25))); pct.p75.push(Math.round(quantile(sorted, 0.75))); pct.p50.push(Math.round(md)); pct.p95.push(Math.round(quantile(sorted, 0.95)));
       }
       let clearCount = 0; for (let s = 0; s < N; s++) if (dayVals[nC - 1][s] <= 100.5) clearCount++;
       const by = days.map(() => 0); for (let s = 0; s < N; s++) if (firstAll[s] > 0) for (let d = firstAll[s] - 1; d < days.length; d++) by[d]++;
@@ -440,12 +483,15 @@
       const markets = (() => {
         let p300 = 0, p200 = 0, p300all = 0, b100all = 0;
         for (let s2 = 0; s2 < N; s2++) {
-          if (peakV[s2] > 300.5) p300++; if (peakV[s2] > 200.5) p200++;
-          let mx = 0, mn = 1e9; for (let d = 0; d < days.length; d++) { const v = dayVals[d][s2]; if (v > mx) mx = v; if (v < mn) mn = v; }
+          let mx6 = 0, mx = 0, mn = 1e9;
+          for (let f = 0; f < F; f++) { const v = regionPsi(sim, s2, f, rr); if (v > mx) mx = v; if (f < f6 && v > mx6) mx6 = v; }
+          for (let d = 0; d < days.length; d++) { const v = dayVals[d][s2]; if (v < mn) mn = v; }
+          if (mx6 > 300.5) p300++; if (mx6 > 200.5) p200++;
           if (mx > 300.5) p300all++; if (mn <= 100.5) b100all++;
         }
         const r1 = (x) => Math.round(x / N * 1000) / 10;
-        const m = { hazardous6: r1(p300), above200_6: r1(p200), hazardous15: r1(p300all), below100_15: r1(b100all), weekends: [] };
+        const m = { hazardous6: r1(p300), above200_6: r1(p200), hazardous15: r1(p300all), below100_15: r1(b100all), weekends: [],
+          resolution: '24-hour PSI checked at every simulated time step (6-hourly, 12-hourly further out)', validated: false };
         for (let d = 0; d < days.length - 1; d++) {
           if (days[d].dow !== 'Sat') continue;
           let ok = 0, bad = 0; for (let s2 = 0; s2 < N; s2++) { const a1 = dayVals[d][s2], a2 = dayVals[d + 1][s2]; if (a1 <= 100.5 && a2 <= 100.5) ok++; if (a1 > 200.5 || a2 > 200.5) bad++; }
@@ -474,7 +520,14 @@
     const inp = model.inputs; const M = model.M, R = model.R;
     const rain = decode(inp.rain.data); const tH = inp.rain.t_h; const T = tH.length;
     const clim = inp.climate || {};
-    const roni = typeof clim.roni === 'number' ? clim.roni : 0, dmi = typeof clim.dmi === 'number' ? clim.dmi : 0;
+    const mo0 = sgt(model.t0).getUTCMonth();
+    if (mo0 < 7) return null;          // the fire season outlook only applies from August to December
+    // climate indices older than about 4 months are not used
+    const fresh = (period) => { const mm = /([A-Z][a-z]{2}|[A-Z]{3})\s+(\d{4})/.exec(String(period || '')); if (!mm) return false;
+      const months = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11, JFM: 1, FMA: 2, MAM: 3, AMJ: 4, MJJ: 5, JJA: 6, JAS: 7, ASO: 8, SON: 9, OND: 10, NDJ: 11, DJF: 0 };
+      const k = months[mm[1]]; if (k === undefined) return false; const age = (sgt(model.t0).getUTCFullYear() - +mm[2]) * 12 + mo0 - k; return age >= 0 && age <= 4; };
+    const roniOk = typeof clim.roni === 'number' && fresh(clim.roni_period), dmiOk = typeof clim.dmi === 'number' && fresh(clim.dmi_period);
+    const roni = roniOk ? clim.roni : 0, dmi = dmiOk ? clim.dmi : 0;
     const shiftDays = 6 * Math.min(2.5, Math.max(0, roni)) + 4 * Math.min(2, Math.max(0, dmi / 0.4));
     const year = sgt(model.t0).getUTCFullYear();
     const groups = [['Kalimantan', 1, 'ckal'], ['Sumatra', 0, 'ssum']].map(([name, isl, fallback]) => {
@@ -551,7 +604,8 @@
     return {
       dates, weeks, median: label(toDate(quantile(sorted, 0.5))), p10: label(toDate(quantile(sorted, 0.1))), p90: label(toDate(quantile(sorted, 0.9))),
       onset: { Kalimantan: medOn[0], Sumatra: medOn[1] }, seenInForecast: Math.round(seen / N * 100),
-      climate: { roni: clim.roni, roniPeriod: clim.roni_period, dmi: clim.dmi, dmiPeriod: clim.dmi_period, shiftDays: Math.round(shiftDays) },
+      climate: { roni: clim.roni, roniPeriod: clim.roni_period, roniUsed: roniOk, dmi: clim.dmi, dmiPeriod: clim.dmi_period, dmiUsed: dmiOk, shiftDays: Math.round(shiftDays) },
+      experimental: true,
       lagDays: Math.round(lagMean), dryness: dry,
       horizonDays: Math.round(horizonH / 24)
     };
@@ -585,11 +639,16 @@
     const sim = simulate(model, opts);
     const res = summarize(sim, opts);
     try { res.season = season(model, opts); } catch (e) { res.season = null; }
+    const reasons = model.degraded.slice();
+    if (sim.ess < 30) reasons.push('very few simulated futures match NEA\'s readings (effective sample ' + Math.round(sim.ess) + ')');
+    res.degraded = reasons.length ? { reasons } : null;
+    res.obsH = model.obsH;
     const L = opts.learn || inputs.learn || null;
     res.learn = L ? { date: L.date || null, bias: L.bias || null, spread: L.spread || null } : null;
     if (opts.onProgress) opts.onProgress(1);
     return res;
   }
 
-  return { run, prepare, simulate, summarize, season, why, psiOf, bandOf, BANDS, NEA_REGIONS, decode };
+  const CALIB = { lo: CALIB_LO, hi: CALIB_HI, version: 'replay-2015-2019-2023-v2' };
+  return { run, prepare, simulate, summarize, season, why, psiOf, pmOfPsi, bandOf, BANDS, NEA_REGIONS, decode, CALIB, widenPsi };
 });

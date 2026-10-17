@@ -17,6 +17,8 @@ latest = nea["latest_time"]
 if inp["obs"].get("time") and datetime.fromisoformat(latest) <= datetime.fromisoformat(inp["obs"]["time"]):
     print("no newer NEA reading than", inp["obs"]["time"])
     sys.exit(3)
+# t0 (the model origin: weather and fire data) stays fixed; the readings keep their real times relative to it,
+# and the engine compares each reading with the simulated air at that time (obs.pm24_h, pm1_at keys).
 obs = B.obs_block(nea, t0)
 obs["time"] = latest
 inp["obs"] = obs

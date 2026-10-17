@@ -7,7 +7,7 @@ permissions:
   contents: write
   actions: write
 concurrency:
-  group: learn
+  group: publish          # full runs, hourly refreshes and the daily learning take turns, so none overwrites another
   cancel-in-progress: false
 jobs:
   learn:

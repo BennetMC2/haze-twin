@@ -3,9 +3,16 @@ The token stays in the WAQI_TOKEN repository secret; the page only reads the sav
 Usage: python tools/fetch_aq.py site/data/aq.json"""
 import json
 import os
+import re
 import sys
 
 import requests
+
+
+def scrub(text, token):
+    """Remove the token and any query string from text before printing it."""
+    text = text.replace(token, "TOKEN")
+    return re.sub(r"\?[^\s'\"]*", "?…", text)
 
 
 def main(out):
@@ -16,15 +23,16 @@ def main(out):
     try:
         js = requests.get("https://api.waqi.info/feed/singapore/central/", params={"token": token}, timeout=20).json()
     except Exception as e:
-        print("AQICN request failed:", str(e)[:120])
+        # Only the exception class: its text can contain the request URL, which carries the token.
+        print("AQICN request failed:", type(e).__name__)
         return
     d = js.get("data") if isinstance(js, dict) else None
-    if js.get("status") != "ok" or not isinstance(d, dict) or not isinstance(d.get("aqi"), (int, float)):
-        print("AQICN gave no reading:", str(js)[:160].replace(token, "TOKEN"))
+    if not isinstance(js, dict) or js.get("status") != "ok" or not isinstance(d, dict) or not isinstance(d.get("aqi"), (int, float)):
+        print("AQICN gave no reading:", scrub(str(js)[:160], token))
         return
     iaqi = d.get("iaqi") or {}
     rec = {"aqi": d["aqi"], "time": (d.get("time") or {}).get("iso"), "station": (d.get("city") or {}).get("name"),
-           "url": (d.get("city") or {}).get("url"), "pm25": (iaqi.get("pm25") or {}).get("v")}
+           "url": (d.get("city") or {}).get("url"), "pm25_aqi": (iaqi.get("pm25") or {}).get("v")}  # AQI sub-index, not ug/m3
     with open(out, "w") as f:
         json.dump(rec, f)
     print("AQICN:", rec)

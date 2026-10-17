@@ -1,0 +1,101 @@
+[
+ {
+  "lead": "days 1-3",
+  "held_out": 2015,
+  "n": 102,
+  "fit_lo": 2.15,
+  "fit_hi": 1.5,
+  "inside90": 79,
+  "inside90_raw": 60,
+  "below": 4,
+  "above": 17
+ },
+ {
+  "lead": "days 1-3",
+  "held_out": 2019,
+  "n": 78,
+  "fit_lo": 2.2,
+  "fit_hi": 2.5,
+  "inside90": 99,
+  "inside90_raw": 74,
+  "below": 1,
+  "above": 0
+ },
+ {
+  "lead": "days 1-3",
+  "held_out": 2023,
+  "n": 72,
+  "fit_lo": 1.85,
+  "fit_hi": 2.5,
+  "inside90": 90,
+  "inside90_raw": 54,
+  "below": 10,
+  "above": 0
+ },
+ {
+  "lead": "days 4-6",
+  "held_out": 2015,
+  "n": 102,
+  "fit_lo": 1.4,
+  "fit_hi": 1.4,
+  "inside90": 84,
+  "inside90_raw": 71,
+  "below": 7,
+  "above": 9
+ },
+ {
+  "lead": "days 4-6",
+  "held_out": 2019,
+  "n": 78,
+  "fit_lo": 1.55,
+  "fit_hi": 1.75,
+  "inside90": 96,
+  "inside90_raw": 83,
+  "below": 3,
+  "above": 1
+ },
+ {
+  "lead": "days 4-6",
+  "held_out": 2023,
+  "n": 72,
+  "fit_lo": 1.4,
+  "fit_hi": 1.6,
+  "inside90": 85,
+  "inside90_raw": 71,
+  "below": 8,
+  "above": 7
+ },
+ {
+  "lead": "days 7-15",
+  "held_out": 2015,
+  "n": 306,
+  "fit_lo": 0.9,
+  "fit_hi": 1.3,
+  "inside90": 75,
+  "inside90_raw": 69,
+  "below": 11,
+  "above": 15
+ },
+ {
+  "lead": "days 7-15",
+  "held_out": 2019,
+  "n": 234,
+  "fit_lo": 1.1,
+  "fit_hi": 2.0,
+  "inside90": 97,
+  "inside90_raw": 86,
+  "below": 2,
+  "above": 0
+ },
+ {
+  "lead": "days 7-15",
+  "held_out": 2023,
+  "n": 216,
+  "fit_lo": 1.1,
+  "fit_hi": 1.95,
+  "inside90": 94,
+  "inside90_raw": 87,
+  "below": 3,
+  "above": 2
+ }
+]

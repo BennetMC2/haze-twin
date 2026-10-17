@@ -6,6 +6,7 @@ Baselines:
 Writes history/replay/summary.json
 """
 import json
+import re
 import math
 import sys
 from datetime import date, datetime, timedelta, timezone
@@ -44,14 +45,18 @@ def crps_q(qs, y):
     return 2 * tot / len(levels)
 
 
-CALIB_LO = [2.15, 1.45, 1.05]   # same multipliers as engine.js
-CALIB_HI = [1.95, 1.8, 1.9]
+# the one calibration, read from engine.js so scoring and production cannot drift apart.
+# The stored replay forecasts (history/replay/*.json) are raw: they were made before calibration existed,
+# so this is applied exactly once. Like the engine: log-PSI space around p50, capped at 500.
+_ENG = (Path(__file__).resolve().parents[1] / "engine" / "engine.js").read_text()
+CALIB_LO = json.loads(re.search(r"const CALIB_LO = (\[[^\]]*\])", _ENG).group(1))
+CALIB_HI = json.loads(re.search(r"const CALIB_HI = (\[[^\]]*\])", _ENG).group(1))
 
 
 def widen(qs, lead):
     i = 0 if lead <= 3 else 1 if lead <= 6 else 2
     m = math.log(max(1, qs[2]))
-    return [math.exp(m + (CALIB_LO[i] if math.log(max(1, q)) < m else CALIB_HI[i]) * (math.log(max(1, q)) - m)) for q in qs]
+    return [min(500.0, math.exp(m + (CALIB_LO[i] if math.log(max(1, q)) < m else CALIB_HI[i]) * (math.log(max(1, q)) - m))) for q in qs]
 
 
 def score(season):

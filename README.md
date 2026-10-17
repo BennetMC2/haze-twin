@@ -2,7 +2,9 @@
 
 Odds for Singapore's haze over the next two weeks, and when the haze season is likely to end, from a digital twin of Southeast Asia's fires, smoke and winds.
 
-Every six hours the twin takes in the latest readings, traces the air arriving in Singapore back through 31 weather forecasts, and runs 100,000 possible futures. It shows the result as plain odds ("38% chance PSI is 100 or below by Thursday"), as storylines (clears early, clears later, stays unhealthy, gets worse), and on a live map of fires, smoke, wind and the paths the air took.
+The page refreshes every hour with NEA's latest readings, and every six hours the full model runs: it takes in the latest data, traces the air arriving in Singapore back through 31 weather forecasts, and runs 100,000 possible futures. It shows the result as plain odds ("38% chance PSI is 100 or below by Thursday"), as storylines (clears early, clears later, stays unhealthy, gets worse), and on a live map of fires, smoke, wind and the paths the air took.
+
+Experimental, independent model. Not an official NEA forecast.
 
 This is an independent, public-good project. For health advice, follow NEA.
 
@@ -27,7 +29,9 @@ pipeline/   Python: fetch NEA, FIRMS and GEFS; back-trace; write site/data/input
 engine/     JavaScript: Monte Carlo, storylines, record (engine.js runs in Node and the browser)
 site/       The web page (GitHub Pages)
 history/    Append-only log of issued forecasts and observations (committed by the workflow)
-.github/workflows/twin.yml   Runs every 6 hours, archives each run as a release asset, deploys the page
+.github/workflows/twin.yml   Full model run every 6 hours, archives each run as a release asset, deploys the page
+.github/workflows/refresh.yml  Hourly refresh with NEA's latest readings
+relay/      Cloudflare Worker for "Ask about the haze" (see relay/README.md)
 ```
 
 ## Run it locally
@@ -40,7 +44,7 @@ cp engine/engine.js site/engine.js
 python -m http.server -d site 8000            # open http://localhost:8000
 ```
 
-For live data: set `FIRMS_MAP_KEY` (free from NASA FIRMS) and run `python pipeline/build_inputs.py` without `--sample`. It downloads about 800 small GEFS files from NOMADS and takes 25–40 minutes (about 1,400 small files).
+For live data: set `FIRMS_MAP_KEY` (free from NASA FIRMS) and run `python pipeline/build_inputs.py` without `--sample`. It downloads many small GEFS files from NOMADS and takes 25–40 minutes.
 
 ## Setup on GitHub
 
@@ -61,6 +65,11 @@ For live data: set `FIRMS_MAP_KEY` (free from NASA FIRMS) and run `python pipeli
 - PSI and PM2.5: National Environment Agency, via data.gov.sg (Singapore Open Data Licence).
 - Fire hotspots: NASA FIRMS, LANCE/EOSDIS, VIIRS 375 m NRT active fire products.
 - Weather: NOAA NCEP Global Ensemble Forecast System (GEFS), via NOMADS.
+- Smoke model (second opinion): Copernicus Atmosphere Monitoring Service (CAMS), via Open-Meteo.
+- News signals: The GDELT Project.
+- Air quality stations in the region: OpenAQ.
+- El Niño and Indian Ocean Dipole: NOAA (RONI and DMI indices).
+- Singapore Central AQI: AQICN, the World Air Quality Index Project (waqi.info).
 - Coastlines: Natural Earth (public domain), via world-atlas.
 
 Code: MIT licence.

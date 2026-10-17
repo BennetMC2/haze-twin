@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src 'self' data: blob: https://gibs.earthdata.nasa.gov; connect-src 'self' https://api-open.data.gov.sg https://haze-ask.healthid-cloudflare.workers.dev; worker-src blob:; base-uri 'self'; form-action 'self'">
 <title>Haze Twin</title>
 <meta name="haze-ai" content="https://haze-ask.healthid-cloudflare.workers.dev/">
 <meta name="description" content="When will Singapore's haze get better? Day-by-day odds for the next 15 days, where the smoke is coming from, and why. Updated every hour.">
@@ -353,6 +354,13 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 .srclist{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
 .srclist ul{margin:4px 0 0;padding-left:18px;color:var(--ink-2);display:flex;flex-direction:column;gap:3px;font-size:14px}
 
+.skip{position:absolute;left:8px;top:-60px;z-index:100;background:var(--panel);color:var(--ink);border:1px solid var(--line-hi);border-radius:5px;padding:8px 12px}
+.skip:focus{top:8px}
+.degraded{border:1px solid var(--vunh);border-radius:5px;padding:8px 10px;margin:0 0 10px;color:var(--ink);font-size:14px}
+.degraded b{color:var(--vunh)}
+.tag{display:inline-block;margin-left:6px;padding:0 6px;border:1px solid var(--line-hi);border-radius:4px;font-size:11px;color:var(--ink-3);text-transform:none;letter-spacing:0;vertical-align:1px}
+.nojs{padding:16px;color:var(--ink);background:var(--bg)}
+
 /* narrow screens: one column, page scrolls */
 @media (max-width:1100px){
   body{overflow:auto}
@@ -372,6 +380,8 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 </style>
 </head>
 <body>
+<a class="skip" href="#cardNow">Skip to the summary</a>
+<noscript><p class="nojs">This page needs JavaScript to show the haze forecast. For current readings, see <a href="https://www.haze.gov.sg/">haze.gov.sg</a>.</p></noscript>
 <div class="app" id="app">
 
   <header class="top">
@@ -391,10 +401,13 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
 
   <section class="panel pageview" id="oddsView" aria-labelledby="oddsTitle">
     <div class="ohead"><button class="btn" type="button" data-back>← Back to forecast</button><h2 id="oddsTitle">Odds</h2><span class="note" id="oddsSub"></span></div>
+    <p class="note">Experimental, independent model. Not NEA's official forecast.</p>
+    <div class="degraded" id="degOdds" hidden></div>
+    <p class="note"><b>Not yet validated.</b> The yes/no odds have not been checked against past seasons with the current model. Treat them as rough.</p>
     <div class="markets" id="markets"></div>
     <h2>Day by day</h2>
     <div class="chart-wrap"><table class="otab" id="oddsTable"></table></div>
-    <details class="more"><summary>How reliable these odds are</summary><p class="note" id="oddsRel">Each % is the share of the 100,000 simulated futures where it happens. Days more than 6 days out are rougher. In the replays of 2015, 2019 and 2023, "above 300 within 6 days" was over-called: the 5 times it gave 30% or more, it didn't happen. "Above 200" at 60% or more happened about 4 times in 10.</p></details>
+    <details class="more"><summary>More on these odds</summary><p class="note" id="oddsRel">Each % is the share of the 100,000 simulated futures where it happens. "Above 300" and "above 200" are checked at every simulated time step (every 6 hours to day 6, every 12 hours after), using the 24-hour average PSI. Days more than 6 days out are rougher. In the replays of 2015, 2019 and 2023, "above 300 within 6 days" was over-called: the 5 times it gave 30% or more, it didn't happen. "Above 200" at 60% or more happened about 4 times in 10.</p></details>
   </section>
 
   <section class="panel pageview" id="recordView" aria-labelledby="recTitle">
@@ -404,7 +417,8 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
   </section>
 
   <aside class="col left" aria-label="Summary">
-    <section class="panel card" id="cardNow">
+    <section class="panel card" id="cardNow" tabindex="-1">
+      <div class="degraded" id="degNow" hidden></div>
       <div class="now">
         <span class="psi" id="psiNow">–</span>
         <div class="nowtxt">
@@ -417,6 +431,8 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
       <div class="regions" role="group" aria-label="Area of Singapore" id="regions"></div>
       <h1 class="headline" id="headline">Loading…</h1>
       <p class="lede" id="lede"></p>
+      <p class="note" id="camsWarn" hidden></p>
+      <p class="note">Experimental, independent model. Not NEA's official forecast.</p>
       <p class="note">For what to do, follow <a href="https://www.haze.gov.sg/" target="_blank" rel="noopener">NEA's health advice</a>.</p>
     </section>
 
@@ -462,6 +478,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
       </form>
       <div class="asksug" id="askSug"></div>
       <div class="askout" id="askOut" aria-live="polite" hidden></div>
+      <p class="note">Questions are sent to an AI service (Cloudflare or Anthropic) to answer. Don't include personal details.</p>
     </section>
     <section class="panel card" id="cardScen" aria-labelledby="scTitle">
       <div class="head"><h2 id="scTitle">What could happen</h2><span class="note" id="scSpan"></span></div>
@@ -654,15 +671,17 @@ function loadSat(){
   const r0=Math.floor((90-Math.min(14,lat1))/size),r1=Math.floor((90-Math.max(-14,lat0))/size);
   if((c1-c0+1)*(r1-r0+1)>80)return;
   for(let row=r0;row<=r1;row++)for(let col=c0;col<=c1;col++){
-    const key=z+'/'+row+'/'+col;if(TILES.has(key))continue;
-    const img=new Image();const t={img:img,ok:false,z:z,row:row,col:col,size:size};TILES.set(key,t);
+    const key=date+'/'+z+'/'+row+'/'+col;if(TILES.has(key))continue;
+    const img=new Image();const t={img:img,ok:false,z:z,row:row,col:col,size:size,date:date};TILES.set(key,t);
     img.onload=()=>{t.ok=true;drawSat();};
     img.src='https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/VIIRS_NOAA20_CorrectedReflectance_TrueColor/default/'+date+'/250m/'+z+'/'+row+'/'+col+'.jpg';
   }
 }
 function drawSat(){
   const c=satctx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,satCv.width,satCv.height);c.setTransform(V.dpr,0,0,V.dpr,0,0);
-  const want=satZoom();const list=[...TILES.values()].filter(t=>t.ok&&t.z<=want).sort((a,b)=>a.z-b.z);
+  const want=satZoom();const date=satDate();
+  let gone=false;for(const [k,t] of TILES)if(t.date!==date){TILES.delete(k);gone=true;}if(gone)setTimeout(loadSat,0);
+  const list=[...TILES.values()].filter(t=>t.ok&&t.z<=want).sort((a,b)=>a.z-b.z);
   for(const t of list){const lonW=t.col*t.size-180,latN=90-t.row*t.size;const a=P(lonW,latN),b=P(lonW+t.size,latN-t.size);
     if(b[0]<0||a[0]>V.w||b[1]<0||a[1]>V.h)continue;c.drawImage(t.img,a[0],a[1],b[0]-a[0]+0.5,b[1]-a[1]+0.5);}
 }
@@ -875,15 +894,42 @@ fan.addEventListener('pointerup',()=>{dragFan=false;});
 const regionName=()=>state.region==='national'?'Singapore':REG.find(r=>r[0]===state.region)[1]+' Singapore';
 const bandWord=(v)=>BANDS[bandOf(v)].name.toLowerCase();
 function typicalCore(){const reg=R();const d=reg.days.slice(0,coreDays().length).map(x=>x.p50).sort((a,b)=>a-b);return d[Math.floor(d.length/2)]||reg.now;}
+// "10pm today" or "10pm Fri 16 Oct"
+function whenTxt(d){const a=sgt(d),n=sgt(new Date());const same=a.getUTCFullYear()===n.getUTCFullYear()&&a.getUTCMonth()===n.getUTCMonth()&&a.getUTCDate()===n.getUTCDate();return clock(d)+(same?' today':' '+dayName(d));}
+function renderDegraded(){
+  const dg=FC&&FC.degraded;const txt=dg&&Array.isArray(dg.reasons)&&dg.reasons.length?dg.reasons.map(String).join('; '):dg?'some inputs were missing':'';
+  ['degNow','degOdds'].forEach(id=>{const el=$(id);if(!el)return;el.hidden=!txt;el.innerHTML=txt?'<b>Low confidence:</b> '+esc(txt):'';});
+}
+/* CAMS cross-check: CAMS 24-hour mean PM2.5 at each day's noon, scaled so CAMS matches NEA's 24-hour PM2.5 now */
+function camsCheck(){
+  const c=INP&&INP.extras&&INP.extras.cams&&INP.extras.cams.pm25;if(!Array.isArray(c)||c.length<24)return null;
+  const pts=c.map(x=>[new Date(x[0]).getTime(),Number(x[1])]).filter(x=>isFinite(x[0])&&isFinite(x[1]));
+  const mean24=(end)=>{let s=0,n=0;for(const [t,v] of pts)if(t>end-24*3600e3&&t<=end){s+=v;n++;}return n>=20?s/n:null;};
+  const pm=INP.obs&&INP.obs.pm24_now||{};const obs=pm[state.region]||pm.national;const c0=mean24(t0().getTime());
+  const ratio=obs>0&&c0>=1?obs/c0:null;
+  const days=FC.days.map(fd=>{const m=mean24(new Date(fd.iso).getTime());return m==null?null:{raw:Math.round(HE.psiOf(m)),fix:ratio?Math.round(HE.psiOf(m*ratio)):null};});
+  return {days,ratio};
+}
+function renderCamsWarn(){
+  const el=$('camsWarn');if(!el)return;el.hidden=true;const C=camsCheck();if(!C||!C.ratio)return;const reg=R();
+  let off=false,sum=0,n=0,dir=0;
+  for(let i=0;i<3&&i<C.days.length;i++){const c=C.days[i],d=reg.days[i];if(!c||c.fix==null||!d)continue;const a=Math.max(1,d.p50),b=Math.max(1,c.fix);
+    if(Math.max(a,b)/Math.min(a,b)>1.5)off=true;sum+=c.fix;n++;dir+=c.fix-d.p50;}
+  if(!off||!n)return;
+  el.textContent='Another model (CAMS) expects '+(dir<0?'lower':'higher')+' haze over the next 3 days (around '+Math.round(sum/n)+'). Treat these numbers with extra caution.';el.hidden=false;
+}
 function renderAnswer(){
   const reg=R();const now=reg.now;const b=now!=null?bandOf(now):null;const cs=cls();const top=cs[topClass()];const end=coreEndDow();
   $('psiNow').textContent=now!=null?Math.round(now):'–';
   const pill=$('psiBand');pill.textContent=b!=null?BANDS[b].name:'';pill.style.background=b!=null?COL.b[b]:'transparent';
-  $('nowProv').textContent='24-hour PSI'+(state.region==='national'?'':', '+REG.find(r=>r[0]===state.region)[1])+', NEA at '+clock(new Date(INP.obs.time||INP.t0))+' today';
-  if(AQ&&state.region==='national'){const ab=aqiBand(AQ.aqi);$('psiNow').textContent=AQ.aqi;pill.textContent=ab.name;pill.style.background=ab.c;
-    $('nowProv').innerHTML='US AQI, Central Singapore. <a href="https://aqicn.org/city/singapore/central/" target="_blank" rel="noopener">AQICN</a> at '+esc(AQ.time);
-    $('psiLine').hidden=false;$('psiLine').innerHTML='NEA 24-hour PSI: <b>'+(now!=null?Math.round(now):'–')+'</b> ('+(b!=null?BANDS[b].name.toLowerCase():'')+'). The forecasts on this page use PSI.';}
+  const area=state.region==='national'?'':', '+REG.find(r=>r[0]===state.region)[1];
+  if(FC.issued&&FC.obsTime)$('nowProv').textContent='24-hour PSI'+area+', NEA reading at '+whenTxt(new Date(FC.obsTime));
+  else $('nowProv').textContent='24-hour PSI'+area+', NEA at '+whenTxt(new Date(INP.obs.time||INP.t0));
+  // AQICN is a second opinion on a different scale: shown under the PSI, never instead of it
+  if(AQ&&AQ.t&&Date.now()-AQ.t.getTime()<=4*3600e3){$('psiLine').hidden=false;
+    $('psiLine').innerHTML='US AQI (different scale) <b>'+esc(AQ.aqi)+'</b> at Central, <a href="https://aqicn.org/city/singapore/central/" target="_blank" rel="noopener">AQICN</a>, '+esc(clock(AQ.t));}
   else{$('psiLine').hidden=true;}
+  renderDegraded();renderCamsWarn();
   let h='',parts=[];
   const by=(id)=>cs.find(c=>c.id===id)||{odds:0,outcome:''};
   const pc=(v)=>'<b>'+(v<1?'Under 1':odds100(v))+'%</b>';
@@ -929,13 +975,13 @@ const AXMAX=400;const ax=(v)=>clamp(v,0,AXMAX)/AXMAX*100;
 function bandGradient(){const st=[];const e=[0,50,100,200,300,AXMAX];for(let k=0;k<5;k++){st.push(COL.b[k]+' '+ax(e[k])+'%',COL.b[k]+' '+ax(e[k+1])+'%');}return 'linear-gradient(90deg,'+st.join(',')+')';}
 function renderDays(){
   const axel=$('ax');axel.innerHTML='';[0,100,200,300,400].forEach(v=>{const s=document.createElement('span');s.textContent=v;s.style.left=ax(v)+'%';if(v===0)s.style.transform='none';if(v===400)s.style.transform='translateX(-100%)';axel.appendChild(s);});
-  const box=$('dayList');box.innerHTML='';const reg=R();const grad=bandGradient();const nCore=coreDays().length;
+  const box=$('dayList');box.innerHTML='';const reg=R();const grad=bandGradient();const nCore=coreDays().length;const CM=camsCheck();
   reg.days.forEach((d,i)=>{
     if(i===nCore){const dv=document.createElement('div');dv.className='divider';dv.textContent='Less certain from here';box.appendChild(dv);}
     const fd=FC.days[i];const row=document.createElement('button');row.type='button';row.className='drow'+(i>=nCore?' ext':'');row.dataset.t=fd.h/24;
     const p25=d.p25!=null?d.p25:d.p5,p75=d.p75!=null?d.p75:d.p95;
     row.setAttribute('aria-label',dfull(fd)+': best guess '+d.p50+', '+bandWord(d.p50)+'. Likely '+p25+' to '+p75+', possible '+d.p5+' to '+d.p95+'.');
-    row.dataset.tip=dfull(fd)+'|Best guess <b>'+d.p50+'</b> ('+bandWord(d.p50)+')|Likely '+p25+'–'+p75+'|Possible '+d.p5+'–'+d.p95+'|100 or below: '+pctTxt(d.bands[0]+d.bands[1])+' · above 200: '+pctTxt(d.bands[3]+d.bands[4]);
+    row.dataset.tip=dfull(fd)+'|Best guess <b>'+d.p50+'</b> ('+bandWord(d.p50)+')|Likely '+p25+'–'+p75+'|Possible '+d.p5+'–'+d.p95+'|100 or below: '+pctTxt(d.bands[0]+d.bands[1])+' · above 200: '+pctTxt(d.bands[3]+d.bands[4])+(CM&&CM.days[i]&&CM.days[i].fix!=null?'|Other model (CAMS): ~'+CM.days[i].fix:'');
     const zones=[0,50,100,200,300,AXMAX].slice(0,-1).map((e,k,arr)=>'<i class="zone" style="left:'+ax(e)+'%;width:'+(ax([0,50,100,200,300,AXMAX][k+1])-ax(e))+'%;background:'+COL.b[k]+'"></i>').join('');
     row.innerHTML='<span class="dl"><b>'+esc(fd.dow)+'</b>'+esc(dshort(fd))+'</span><span class="track">'+zones+
       '<i class="wide" style="left:'+ax(d.p5)+'%;width:'+Math.max(0.5,ax(d.p95)-ax(d.p5))+'%"></i>'+
@@ -953,7 +999,7 @@ function renderWeeks(){
   if(!se||!se.weeks||!se.weeks.length){box.hidden=true;return;}
   const tail=reg.days.slice(-5);const k=tail.length?tail.reduce((a,d)=>a+d.bands[2]+d.bands[3]+d.bands[4],0)/tail.length/100:0;
   const last=FC.days[FC.days.length-1];
-  box.hidden=false;box.innerHTML='<div class="divider">After '+esc(dshort(last))+', week by week</div><p class="wnote">Chance of days above 100. Rough: based on when the rains usually end the fire season.</p>';
+  box.hidden=false;box.innerHTML='<div class="divider">After '+esc(dshort(last))+', week by week<span class="tag">Experimental</span></div><p class="wnote">Chance of days above 100. Experimental: based on when the rains usually end the fire season, not on weather forecasts.</p>';
   se.weeks.forEach(w=>{const v=Math.round(w.on*Math.min(1,k));const r=document.createElement('div');r.className='wrow';
     r.innerHTML='<span></span><span class="wb"><i></i></span><span class="wv"></span>';r.children[0].textContent=w.label;r.querySelector('i').style.width=v+'%';r.children[2].textContent=v<1?'<1%':v+'%';
     r.dataset.tip=w.label+'|Chance of days above 100: <b>'+(v<1?'under 1':v)+'%</b>|Fire season still going: '+w.on+'%';box.appendChild(r);});
@@ -1010,6 +1056,8 @@ function renderChanges(){
   const drivers=w.drivers.length?w.drivers:['No big change in fires, rain, winds or readings. The odds moved within normal variation.'];
   drivers.forEach(t=>{const p=document.createElement('div');p.textContent=t;box.appendChild(p);});
 }
+// only http(s) links from data; anything else is shown as plain text
+function safeUrl(s){if(!s)return null;try{const u=new URL(String(s),location.href);return (u.protocol==='http:'||u.protocol==='https:')?u.href:null;}catch(e){return null;}}
 function renderNews(){
   const list=$('newsList');list.innerHTML='';const items=(INP.extras&&INP.extras.news)||[];$('newsCard').hidden=!items.length;
   const sg=INP.signals;const chips=$('sigChips');chips.innerHTML='';
@@ -1018,7 +1066,7 @@ function renderNews(){
     const pct=Math.round(sg.growthShift*1000)/10;
     $('sigLine').textContent=(sg.pressure>0.15?'Reports lean worse':sg.pressure<-0.15?'Reports lean better':'Reports are mixed')+' ('+sg.articles+' articles). '+(pct?'The forecast allows for fires growing '+Math.abs(pct)+'% a day '+(pct>0?'faster':'slower')+' because of this.':'No change to the forecast.');}
   else{$('sigLine').textContent='';}
-  items.slice(0,6).forEach(n=>{const li=document.createElement('li');const a=document.createElement(n.url?'a':'span');a.textContent=n.title;if(n.url){a.href=n.url;a.target='_blank';a.rel='noopener';}
+  items.slice(0,6).forEach(n=>{const li=document.createElement('li');const u=safeUrl(n.url);const a=document.createElement(u?'a':'span');a.textContent=n.title;if(u){a.href=u;a.target='_blank';a.rel='noopener';}
     const m=document.createElement('span');m.textContent=(n.domain||'')+(n.time?', '+dayName(new Date(n.time)).split(' ').slice(0,1)+' '+clock(new Date(n.time)):'');li.append(a,m);list.appendChild(li);});
 }
 function renderSeason(){
@@ -1037,8 +1085,9 @@ function renderHood(){
   p(FC.n.toLocaleString('en-US')+' futures from '+FC.members+' NOAA GEFS weather forecasts'+(FC.anchored?', weighted to match NEA readings':'')+'. Effective sample after weighting: '+Math.round(FC.ess||0).toLocaleString('en-US')+'.');
   const b=FC.blend;if(b){const at=(d)=>{const i=FC.arrivals_h.findIndex(x=>x>=d*24);return i<0?b.weight[b.weight.length-1]:b.weight[i];};
     p('Further ahead the forecast leans on '+b.analogDays+' similar days in past seasons ('+b.years.join(', ')+'): about '+Math.round(at(3)*100)+'% by day 3, '+Math.round(at(6)*100)+'% by day 6 and '+Math.round(at(14)*100)+'% by day 14.');}
-  const cams=INP.extras&&INP.extras.cams&&INP.extras.cams.pm25;
-  if(cams&&cams.length>48){const tail=cams.slice(-24);const m=tail.reduce((a,x)=>a+x[1],0)/tail.length;p('The CAMS smoke model, shown for comparison, expects a 24-hour PSI near '+HE.psiOf(m)+' by '+dayName(new Date(tail[tail.length-1][0]))+'. CAMS tends to underestimate smoke from peat fires.');}
+  const CM=camsCheck();
+  if(CM){let li=-1;CM.days.forEach((x,i)=>{if(x)li=i;});
+    if(li>=0)p('The CAMS smoke model, shown for comparison, expects a 24-hour PSI near '+CM.days[li].raw+' on '+dfull(FC.days[li])+(CM.ratio&&CM.days[li].fix!=null?' (about '+CM.days[li].fix+' once scaled to match NEA\'s reading now)':'')+'. CAMS tends to underestimate smoke from peat fires.');}
   const ul=document.createElement('ul');ul.className='feeds';
   (INP.sources||[]).forEach(s=>{const li=document.createElement('li');li.innerHTML='<i class="'+(s.status==='failed'?'bad':s.status==='partial'?'part':'')+'"></i><span></span>';li.children[1].textContent=s.name+': '+s.status+(s.detail?', '+s.detail:'');ul.appendChild(li);});
   h.appendChild(ul);
@@ -1111,11 +1160,12 @@ function nextUpdate(){
   const b=new Date(FC.built);const hrs=[1,7,13,19];for(let d=0;d<2;d++)for(const h of hrs){const t=new Date(Date.UTC(b.getUTCFullYear(),b.getUTCMonth(),b.getUTCDate()+d,h,40));t.setUTCMinutes(t.getUTCMinutes()+30);if(t>b)return t;}return null;
 }
 function renderHeader(){
-  const b=new Date(FC.built);
-  $('statusText').textContent=(INP.sample?'Sample data. ':'')+'Updated '+dayName(b).split(' ')[0]+' '+clock(b);
+  const b=new Date(FC.issued&&FC.obsTime?FC.issued:FC.built);
+  $('statusText').textContent=(INP.sample?'Sample data. ':'')+'Updated '+dayName(b)+', '+clock(b);
   $('liveDot').classList.toggle('sample',!!INP.sample);
-  const ageH=(Date.now()-b.getTime())/3600e3;
-  if(ageH>3&&!INP.sample){$('liveDot').classList.add('stale');$('nextText').classList.add('warn');$('nextText').textContent='This is '+Math.round(ageH)+' hours old. The next update is running late; the odds may be out of date.';}
+  // the hourly refresh rewrites FC.built, so staleness comes from the weather and fire data (full run time)
+  const full=new Date(INP.t0||INP.cycle);const ageH=(Date.now()-full.getTime())/3600e3;
+  if(ageH>9&&!INP.sample){$('liveDot').classList.add('stale');$('nextText').classList.add('warn');$('nextText').textContent='Weather and fire data last updated '+dayName(full)+', '+clock(full);}
   else{$('liveDot').classList.remove('stale');$('nextText').classList.remove('warn');$('nextText').textContent='Updates every hour';}
   document.querySelectorAll('.nMembers').forEach(e=>e.textContent=FC.members);
 }
@@ -1154,13 +1204,18 @@ function replayHTML(){
   const hd=replayHeadline();if(!hd)return '<h3>Tested on past seasons</h3><p>Replays of the 2015, 2019 and 2023 haze seasons are being scored. Results will appear here.</p>';
   const o=hd.o;
   let h='<h3>Tested on past haze seasons ('+esc(hd.yrs)+')</h3>';
-  h+='<p>We replayed past seasons day by day. On each day the twin only saw what was known then: that morning\'s weather forecasts, the fires seen by satellite, and NEA\'s readings. Then we checked its forecasts against what NEA actually measured.</p>';
+  h+='<p>We replayed past seasons day by day and checked the forecasts against what NEA measured.</p>';
   h+='<div class="stats">'+
     '<div class="stat"><span class="v">'+(o.coverage90_calibrated??o.coverage90)+'%</span><span class="k">of NEA readings fell inside the possible range, days 1 to 6 (aim: 90%)</span></div>'+
     '<div class="stat"><span class="v">'+o.mae+'</span><span class="k">typical miss of the best guess in PSI points, days 1 to 6 (vs '+o.mae_persist+' for "same as today")</span></div>'+
     '<div class="stat"><span class="v">'+(RPL.overall.all_7_15?RPL.overall.all_7_15.mae:'–')+'</span><span class="k">typical miss, days 7 to 15 (vs '+(RPL.overall.all_7_15?RPL.overall.all_7_15.mae_persist:'–')+' for "same as today")</span></div>'+
     '</div>';
-  h+='<p class="note">What we learned: the best guess was about as good as "same as today" for days 1 to 3 and clearly better from day 4. The ranges were too narrow at first (only '+o.coverage90+'% of readings inside), so the twin now widens them; with that correction '+(o.coverage90_calibrated??o.coverage90)+'% fall inside. The correction was fitted on these same seasons, so the live record below is the real test.</p>';
+  const bl=RPL.overall.by_lead||{};const f1=(v)=>Number(v).toFixed(1);const mm=(k)=>bl[k]?f1(bl[k].mae)+' vs '+f1(bl[k].mae_persist):null;const o7=RPL.overall.all_7_15;
+  h+='<p class="note">For 1 to 3 days ahead the best guess was not better than "same as today". From day 7 it was'+(o7?' (typical miss '+f1(o7.mae)+' vs '+f1(o7.mae_persist)+')':'')+'. The range correction was fitted on these same three seasons, so the '+(o.coverage90_calibrated??o.coverage90)+'% is in-sample; the live record below is the real test.</p>';
+  h+='<details class="more"><summary>How the replays were run</summary>'+
+    '<p>For 2015 and 2019 the weather came from NOAA\'s GEFSv12 reforecasts: a later re-run of the forecast model with 5 members, not the forecasts issued at the time. 2023 used the archived forecasts as issued (31 members). Fires and NEA readings were limited to what was known on each day.</p>'+
+    '<p>Typical miss of the best guess vs "same as today", in PSI points: '+[1,2,3].map(k=>mm(k)?'day '+k+' '+mm(k):null).filter(Boolean).join(', ')+(o7?', days 7 to 15 '+f1(o7.mae)+' vs '+f1(o7.mae_persist):'')+'.</p>'+
+    '<p>Before the correction only '+o.coverage90+'% of readings fell inside the possible range. The correction widens the ranges; it was fitted on these same seasons.</p></details>';
   h+='<div class="rplctl" id="rplCtl"></div><div class="chart-wrap" id="rplChart"></div><p class="note" id="rplNote"></p>';
   return h;
 }
@@ -1171,8 +1226,13 @@ function wireReplay(){
   const grp=(items,cur,cb,label)=>{const g=document.createElement('div');g.className='seg';g.setAttribute('role','group');g.setAttribute('aria-label',label);items.forEach(([v,t])=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.setAttribute('aria-pressed',String(String(v)===String(cur)));b.addEventListener('click',()=>{cb(v);wireReplay();});g.appendChild(b);});ctl.appendChild(g);};
   grp(seasons.map(x=>[x,x]),rplSeason,v=>rplSeason=v,'Season');
   grp([[1,'1 day ahead'],[3,'3 days ahead'],[6,'6 days ahead']],rplLead,v=>rplLead=v,'How far ahead');
-  const S=RPL.seasons[rplSeason];const gi=rplLead<=3?0:rplLead<=6?1:2;const kLo=[2.15,1.45,1.05][gi],kHi=[1.95,1.8,1.9][gi];
-  const wid=(x)=>{const m=Math.log(Math.max(1,x.p50));const w=(q)=>{const v=Math.log(Math.max(1,q));return Math.round(Math.min(500,Math.exp(m+(v<m?kLo:kHi)*(v-m))));};return {...x,p5:w(x.p5),p25:w(x.p25),p75:w(x.p75),p95:w(x.p95)};};
+  const S=RPL.seasons[rplSeason];const gi=rplLead<=3?0:rplLead<=6?1:2;
+  // range correction from the engine (HE.CALIB / HE.widenPsi); the arrays are a fallback for an older engine.js
+  const CB=HE.CALIB&&Array.isArray(HE.CALIB.lo)&&Array.isArray(HE.CALIB.hi)?HE.CALIB:{lo:[2.15,1.45,1.05],hi:[1.95,1.8,1.9]};
+  const kLo=CB.lo[gi],kHi=CB.hi[gi];const Q=['p5','p25','p50','p75','p95'];
+  const wid=(x)=>{if(typeof HE.widenPsi==='function'){try{const r=HE.widenPsi(Q.map(k=>x[k]),rplLead);if(Array.isArray(r)&&r.length===5){const o={...x};Q.forEach((k,i)=>{if(k!=='p50')o[k]=Math.round(r[i]);});return o;}}catch(e){}}
+    return widFallback(x);};
+  const widFallback=(x)=>{const m=Math.log(Math.max(1,x.p50));const w=(q)=>{const v=Math.log(Math.max(1,q));return Math.round(Math.min(500,Math.exp(m+(v<m?kLo:kHi)*(v-m))));};return {...x,p5:w(x.p5),p25:w(x.p25),p75:w(x.p75),p95:w(x.p95)};};
   const ser=((S.series||{})[rplLead]||[]).map(wid);const obs=S.observed||{};
   const dates=Object.keys(obs).sort();if(!dates.length){$('rplChart').innerHTML='';return;}
   const W=640,H=230,l=36,r=10,t=12,b=26;const t0=new Date(dates[0]).getTime(),t1=new Date(dates[dates.length-1]).getTime();
@@ -1302,22 +1362,6 @@ document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if
 const AI_URL=(document.querySelector('meta[name="haze-ai"]')||{}).content||'';
 const SUGS=['Will it be better by Sunday?','When will the haze end?','Where is the smoke coming from?','Is it getting worse?','How sure are you?'];
 function renderAskSug(){const b=$('askSug');b.innerHTML='';SUGS.forEach(t=>{const x=document.createElement('button');x.type='button';x.textContent=t;x.addEventListener('click',()=>{$('askIn').value=t;ask(t);});b.appendChild(x);});}
-function askContext(){
-  const reg=R();const cs=cls();const nC=coreDays().length;const cnt={};INP.hotspots.forEach(h=>{const i=islandOf(h[0],h[1]);cnt[i]=(cnt[i]||0)+1;});
-  return {updated:new Date(FC.built).toISOString(),area:regionName(),psi_now:Math.round(reg.now),band_now:BANDS[bandOf(reg.now)].name,
-    areas:Object.fromEntries(REG.map(([k,n])=>[n,FC.regions[k]?Math.round(FC.regions[k].now):null])),
-    headline:$('headline').textContent,
-    outcomes_next_6_days:cs.map(c=>({name:plainName(c),percent:Math.round(c.odds),detail:c.outcome,drivers:c.watch})),
-    days:reg.days.map((d,i)=>({day:FC.days[i].label,reliable:i<nC,best_guess:d.p50,likely:[d.p25,d.p75],possible:[d.p5,d.p95],chance_100_or_below:Math.round((d.bands[0]+d.bands[1])),chance_above_200:Math.round(d.bands[3]+d.bands[4])})),
-    chance_cleared_by_day:(reg.clearBy||[]).map((v,i)=>({day:FC.days[i].label,percent:Math.round(v)})),
-    smoke_sources_next_3_days:(FC.sourceRegions||[]).slice(0,6).map(r=>({province:r.name,percent:Math.round(r.share)})),
-    hotspots_last_day:{total:INP.hotspots.length,Kalimantan:cnt.Kalimantan||0,Sumatra:cnt.Sumatra||0},
-    rain_next_5_days_mm:(INP.summary||{}).rain_mm_0_120h||null,
-    airports:((INP.extras||{}).airports||[]).map(a=>({name:a.name,visibility_km:a.vis_km,haze:a.haze})),
-    season_end:FC.season?{most_likely:FC.season.median,range_80pct:[FC.season.p10,FC.season.p90]}:null,
-    news:((INP.extras||{}).news||[]).slice(0,6).map(n=>n.title),
-    track_record:REC&&REC[state.region]&&REC[state.region].n?{days_scored:REC[state.region].n,inside_range:REC[state.region].hits}:'not scored yet'};
-}
 function findDay(q){
   const days=FC.days;const sg=sgt(t0());const names=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
   if(/\btoday\b|\btonight\b|\bnow\b/.test(q))return -1;
@@ -1355,7 +1399,7 @@ function localAnswer(qRaw){
     P.push('That depends on both how much is burning there and whether the winds carry it here.');return P;}
   if(/worse|hazardous|300|peak|bad/.test(q)){const w=cs.find(c=>c.id==='worse');P.push('Chance it gets worse in the next 6 days: '+pct(w?w.odds:0)+'.'+(w&&w.outcome?' In those cases: '+w.outcome:''));if(w&&w.watch)P.push('What would cause it: '+w.watch);return P;}
   if(/rain|monsoon|weather/.test(q)){const rn=(INP.summary||{}).rain_mm_0_120h||{};P.push('Rain expected over the fires in the next 5 days: Sumatra about '+Math.round(rn.Sumatra||0)+' mm, Kalimantan about '+Math.round(rn.Kalimantan||0)+' mm. Peat fires usually need days of steady rain to go out.');if(FC.season)P.push('Steady monsoon rain is most likely around '+FC.season.median+'.');return P;}
-  if(/sure|accura|trust|right|reliable|confiden/.test(q)){const rec=REC&&REC[state.region];P.push(rec&&rec.n?'So far '+rec.hits+' of '+rec.n+' scored days fell inside the forecast\'s possible range.':'Forecasts are kept and scored two days later against NEA\'s readings, but none have been scored yet.');P.push('The first 6 days are the most reliable. After that weather forecasts lose skill, so the ranges widen.');return P;}
+  if(/sure|accura|trust|right|reliable|confiden/.test(q)){const rec=REC&&REC[state.region];P.push(rec&&rec.n?'So far '+rec.hits+' of '+rec.n+' scored days fell inside the forecast\'s possible range.':'Forecasts are kept and scored two days later against NEA\'s readings, but none have been scored yet.');P.push('Days more than 6 days ahead are less certain. Weather forecasts lose skill, so the ranges widen.');return P;}
   if(/news|fire.*spread|firefight/.test(q)){const sg=INP.signals;if(sg)P.push($('sigLine').textContent);const n=((INP.extras||{}).news||[]).slice(0,3).map(x=>x.title);if(n.length)P.push('Recent: '+n.join('; ')+'.');return P;}
   P.push($('headline').textContent+' '+$('lede').textContent);
   P.push('Try asking about a day ("Sunday"), when it ends, where the smoke comes from, or how sure the forecast is.');
@@ -1366,10 +1410,11 @@ async function ask(q){
   q=(q||'').trim().slice(0,300);if(!q||askBusy||!FC)return;askBusy=true;$('askBtn').disabled=true;
   const out=$('askOut');out.hidden=false;out.innerHTML='<p class="q"></p><p>Thinking…</p>';out.querySelector('.q').textContent=q;
   let paras=null,by='Answer from this forecast';
-  if(AI_URL){try{const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),20000);
+  if(AI_URL){try{const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),30000);
       let code='';try{code=localStorage.getItem('hazePremium')||'';}catch(e){}
-      const r=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,context:askContext(),code:code}),signal:ctl.signal});clearTimeout(tm);
-      if(r.ok){const js=await r.json();if(js.answer){paras=String(js.answer).split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);by=js.tier==='premium'?'Premium answer, using this forecast. It can make mistakes.':'Answered by AI using this forecast. It can make mistakes.';}}
+      // the worker builds the forecast context itself; only the question (and premium code) are sent
+      const r=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,code:code}),signal:ctl.signal});clearTimeout(tm);
+      if(r.ok){const js=await r.json();if(js.answer){paras=String(js.answer).split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);by=(js.tier==='premium'?'Premium AI-generated answer':'AI-generated answer')+', using this forecast. It can be wrong.';}}
     }catch(e){}}
   if(!paras)paras=localAnswer(q);
   out.innerHTML='';const qe=document.createElement('p');qe.className='q';qe.textContent=q;out.appendChild(qe);
@@ -1380,7 +1425,7 @@ async function ask(q){
 $('askForm').addEventListener('submit',e=>{e.preventDefault();ask($('askIn').value);});
 renderAskSug();
 // premium code: open the site once with ?premium=CODE to save it on this device (?premium=off removes it)
-try{const pc=new URLSearchParams(location.search).get('premium');if(pc){if(pc==='off')localStorage.removeItem('hazePremium');else localStorage.setItem('hazePremium',pc);history.replaceState(null,'',location.pathname);}}catch(e){}
+try{const pc=new URLSearchParams(location.search).get('premium');if(pc){if(pc==='off')localStorage.removeItem('hazePremium');else localStorage.setItem('hazePremium',pc);history.replaceState(null,'',location.pathname+location.hash);}}catch(e){}
 
 const pctTxt=(v)=>v<1?'<1%':v>99?'>99%':Math.round(v)+'%';
 /* ---------- why a given day looks the way it does ---------- */
@@ -1528,7 +1573,8 @@ async function loadAQ(){
   try{const r=await fetch('data/aq.json?'+Date.now());if(!r.ok)return;const js=await r.json();
     if(typeof js.aqi!=='number')return;
     const t=js.time?new Date(js.time):null;if(t&&Date.now()-t.getTime()>4*3600e3)return;
-    AQ={aqi:js.aqi,time:t?clock(t):''};if(FC)renderAnswer();
+    if(!t||isNaN(t))return;
+    AQ={aqi:Math.round(js.aqi),t:t};if(FC)renderAnswer();
   }catch(e){}
 }
 
@@ -1543,7 +1589,7 @@ document.querySelectorAll('#cases button').forEach(b=>b.addEventListener('click'
 /* ---------- guided tour ---------- */
 const TOUR=[
   ['cardNow','Start here','Today\'s PSI from NEA, and one sentence on what is most likely to happen next. The odds below it are the other ways it could go.'],
-  ['cardDays','The next 15 days','One row per day, like a weather app. The number is the best guess; the coloured bar is the likely range. The first 6 days are the most reliable.'],
+  ['cardDays','The next 15 days','One row per day, like a weather app. The number is the best guess; the coloured bar is the likely range. Days more than 6 days ahead are less certain.'],
   ['mapcell','The map','Orange dots are fires seen by satellite. Grey is their smoke. The yellow shading is where the air reaching Singapore is coming from: fires inside it matter most. Drag to move, scroll to zoom, and use "What\'s on the map?" for more.'],
   ['timebar','Move through time','Pick a day, or press Play, to watch the fires, smoke and Singapore\'s air change over the coming days.'],
   ['cardAsk','Ask a question','Type a question in plain words, like "Will it be better by Sunday?", and get an answer from today\'s forecast.'],

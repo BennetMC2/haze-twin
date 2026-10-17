@@ -59,8 +59,9 @@ def obs_block(nea, t0):
     latest_pm24 = pm24[-1][1] if pm24 else {}
     # 6-hour means of 1-hour PM2.5 (national) centred on past arrival times
     pm1_at = {}
+    last_pm1 = pm1[-1][0] if pm1 else 0
     for a in ARRIVALS_H:
-        if a > 0:
+        if a > max(0, last_pm1 - 2):   # arrivals after t0 count once readings cover them (hourly refresh)
             continue
         vals = [row["national"] for h, row in pm1 if a - 3 <= h < a + 3 and "national" in row]
         if vals:
@@ -69,6 +70,7 @@ def obs_block(nea, t0):
         "time": (t0.isoformat()),
         "psi_now": {r: latest_psi.get(r) for r in regions},
         "pm24_now": {r: latest_pm24.get(r) for r in regions},
+        "pm24_h": round(pm24[-1][0], 2) if pm24 else None,     # when the latest 24-hour reading was taken, hours from t0
         "pm1_at": pm1_at,
         "psi_hist": [[round(h, 2), {r: row.get(r) for r in regions}] for h, row in psi if h >= -96],
         "pm24_hist": [[round(h, 2), row.get("national")] for h, row in pm24 if h >= -96],

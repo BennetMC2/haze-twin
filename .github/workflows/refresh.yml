@@ -8,7 +8,7 @@ permissions:
   pages: write
   id-token: write
 concurrency:
-  group: refresh
+  group: publish          # full runs, hourly refreshes and the daily learning take turns, so none overwrites another
   cancel-in-progress: false
 jobs:
   refresh:
@@ -43,7 +43,8 @@ jobs:
           gunzip -c ".work/$ASSET" > site/data/inputs.json
           python tools/refresh_obs.py site/data/inputs.json || { rc=$?; if [ $rc -eq 3 ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then exit 0; fi; [ $rc -eq 3 ] || exit 1; }
           cp engine/engine.js site/engine.js
-          node engine/run.js --n 100000
+          node engine/run.js --n 100000 2>&1 | tee .work/run.log
+          cp .work/run.log site/data/run-log.txt
           cp history/replay/summary.json site/data/replay.json 2>/dev/null || true
           cp history/learn/log.json site/data/learn.json 2>/dev/null || true
           python tools/fetch_aq.py site/data/aq.json || true
@@ -58,6 +59,10 @@ jobs:
             git commit -m "Hourly refresh [skip ci]"
             for i in 1 2 3; do git pull --rebase -X theirs origin main && git push origin HEAD:main && break; git rebase --abort 2>/dev/null || true; sleep 5; done
           fi
+          # keep every hourly issuance as published
+          DAY=$(date -u +%Y-%m-%d); STAMP=$(date -u +%Y%m%dT%H%MZ)
+          gh release view "archive-${DAY}" >/dev/null 2>&1 || gh release create "archive-${DAY}" --title "Archive ${DAY}" --notes "Inputs and forecasts issued on ${DAY} (UTC). Every forecast is kept as issued." --latest=false || true
+          cp site/data/forecast.json ".work/forecast-${STAMP}-hourly.json" && gh release upload "archive-${DAY}" ".work/forecast-${STAMP}-hourly.json" --clobber || echo "archive upload failed"
           echo "deploy=true" >> $GITHUB_OUTPUT
       - if: steps.go.outputs.deploy == 'true'
         uses: actions/configure-pages@v5

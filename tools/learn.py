@@ -53,7 +53,7 @@ def score(runs, obs, today, cur):
         for r in runs:
             if r.get("sample"):
                 continue
-            lead = (target - datetime.fromisoformat(r["t0"].replace("Z", "+00:00"))).total_seconds() / 3600
+            lead = (target - datetime.fromisoformat((r.get("issued") or r["t0"]).replace("Z", "+00:00"))).total_seconds() / 3600
             reg = (r.get("regions") or {}).get("national")
             if not reg:
                 continue
@@ -66,7 +66,7 @@ def score(runs, obs, today, cur):
                     adj = math.exp(cur["bias"][gi] - was)   # what this forecast would have said with today's correction
                     wsp = ((r.get("learn") or {}).get("spread") or [1, 1, 1])[gi]
                     ksp = cur["spread"][gi] / (wsp or 1)
-                    groups[gi]["pairs"].append({"day": k[:10], "lead_h": round(lead), "issued": r["t0"], "p5": d["p5"], "p50": d["p50"],
+                    groups[gi]["pairs"].append({"day": k[:10], "lead_h": round(lead), "issued": r.get("issued") or r["t0"], "p5": d["p5"], "p50": d["p50"],
                                                 "p95": d["p95"], "obs": o, "persist": reg.get("now"), "adj": adj, "ksp": ksp})
     out = []
     for g in groups:

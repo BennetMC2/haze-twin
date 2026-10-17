@@ -1,9 +1,6 @@
 name: Probe ECMWF
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: ["tools/probe_ecmwf.py", "pipeline/fetch_ecmwf.py", ".github/workflows/probe_ecmwf.yml"]
 permissions:
   contents: write
 jobs:

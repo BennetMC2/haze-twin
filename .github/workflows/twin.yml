@@ -20,8 +20,8 @@ permissions:
   id-token: write
 
 concurrency:
-  group: twin
-  cancel-in-progress: ${{ github.event_name == 'push' }}
+  group: publish          # full runs, hourly refreshes and the daily learning take turns, so none overwrites another
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -42,6 +42,9 @@ jobs:
 
       - name: Install
         run: pip install -r pipeline/requirements.txt
+
+      - name: Engine tests (no publish if they fail)
+        run: node --test tests/test_engine.mjs
 
       - name: Restore cached ECMWF download
         uses: actions/cache@v4

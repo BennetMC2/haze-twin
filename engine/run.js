@@ -26,7 +26,16 @@ if (learnParams && !inputs.sample) { inputs.learn = learnParams; writeJSON(path.
 const t0 = new Date(inputs.t0);
 const seed = Math.floor(t0.getTime() / 3600e3) % 2147483647;
 const started = Date.now();
+const crypto = require('crypto');
+const engineHash = crypto.createHash('sha256').update(fs.readFileSync(path.join(__dirname, 'engine.js'))).digest('hex').slice(0, 12);
+const inputHash = crypto.createHash('sha256').update(JSON.stringify(inputs)).digest('hex').slice(0, 12);
 const fc = E.run(inputs, { n: N, seed });
+const issued = new Date();
+fc.issued = issued.toISOString();                 // when this forecast was actually made
+fc.t0 = inputs.t0;                                 // model origin: the weather and fire data
+fc.obsTime = (inputs.obs && inputs.obs.time) || inputs.t0;   // latest NEA reading used
+fc.version = { engine: engineHash, inputs: inputHash, calibration: E.CALIB.version };
+fc.id = issued.toISOString().replace(/[:.]/g, '').slice(0, 15) + 'Z-' + inputHash;
 fc.cycle = inputs.cycle;
 fc.seconds = Math.round((Date.now() - started) / 100) / 10;
 console.log(`engine: ${N} futures in ${fc.seconds}s, effective sample ${fc.ess}, anchored ${fc.anchored}`);
@@ -36,26 +45,27 @@ const runs = readJSON(path.join(histDir, 'runs.json'), []);
 const obsLog = readJSON(path.join(histDir, 'obs.json'), {});
 
 // why the odds moved, against the previous run that is at least 1 hour older
-const prev = runs.filter(r => new Date(r.t0) < t0 && !!r.sample === !!inputs.sample).slice(-1)[0];
+const prev = runs.filter(r => new Date(r.issued || r.t0) < new Date(Date.now() - 3600e3) && !!r.sample === !!inputs.sample).slice(-1)[0];
 fc.why = {};
 for (const reg of E.NEA_REGIONS) {
   fc.why[reg] = prev ? E.why({ regions: prev.regions }, fc, prev.summary, inputs.summary, reg) : { deltas: [], drivers: [] };
 }
 fc.prevLabel = prev ? prev.t0 : null;
 
-// append this run (compact)
+// append this issuance (compact, never overwritten: every hourly forecast gets its own entry)
 const entry = {
+  id: fc.id, issued: fc.issued, obs_time: fc.obsTime, version: fc.version, degraded: fc.degraded,
   t0: inputs.t0, built: fc.built, cycle: inputs.cycle, sample: !!inputs.sample, summary: inputs.summary,
   learn: inputs.learn ? { bias: inputs.learn.bias, spread: inputs.learn.spread } : null,
-  regions: Object.fromEntries(Object.entries(fc.regions).map(([k, v]) => [k, {
+  regions: Object.fromEntries(Object.entries(fc.regions).filter(([k]) => k === 'national').map(([k, v]) => [k, {
     now: v.now, mode: v.mode, clear: v.clear,
     classes: v.classes.map(c => ({ id: c.id, name: c.name, odds: c.odds })),
     days: v.days.map((d, i) => ({ iso: fc.days[i].iso, p5: d.p5, p50: d.p50, p95: d.p95 }))
   }]))
 };
-const sameT0 = runs.findIndex(r => r.t0 === entry.t0);
-if (sameT0 >= 0) runs[sameT0] = entry; else runs.push(entry);
-while (runs.length > 600) runs.shift();
+if (!runs.some(r => r.id === entry.id)) runs.push(entry);
+runs.sort((a, b) => String(a.issued || a.t0).localeCompare(String(b.issued || b.t0)));
+while (runs.length > 800) runs.shift();
 
 // observed 24-h PSI at noon SGT, per region
 for (const [h, row] of (inputs.obs.psi_hist || [])) {
@@ -76,14 +86,15 @@ function record(region) {
     let best = null, bestGap = 1e9;
     for (const r of runs) {
       if (r.sample) continue;
-      const lead = (target - new Date(r.t0)) / 3600e3;
+      const lead = (target - new Date(r.issued || r.t0)) / 3600e3;   // lead from when it was actually issued
       if (lead < 36 || lead > 60) continue;
+      if (r.obs_time && new Date(r.obs_time) > new Date(target.getTime() - 36 * 3600e3)) continue;   // no later readings leaking in
       if (Math.abs(lead - 48) < bestGap) { bestGap = Math.abs(lead - 48); best = r; }
     }
     if (!best || !best.regions[region]) continue;
     const d = best.regions[region].days.find(x => x.iso.slice(0, 13) === k);
     if (!d) continue;
-    out.push({ date: k, issued: best.t0, p5: d.p5, p50: d.p50, p95: d.p95, obs, hit: obs >= d.p5 && obs <= d.p95, persist: best.regions[region].now });
+    out.push({ date: k, issued: best.issued || best.t0, p5: d.p5, p50: d.p50, p95: d.p95, obs, hit: obs >= d.p5 && obs <= d.p95, persist: best.regions[region].now });
   }
   const hits = out.filter(x => x.hit).length;
   const maeF = out.length ? out.reduce((a, x) => a + Math.abs(x.p50 - x.obs), 0) / out.length : null;
@@ -95,6 +106,12 @@ const rec = Object.fromEntries(E.NEA_REGIONS.map(r => [r, record(r)]));
 // history for the "odds across runs" chart
 const hist = runs.slice(-28).map(r => ({ t0: r.t0, sample: r.sample, regions: Object.fromEntries(Object.entries(r.regions).map(([k, v]) => [k, { mode: v.mode, clear: v.clear, odds: v.classes.map(c => c.odds) }])) }));
 
+// a run that fails its checks is not published: the site keeps the last good forecast
+if (fc.degraded && !inputs.sample && !process.env.ALLOW_DEGRADED) {
+  console.error('NOT PUBLISHED, degraded: ' + fc.degraded.reasons.join('; '));
+  writeJSON(path.join(HIST, 'last-degraded.json'), { issued: fc.issued, reasons: fc.degraded.reasons });
+  process.exit(3);
+}
 writeJSON(path.join(DATA, 'forecast.json'), fc);
 writeJSON(path.join(DATA, 'history.json'), hist);
 writeJSON(path.join(DATA, 'record.json'), rec);
