@@ -44,13 +44,14 @@ def crps_q(qs, y):
     return 2 * tot / len(levels)
 
 
-CALIB = [2.1, 1.6, 1.35]   # same multipliers as engine.js
+CALIB_LO = [2.15, 1.45, 1.05]   # same multipliers as engine.js
+CALIB_HI = [1.95, 1.8, 1.9]
 
 
 def widen(qs, lead):
-    k = CALIB[0] if lead <= 3 else CALIB[1] if lead <= 6 else CALIB[2]
+    i = 0 if lead <= 3 else 1 if lead <= 6 else 2
     m = math.log(max(1, qs[2]))
-    return [math.exp(m + k * (math.log(max(1, q)) - m)) for q in qs]
+    return [math.exp(m + (CALIB_LO[i] if math.log(max(1, q)) < m else CALIB_HI[i]) * (math.log(max(1, q)) - m)) for q in qs]
 
 
 def score(season):
