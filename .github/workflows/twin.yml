@@ -49,7 +49,9 @@ jobs:
       - name: Restore cached ECMWF download
         uses: actions/cache@v4
         with:
-          path: .work/ecmwf
+          path: |
+            .work/ecmwf
+            .work/firms_last.json
           key: ecmwf-${{ github.run_id }}
           restore-keys: ecmwf-
 

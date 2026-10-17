@@ -24,7 +24,7 @@ def fetch(t0, days=2, log=print):
     for src, code in SOURCES:
         url = f"https://firms.modaps.eosdis.nasa.gov/api/area/csv/{key}/{src}/{area}/{days}"
         try:
-            r = get(url, timeout=120, retries=3, min_interval=1.0)
+            r = get(url, timeout=60, retries=2, min_interval=1.0)   # fail fast: a FIRMS outage falls back to the last run's detections
         except Exception as e:
             status[code] = f"failed: {str(e).replace(key, '***')[:120]}"
             log(f"  FIRMS {src}: {status[code]}")

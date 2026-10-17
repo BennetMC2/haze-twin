@@ -214,11 +214,27 @@ def main():
             sources.append({"name": "NASA FIRMS hotspots", "status": "ok",
                             "detail": "; ".join(f"{k} {v}" for k, v in fstatus.items()),
                             "time": datetime.now(timezone.utc).isoformat()})
+            try:   # keep a copy, so a short FIRMS outage can fall back to it (cached between runs)
+                (WORK / "firms_last.json").parent.mkdir(parents=True, exist_ok=True)
+                (WORK / "firms_last.json").write_text(json.dumps({"t0": t0.isoformat(), "dets": dets}))
+            except Exception:
+                pass
         except Exception as e:
             log(f"  FIRMS failed: {e}")
             dets = []
-            prev = SITE_DATA / "inputs.json"
-            sources.append({"name": "NASA FIRMS hotspots", "status": "failed", "detail": str(e)[:200]})
+            # fall back to the last good detections if they are under 12 hours old, ages shifted to now.
+            # Marked "partial" (not "failed"), so the run publishes, and the page says which data it used.
+            try:
+                last = json.loads((WORK / "firms_last.json").read_text())
+                age = (t0 - datetime.fromisoformat(last["t0"])).total_seconds() / 3600
+                if 0 <= age <= 12:
+                    dets = [dict(d, h=d["h"] + age) for d in last["dets"] if d["h"] + age <= 48]
+                    log(f"  using FIRMS detections from {age:.1f} h earlier ({len(dets)})")
+            except Exception:
+                pass
+            sources.append({"name": "NASA FIRMS hotspots", "status": "partial" if dets else "failed",
+                            "detail": (f"FIRMS unreachable; using detections from the previous run, {age:.0f} h older" if dets else str(e)[:200]),
+                            "time": datetime.now(timezone.utc).isoformat()})
         log("GEFS ensemble")
         g = fetch_gefs.fetch(log=log)
         cycle = g["cycle"]
