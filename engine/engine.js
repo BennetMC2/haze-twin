@@ -151,7 +151,7 @@
     for (const src of (inputs.sources || [])) {
       if (src.status === 'failed' && /FIRMS|GEFS/i.test(src.name || '')) degraded.push((src.name || 'a data source') + ' failed');
     }
-    if (!isFinite(meanFire)) degraded.push('footprints are not finite');
+    if (!isFinite(meanFire)) degraded.push('the air-path calculation returned invalid numbers');
     return { inputs, M, A, R, B, S, cum, isl, islands, ratio, binMid, arrIdx, futA, days, obs, nat, regRatio, K0, anchored, t0, trans, win24, fw, win72, nowBin, analogs, growthShift, ageTabs, anchorA, obsH, degraded };
   }
 
@@ -450,7 +450,7 @@
           : 'Less rain over the fires: about ' + Math.round(cr) + ' mm in the next few days, against ' + Math.round(orr) + ' mm in the other futures.']);
         cues.push([rel(cw, ow), cw >= ow
           ? 'Winds carry more smoke our way: about ' + Math.round((cw / Math.max(ow, 1e-9) - 1) * 100) + '% more than in the other futures.'
-          : 'Winds turn away: about ' + Math.round((1 - cw / Math.max(ow, 1e-9)) * 100) + '% less smoke carried our way than in the other futures.']);
+          : 'Winds carry less smoke our way: about ' + Math.round((1 - cw / Math.max(ow, 1e-9)) * 100) + '% less than in the other futures.']);
         cues.push([rel(ct, ot), ct >= ot
           ? 'Fires keep burning longer: they take about ' + Math.round(ct) + ' days to halve, against ' + Math.round(ot) + ' in the other futures.'
           : 'Fires die down faster: they halve in about ' + Math.round(ct) + ' days, against ' + Math.round(ot) + ' in the other futures.']);
@@ -459,16 +459,16 @@
           : 'More of the smoke comes from Sumatra: ' + Math.round(cs * 100) + '%, against ' + Math.round(ocs * 100) + '% in the other futures.']);
         const ckk = mean(s => sim.pK[sim.idx[s]], sel), okk = mean(s => sim.pK[sim.idx[s]], oth);
         cues.push([rel(ckk, okk) * 1.1, ckk >= okk
-          ? 'Fires give off more smoke than they seem to: about ' + Math.round((ckk / okk - 1) * 100) + '% more smoke per fire than in the other futures.'
-          : 'Fires give off less smoke than they seem to: about ' + Math.round((1 - ckk / okk) * 100) + '% less smoke per fire than in the other futures.']);
+          ? 'Fires give off more smoke for their size: about ' + Math.round((ckk / okk - 1) * 100) + '% more per unit of fire power than in the other futures.'
+          : 'Fires give off less smoke for their size: about ' + Math.round((1 - ckk / okk) * 100) + '% less per unit of fire power than in the other futures.']);
         const crh = mean(s => sim.pRho[sim.idx[s]], sel), orh = mean(s => sim.pRho[sim.idx[s]], oth);
         cues.push([rel(crh, orh) * 0.9, crh >= orh
           ? 'More of today\'s haze is old smoke that lingers over the region whatever the wind does.'
-          : 'Less old smoke lingering over the region, so the air clears as soon as the winds shift.']);
+          : 'Less old smoke lingering over the region, so the air clears quickly once the winds shift.']);
         cues.sort((x, y) => y[0] - x[0]);
         const real = cues.filter(x => x[0] >= 0.08);
         o.watch = real.length >= 2 ? real.slice(0, 2).map(x => x[1]).join(' ')
-          : 'Mostly the ordinary day-to-day swings that past haze seasons show: a short wind shift, a shower over Singapore, a lull in burning. ' + (real.length ? real[0][1] : '');
+          : 'No single cause stands out. Mostly ordinary day-to-day swings seen in past seasons: a short wind shift, a shower over Singapore, a lull in burning. ' + (real.length ? real[0][1] : '');
         o.watch = o.watch.trim();
         o.shareSumatra = Math.round(cs * 100); o.shareKalimantan = Math.round(ck * 100);
         return o;
@@ -624,7 +624,7 @@
         const a = (prevSummary.frp24_mw || {})[isl], b = (curSummary.frp24_mw || {})[isl];
         if (a > 50 && b >= 0) { const ch = (b - a) / a; if (Math.abs(ch) >= 0.15) drivers.push([Math.abs(ch) * 4, isl + ' fire activity ' + (ch > 0 ? 'up ' : 'down ') + Math.round(Math.abs(ch) * 100) + '% in the latest satellite passes.']); }
         const ra = (prevSummary.rain_mm_0_120h || {})[isl], rb = (curSummary.rain_mm_0_120h || {})[isl];
-        if (ra != null && rb != null && Math.abs(rb - ra) >= 3) drivers.push([Math.abs(rb - ra) / 3, 'Weather runs now bring ' + (rb > ra ? 'more' : 'less') + ' rain to ' + isl + ' fire areas: ' + Math.round(rb) + ' mm over 5 days, was ' + Math.round(ra) + '.']);
+        if (ra != null && rb != null && Math.abs(rb - ra) >= 3) drivers.push([Math.abs(rb - ra) / 3, 'Weather forecasts now show ' + (rb > ra ? 'more' : 'less') + ' rain over the ' + isl + ' fires: ' + Math.round(rb) + ' mm over 5 days, previously ' + Math.round(ra) + ' mm.']);
         const sa = (prevSummary.transport_share_0_72h || {})[isl], sb = (curSummary.transport_share_0_72h || {})[isl];
         if (sa != null && sb != null && Math.abs(sb - sa) >= 0.1) drivers.push([Math.abs(sb - sa) * 10, (sb > sa ? 'More' : 'Less') + ' of the air reaching Singapore now passes over ' + isl + ' fires.']);
       }
