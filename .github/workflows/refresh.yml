@@ -27,6 +27,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           DATAGOVSG_API_KEY: ${{ secrets.DATAGOVSG_API_KEY }}
+          WAQI_TOKEN: ${{ secrets.WAQI_TOKEN }}
         run: |
           set -o pipefail
           echo "deploy=false" >> $GITHUB_OUTPUT
@@ -44,6 +45,7 @@ jobs:
           cp engine/engine.js site/engine.js
           node engine/run.js --n 100000
           cp history/replay/summary.json site/data/replay.json 2>/dev/null || true
+          python tools/fetch_aq.py site/data/aq.json || true
           mkdir -p .work/fonts
           for f in barlow/Barlow-Bold barlow/Barlow-Medium barlow/Barlow-SemiBold barlowsemicondensed/BarlowSemiCondensed-Bold; do
             curl -sSfL -o .work/fonts/$(basename $f).ttf "https://github.com/google/fonts/raw/main/ofl/$f.ttf" || true

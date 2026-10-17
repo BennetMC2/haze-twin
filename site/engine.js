@@ -143,7 +143,7 @@
     const share = new Float32Array(N * 3);        // island shares of fire smoke, days 1-3
     const rshare = new Float32Array(N * R);       // source-region shares, days 1-3
     const rv = new Float64Array(R);
-    const pThalf = new Float32Array(N), pRain = new Float32Array(N);
+    const pThalf = new Float32Array(N), pRain = new Float32Array(N), pK = new Float32Array(N), pRho = new Float32Array(N);
     const logw = new Float64Array(N);
     const E = new Float64Array(R * B);
     const pastObs = [];
@@ -164,7 +164,7 @@
       const dsat = 150 + r() * 200;           // smoke from direct transport levels off: dilution and mixing limit how high it can go (µg/m³)
       const ageTab = model.ageTabs[Math.floor(r() * 3)];
       const bg = Math.max(5, 18 + gauss(r) * 5);
-      pThalf[s] = thalf; pRain[s] = rs;
+      pThalf[s] = thalf; pRain[s] = rs; pK[s] = K / model.K0 * (ef[0] + ef[1]) / 2; pRho[s] = rho;
       for (let q = 0; q < R; q++) {
         const e = ef[isl[q]];
         for (let b = 0; b < B; b++) {
@@ -243,23 +243,28 @@
     }
     // calibration from replays of the 2015, 2019 and 2023 seasons: the raw spread was too narrow,
     // so widen each future around its median (in log space), most for days 1-3
-    const calib = (hh) => hh <= 0 ? 1 : hh < 18 ? 1 + (CALIB[0] - 1) * hh / 18 : hh <= 84 ? CALIB[0] : hh <= 156 ? CALIB[1] : CALIB[2];
+    const calib = (hh) => calibK(CALIB_LO, hh);
     {
       const tmp = new Float64Array(Math.min(N, 20000)); const stp = Math.max(1, Math.floor(N / tmp.length));
       for (let f = 0; f < F; f++) {
-        const k = calib(model.inputs.arrivals_h[futA[f]]); if (k === 1) continue;
+        const k = calib(model.inputs.arrivals_h[futA[f]]); if (k === 1) continue; // low side only: see CALIB_HI
         let n = 0; for (let s = 0; s < N && n < tmp.length; s += stp) tmp[n++] = Math.log(Math.max(1, pm24[s * F + f]));
         const srt = Array.from(tmp.subarray(0, n)).sort((a, b) => a - b); const med = srt[Math.floor(n / 2)];
-        for (let s = 0; s < N; s++) { const v = Math.log(Math.max(1, pm24[s * F + f])); pm24[s * F + f] = Math.exp(med + k * (v - med)); }
+        for (let s = 0; s < N; s++) { const v = Math.log(Math.max(1, pm24[s * F + f])); if (v < med) pm24[s * F + f] = Math.exp(med + k * (v - med)); }
       }
     }
     if (report) report(0.9);
-    return { N, F, pm24, idx, memb, share, rshare, pThalf, pRain, ess, model, blend };
+    return { N, F, pm24, idx, memb, share, rshare, pThalf, pRain, pK, pRho, ess, model, blend };
   }
 
   /* ---------- classes (outcome storylines) ---------- */
-  // spread multipliers for days 1-3, 4-6 and 7-15, fitted on replayed seasons (history/replay/summary.json)
-  const CALIB = [2.1, 1.6, 1.35];
+  // spread multipliers for days 1-3, 4-6 and 7-15, fitted on replayed seasons (history/replay/summary.json).
+  // Low side widens the samples. High side widens only the printed upper range (p75, p95): widening the samples'
+  // upside too made multi-day odds ("above 300 in 6 days") far too high, which the replays showed were already high.
+  const CALIB_LO = [2.15, 1.45, 1.05];
+  const CALIB_HI = [1.95, 1.8, 1.9];
+  const calibK = (C, hh) => hh <= 0 ? 1 : hh < 18 ? 1 + (C[0] - 1) * hh / 18 : hh <= 84 ? C[0] : hh <= 156 ? C[1] : C[2];
+  const upWiden = (q, med, hh) => { const k = calibK(CALIB_HI, hh); if (q <= med || med < 1) return Math.round(q); return Math.round(Math.min(500, Math.exp(Math.log(med) + k * (Math.log(q) - Math.log(med))))); };
   const CLASS_DEFS = {
     haze: [
       { id: 'early', name: 'Clears early', color: '--sD' },
@@ -331,13 +336,15 @@
         const b = [0, 0, 0, 0, 0]; const v = dayVals[k];
         for (let s = 0; s < N; s++) b[bandOf(v[s])]++;
         const sub = []; for (let s = 0; s < N; s += stride) sub.push(v[s]); const sorted = Float32Array.from(sub).sort();
-        return { bands: b.map(x => Math.round(x / N * 1000) / 10), p5: Math.round(quantile(sorted, 0.05)), p25: Math.round(quantile(sorted, 0.25)), p50: Math.round(quantile(sorted, 0.5)), p75: Math.round(quantile(sorted, 0.75)), p95: Math.round(quantile(sorted, 0.95)) };
+        const md = quantile(sorted, 0.5), hh = (k + 0.5) * 24;
+        return { bands: b.map(x => Math.round(x / N * 1000) / 10), p5: Math.round(quantile(sorted, 0.05)), p25: Math.round(quantile(sorted, 0.25)), p50: Math.round(md), p75: upWiden(quantile(sorted, 0.75), md, hh), p95: upWiden(quantile(sorted, 0.95), md, hh) };
       });
       const pct = { p5: [], p25: [], p50: [], p75: [], p95: [] };
       for (let f = 0; f < F; f++) {
         let nn = 0; for (let s = 0; s < N; s += stride) psiAll[nn++] = regionPsi(sim, s, f, rr);
         const sorted = Float32Array.from(psiAll.subarray(0, nn)).sort();
-        pct.p5.push(Math.round(quantile(sorted, 0.05))); pct.p25.push(Math.round(quantile(sorted, 0.25))); pct.p75.push(Math.round(quantile(sorted, 0.75))); pct.p50.push(Math.round(quantile(sorted, 0.5))); pct.p95.push(Math.round(quantile(sorted, 0.95)));
+        const md = quantile(sorted, 0.5), hh = out.arrivals_h[f];
+        pct.p5.push(Math.round(quantile(sorted, 0.05))); pct.p25.push(Math.round(quantile(sorted, 0.25))); pct.p75.push(upWiden(quantile(sorted, 0.75), md, hh)); pct.p50.push(Math.round(md)); pct.p95.push(upWiden(quantile(sorted, 0.95), md, hh));
       }
       let clearCount = 0; for (let s = 0; s < N; s++) if (dayVals[nC - 1][s] <= 100.5) clearCount++;
       const by = days.map(() => 0); for (let s = 0; s < N; s++) if (firstAll[s] > 0) for (let d = firstAll[s] - 1; d < days.length; d++) by[d]++;
@@ -371,17 +378,37 @@
         // what distinguishes this class
         const cs = mean(s => sim.share[sim.idx[s] * 3], sel), ck = mean(s => sim.share[sim.idx[s] * 3 + 1], sel);
         const ct = mean(s => sim.pThalf[sim.idx[s]], sel), cr = mean(kalRain, sel), cw = mean(s => model.trans[sim.memb[sim.idx[s]]], sel);
+        // what sets these futures apart from the rest: compare against the other futures, always name the biggest differences
+        const oth = (x) => !sel(x);
+        const ocs = mean(s => sim.share[sim.idx[s] * 3], oth), ock = mean(s => sim.share[sim.idx[s] * 3 + 1], oth);
+        const ot = mean(s => sim.pThalf[sim.idx[s]], oth), orr = mean(kalRain, oth), ow = mean(s => model.trans[sim.memb[sim.idx[s]]], oth);
         const cues = [];
-        if (cr > allRain * 1.25 && cr > 3) cues.push([cr / Math.max(allRain, 1), 'Rain over Kalimantan in the next few days (' + Math.round(cr) + ' mm in these futures vs ' + Math.round(allRain) + ' mm on average).']);
-        if (cr < allRain * 0.75 && allRain > 3) cues.push([allRain / Math.max(cr, 1), 'Little rain over Kalimantan this week.']);
-        if (cs - allShareSum > 0.06) cues.push([1 + (cs - allShareSum) * 5, 'Winds bringing more Sumatra smoke (' + Math.round(cs * 100) + '% of the fire smoke reaching Singapore).']);
-        if (ck - allShareKal > 0.06) cues.push([1 + (ck - allShareKal) * 5, 'Winds keep carrying Kalimantan smoke (' + Math.round(ck * 100) + '% of the fire smoke reaching Singapore).']);
-        if (cw < 0.8) cues.push([1 / Math.max(cw, 0.2), 'Winds turn and carry less fire smoke towards Singapore.']);
-        if (cw > 1.2) cues.push([cw, 'Winds line up to carry more fire smoke towards Singapore.']);
-        if (ct > allT * 1.25) cues.push([ct / allT, 'Fires keep burning without much let-up.']);
-        if (ct < allT * 0.8) cues.push([allT / ct, 'Fires die down quickly.']);
+        const rel = (a, b) => Math.abs(a - b) / Math.max(Math.abs(b), 1e-6);
+        cues.push([rel(cr, orr) * 1.2, cr >= orr
+          ? 'More rain over the fires: about ' + Math.round(cr) + ' mm in the next few days, against ' + Math.round(orr) + ' mm in the other futures.'
+          : 'Less rain over the fires: about ' + Math.round(cr) + ' mm in the next few days, against ' + Math.round(orr) + ' mm in the other futures.']);
+        cues.push([rel(cw, ow), cw >= ow
+          ? 'Winds carry more smoke our way: about ' + Math.round((cw / Math.max(ow, 1e-9) - 1) * 100) + '% more than in the other futures.'
+          : 'Winds turn away: about ' + Math.round((1 - cw / Math.max(ow, 1e-9)) * 100) + '% less smoke carried our way than in the other futures.']);
+        cues.push([rel(ct, ot), ct >= ot
+          ? 'Fires keep burning longer: they take about ' + Math.round(ct) + ' days to halve, against ' + Math.round(ot) + ' in the other futures.'
+          : 'Fires die down faster: they halve in about ' + Math.round(ct) + ' days, against ' + Math.round(ot) + ' in the other futures.']);
+        cues.push([rel(ck, ock) * 0.8, ck >= ock
+          ? 'More of the smoke comes from Kalimantan: ' + Math.round(ck * 100) + '%, against ' + Math.round(ock * 100) + '% in the other futures.'
+          : 'More of the smoke comes from Sumatra: ' + Math.round(cs * 100) + '%, against ' + Math.round(ocs * 100) + '% in the other futures.']);
+        const ckk = mean(s => sim.pK[sim.idx[s]], sel), okk = mean(s => sim.pK[sim.idx[s]], oth);
+        cues.push([rel(ckk, okk) * 1.1, ckk >= okk
+          ? 'Fires give off more smoke than they seem to: about ' + Math.round((ckk / okk - 1) * 100) + '% more smoke per fire than in the other futures.'
+          : 'Fires give off less smoke than they seem to: about ' + Math.round((1 - ckk / okk) * 100) + '% less smoke per fire than in the other futures.']);
+        const crh = mean(s => sim.pRho[sim.idx[s]], sel), orh = mean(s => sim.pRho[sim.idx[s]], oth);
+        cues.push([rel(crh, orh) * 0.9, crh >= orh
+          ? 'More of today\'s haze is old smoke that lingers over the region whatever the wind does.'
+          : 'Less old smoke lingering over the region, so the air clears as soon as the winds shift.']);
         cues.sort((x, y) => y[0] - x[0]);
-        o.watch = cues.length ? cues.slice(0, 2).map(x => x[1]).join(' ') : 'No single driver stands out; these futures differ mainly in wind details.';
+        const real = cues.filter(x => x[0] >= 0.08);
+        o.watch = real.length >= 2 ? real.slice(0, 2).map(x => x[1]).join(' ')
+          : 'Mostly the ordinary day-to-day swings that past haze seasons show: a short wind shift, a shower over Singapore, a lull in burning. ' + (real.length ? real[0][1] : '');
+        o.watch = o.watch.trim();
         o.shareSumatra = Math.round(cs * 100); o.shareKalimantan = Math.round(ck * 100);
         return o;
       });
