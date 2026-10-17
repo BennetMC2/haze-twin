@@ -1743,7 +1743,7 @@ async function loadPlace(id,quiet){
 }
 $('btnShare').addEventListener('click',shareForecast);
 // support link: set COFFEE_URL to switch the button on
-const COFFEE_URL='';if(COFFEE_URL){$('btnCoffee').href=COFFEE_URL;$('btnCoffee').hidden=false;}
+const COFFEE_URL='https://ko-fi.com/bennetmc';if(COFFEE_URL){$('btnCoffee').href=COFFEE_URL;$('btnCoffee').hidden=false;}
 async function initCities(){
   let idx=null;try{idx=await getJSON('data/cities/index.json');}catch(e){}
   const sel=$('citySel');(idx&&idx.cities||[]).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;sel.appendChild(o);});
