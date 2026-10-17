@@ -37,14 +37,14 @@
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
 [hidden]{display:none!important}
-body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45;overflow:hidden;font-variant-numeric:tabular-nums}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45;overflow-x:clip;font-variant-numeric:tabular-nums}
 button{font:inherit;color:inherit}
 a{color:var(--sky)}
 :focus-visible{outline:2px solid var(--sky);outline-offset:2px}
 .num{font-family:var(--num);font-variant-numeric:tabular-nums}
 
-.app{height:100%;display:grid;grid-template-columns:minmax(330px,390px) minmax(0,1fr) minmax(330px,380px);grid-template-rows:auto minmax(0,1fr) auto;
-  grid-template-areas:"top top top" "left map right" "left time right";gap:12px;padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px))}
+.app{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto;max-width:1600px;margin:0 auto;
+  grid-template-areas:"top top" "map map" "time time" "left right";gap:12px;padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px))}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:6px}
 
 /* top bar */
@@ -66,7 +66,7 @@ a{color:var(--sky)}
 .btn.primary[aria-busy="true"]{background:transparent;color:var(--sky)}
 
 /* columns */
-.col{min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;scrollbar-color:var(--line-hi) transparent}
+.col{min-height:0;overflow:visible;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;scrollbar-color:var(--line-hi) transparent}
 .left{grid-area:left}.right{grid-area:right}
 .card{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
 h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
@@ -124,6 +124,7 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .otab td.b.z{color:var(--ink-3);font-weight:400}
 .otab tr.ext td{color:var(--ink-2)}
 .otab td.bg{font-family:var(--num)}
+#clearChart svg{display:block;max-width:620px;max-height:280px}
 .k-clr{display:inline-block;width:16px;height:0;border-top:2.5px solid var(--sky);vertical-align:middle;margin-right:6px}
 .k-sea{display:inline-block;width:16px;height:0;border-top:2.5px dashed var(--sD);vertical-align:middle;margin-right:6px}
 #weekList{display:none!important}
@@ -277,7 +278,7 @@ h2{margin:0;font-size:17px;font-weight:600;line-height:1.25}
 .feeds i.bad{background:var(--vunh)}.feeds i.part{background:var(--unh)}
 
 /* map */
-.mapcell{grid-area:map;position:relative;min-height:0;min-width:0;overflow:hidden;border-radius:6px;border:1px solid var(--line);background:#09131A}
+.mapcell{grid-area:map;position:relative;height:calc(100vh - 200px);min-height:540px;max-height:900px;min-width:0;overflow:hidden;border-radius:6px;border:1px solid var(--line);background:#09131A}
 #map{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
 #map.drag{cursor:grabbing}
 .ov{position:absolute;z-index:2}
@@ -416,6 +417,7 @@ dialog::backdrop{background:rgba(4,8,12,.7)}
     <div class="actions" id="actions">
       <button class="btn" id="btnTour" type="button">Take the tour</button>
       <button class="btn" id="btnOdds" type="button" aria-pressed="false">Odds</button>
+      <a class="btn" id="btnCoffee" href="#" target="_blank" rel="noopener" hidden>Buy me a coffee</a>
       <button class="btn" id="btnRecord" type="button">Track record</button>
       <button class="btn" id="btnHow" type="button">How it works</button>
       <button class="btn primary" id="btnRerun" type="button" aria-busy="false" title="Run 100,000 futures again on this device with NEA's latest reading">Rerun</button>
@@ -1245,7 +1247,7 @@ function renderHeader(){
   // the hourly refresh rewrites FC.built, so staleness comes from the weather and fire data (full run time)
   const full=new Date(INP.t0||INP.cycle);const ageH=(Date.now()-full.getTime())/3600e3;
   if(ageH>9&&!INP.sample){$('liveDot').classList.add('stale');$('nextText').classList.add('warn');$('nextText').textContent='Weather and fire data last updated '+dayName(full)+', '+clock(full);}
-  else{$('liveDot').classList.remove('stale');$('nextText').classList.remove('warn');$('nextText').textContent='Updates every hour';}
+  else{$('liveDot').classList.remove('stale');$('nextText').classList.remove('warn');$('nextText').textContent='Odds rerun every hour with the latest reading. Full model with new fire and weather data every 6 hours.';}
   document.querySelectorAll('.nMembers').forEach(e=>e.textContent=FC.members);
 }
 function renderAll(){renderStrip15();renderBestDay();renderHeader();renderRegions();renderAnswer();renderDays();renderScenarios();renderSources();renderChanges();renderNews();renderSeason();renderHood();renderStrip();renderKey();renderShowing();renderRecord();markCurrent();
@@ -1740,6 +1742,8 @@ async function loadPlace(id,quiet){
   }catch(e){if(!quiet)showError('That city\'s forecast could not be loaded. Showing Singapore.');if(id!=='sg')loadPlace('sg',true);}
 }
 $('btnShare').addEventListener('click',shareForecast);
+// support link: set COFFEE_URL to switch the button on
+const COFFEE_URL='';if(COFFEE_URL){$('btnCoffee').href=COFFEE_URL;$('btnCoffee').hidden=false;}
 async function initCities(){
   let idx=null;try{idx=await getJSON('data/cities/index.json');}catch(e){}
   const sel=$('citySel');(idx&&idx.cities||[]).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;sel.appendChild(o);});
