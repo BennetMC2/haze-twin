@@ -64,21 +64,64 @@ def _decode(path, want):
     return out, lats, lons
 
 
-def fetch(log=print, model="ifs"):
-    steps = STEPS_BY_MODEL[model]
-    from ecmwf.opendata import Client
-    client = None
-    run = None
-    for src in ("aws", "azure", "ecmwf"):   # the cloud mirrors are much faster from GitHub's runners
+MIRRORS = ["https://ecmwf-forecasts.s3.eu-central-1.amazonaws.com", "https://ai4edataeuwest.blob.core.windows.net/ecmwf",
+           "https://data.ecmwf.int/forecasts"]
+_S = None
+
+
+def _session():
+    global _S
+    if _S is None:
+        import requests
+        _S = requests.Session()
+        _S.mount("https://", requests.adapters.HTTPAdapter(pool_connections=16, pool_maxsize=16))
+    return _S
+
+
+def _get(path, rng=None, tries=8):
+    """One request at a time per field, backing off when a mirror asks us to slow down."""
+    import time as _t
+    last = None
+    for k in range(tries):
+        base = MIRRORS[k % len(MIRRORS)] if k >= 3 else MIRRORS[0]
         try:
-            c = Client(source=src, model=model, resol="0p25", maximum_retries=3, retry_after=15)
-            run = c.latest(type="pf", stream="enfo", step=steps[-1], param="tp")
-            client = c
-            break
+            r = _session().get(f"{base}/{path}", timeout=120,
+                               headers={"Range": f"bytes={rng[0]}-{rng[0] + rng[1] - 1}"} if rng else None)
+            if r.status_code in (200, 206):
+                return r.content
+            if r.status_code == 404:
+                return None
+            last = r.status_code
         except Exception as e:
-            log(f"  ECMWF via {src}: {e}")
-    if client is None:
-        raise RuntimeError("no ECMWF open-data source reachable")
+            last = str(e)[:80]
+        _t.sleep(min(30, 1.5 * 2 ** k))
+    raise RuntimeError(f"ECMWF download failed: {path} ({last})")
+
+
+def _path(model, run, step, kind):
+    return f"{run:%Y%m%d}/{run:%H}z/{model}/0p25/enfo/{run:%Y%m%d%H}0000-{step}h-enfo-{kind}"
+
+
+def _latest(model, steps, log):
+    from datetime import datetime, timezone as tz
+    now = datetime.now(tz.utc)
+    t = now.replace(minute=0, second=0, microsecond=0)
+    t = t - timedelta(hours=t.hour % 6)
+    for k in range(0, 9):
+        run = t - timedelta(hours=6 * k)
+        for kind in ("ef", "pf"):
+            idx = _get(_path(model, run, steps[-1], kind) + ".index", tries=3)
+            if idx:
+                return run, kind
+    raise RuntimeError(f"no recent {model} run found on the ECMWF mirrors")
+
+
+def fetch(log=print, model="ifs"):
+    import json as _json
+    import eccodes
+    from concurrent.futures import ThreadPoolExecutor
+    steps = STEPS_BY_MODEL[model]
+    run, kind = _latest(model, steps, log)
     run = run.replace(tzinfo=timezone.utc)
     DIR.mkdir(parents=True, exist_ok=True)
     cache = DIR / f"{model}_{run:%Y%m%d%H}.npz"
@@ -86,25 +129,61 @@ def fetch(log=print, model="ifs"):
         z = np.load(cache)
         log(f"  ECMWF {model} {run:%Y-%m-%d %H}Z from cache")
         return {"model": model, "run": run, "steps": list(z["steps"]), "lats": z["lats"], "lons": z["lons"], "U": z["U"], "V": z["V"], "R": z["R"]}
-    log(f"  ECMWF {model} {run:%Y-%m-%d %H}Z: downloading u/v 850 hPa and rain, 50 members, {len(steps)} steps")
-    pl, sfc = DIR / f"{model}_pl.grib2", DIR / f"{model}_sfc.grib2"
-    base = dict(date=run.strftime("%Y%m%d"), time=run.hour, stream="enfo", type="pf", step=steps)
-    client.retrieve(**base, levtype="pl", levelist=[850], param=["u", "v"], target=str(pl))
-    client.retrieve(**base, levtype="sfc", param=["tp"], target=str(sfc))
-    uv, lats, lons = _decode(pl, {"u", "v"})
-    tp, _, _ = _decode(sfc, {"tp"})
-    for p in (pl, sfc):
+    log(f"  ECMWF {model} {run:%Y-%m-%d %H}Z: fetching u/v 850 hPa and rain for 50 members, {len(steps)} steps")
+    jobs = []
+    for st in steps:
+        raw = _get(_path(model, run, st, kind) + ".index")
+        if not raw:
+            continue
+        for line in raw.decode().splitlines():
+            try:
+                e = _json.loads(line)
+            except ValueError:
+                continue
+            if e.get("type") != "pf":
+                continue
+            par = e.get("param")
+            if (par in ("u", "v") and str(e.get("levelist")) == "850") or (par == "tp" and st > 0):
+                jobs.append((par, int(e["number"]) - 1, st, _path(model, run, st, kind) + ".grib2", (int(e["_offset"]), int(e["_length"]))))
+    if not jobs:
+        raise RuntimeError(f"{model}: no u/v 850 or tp fields listed in the index")
+    lats = lons = None
+    uv, tp = {}, {}
+
+    def one(j):
+        par, num, st, path, rng = j
+        data = _get(path, rng)
+        if not data:
+            return None
+        gid = eccodes.codes_new_from_message(data)
         try:
-            os.remove(p)
-        except OSError:
-            pass
+            ni, nj = eccodes.codes_get(gid, "Ni"), eccodes.codes_get(gid, "Nj")
+            la1 = eccodes.codes_get(gid, "latitudeOfFirstGridPointInDegrees")
+            lo1 = eccodes.codes_get(gid, "longitudeOfFirstGridPointInDegrees")
+            dlat = eccodes.codes_get(gid, "jDirectionIncrementInDegrees") * (1 if eccodes.codes_get(gid, "jScansPositively") else -1)
+            dlon = eccodes.codes_get(gid, "iDirectionIncrementInDegrees")
+            sub, la, lo = _crop(eccodes.codes_get_values(gid), nj, ni, la1, lo1, dlat, dlon)
+        finally:
+            eccodes.codes_release(gid)
+        return par, num, st, sub.astype(np.float32), la, lo
+
+    import time as _t
+    t0 = _t.time()
+    with ThreadPoolExecutor(6) as ex:
+        for res in ex.map(one, jobs):
+            if res is None:
+                continue
+            par, num, st, sub, la, lo = res
+            lats, lons = la, lo
+            (tp if par == "tp" else uv)[(par, num, st)] = sub
+    log(f"  ECMWF {model}: {len(uv) + len(tp)}/{len(jobs)} fields in {_t.time() - t0:.0f}s")
     M, T = 50, len(steps)
     ny, nx = len(lats), len(lons)
     U = np.full((M, T, ny, nx), np.nan, np.float32)
     V = np.full_like(U, np.nan)
     R = np.zeros_like(U)
     for m in range(M):
-        prev = None
+        prev = 0.0        # rain is accumulated from the start of the run
         for ti, st in enumerate(steps):
             if ("u", m, st) in uv:
                 U[m, ti] = uv[("u", m, st)]

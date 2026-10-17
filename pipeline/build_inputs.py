@@ -162,23 +162,27 @@ def main():
         g = fetch_gefs.fetch(log=log)
         cycle = g["cycle"]
         weather = fetch_gefs.to_weather(g, t0)
-        if __import__("os").environ.get("ECMWF_ENS", "1") != "0":
+        import os as _os
+        for model, env, label, horizon in (("aifs-ens", "ECMWF_AIFS", "ECMWF AI ensemble (AIFS ENS)", "+360 h"),
+                                           ("ifs", "ECMWF_ENS", "ECMWF IFS ensemble", "+240 h")):
+            if _os.environ.get(env, "1") == "0":
+                continue
             try:
                 import fetch_ecmwf, signal
                 def _timeout(signum, frame):
-                    raise TimeoutError("ECMWF download took longer than 25 minutes")
+                    raise TimeoutError("ECMWF download took longer than 20 minutes")
                 signal.signal(signal.SIGALRM, _timeout)
-                signal.alarm(25 * 60)
+                signal.alarm(20 * 60)
                 try:
-                    ens = fetch_ecmwf.fetch(log=log)
+                    ens = fetch_ecmwf.fetch(log=log, model=model)
                 finally:
                     signal.alarm(0)
                 weather = fetch_ecmwf.merge(weather, ens, t0, log=log)
-                sources.append({"name": "ECMWF IFS ensemble", "status": "ok", "detail": f"51 forecasts, run {ens['run']:%Y-%m-%d %H}Z, to +240 h",
+                sources.append({"name": label, "status": "ok", "detail": f"50 forecasts, run {ens['run']:%Y-%m-%d %H}Z, to {horizon}",
                                 "time": ens["run"].isoformat()})
             except Exception as e:
-                log(f"  ECMWF failed: {e}")
-                sources.append({"name": "ECMWF IFS ensemble", "status": "failed", "detail": str(e)[:160]})
+                log(f"  {label} failed: {e}")
+                sources.append({"name": label, "status": "failed", "detail": str(e)[:160]})
         sources.append({"name": "NOAA GEFS ensemble", "status": "ok" if not g["errors"] else "partial",
                         "detail": f"{g['files']}/{g['requested']} files, cycle {cycle:%Y-%m-%d %H}Z",
                         "time": cycle.isoformat()})
