@@ -1,61 +1,63 @@
-[16:50:01] NEA readings
-[16:50:29]   NEA: 169 PSI hours, 169 24-h PM2.5 hours, 169 1-h PM2.5 hours
-[16:50:29] FIRMS hotspots
-[16:50:29]   FIRMS VIIRS_NOAA21_NRT: 7490 detections
-[16:50:30]   FIRMS VIIRS_NOAA20_NRT: 10114 detections
-[16:50:31]   FIRMS VIIRS_SNPP_NRT: 9446 detections
-[16:50:31] GEFS ensemble
-[16:50:32]   GEFS cycle 2026-10-18 06Z
-[16:51:11]   GEFS downloaded 100/1411 (38s)
-[16:51:48]   GEFS downloaded 200/1411 (76s)
-[16:52:26]   GEFS downloaded 300/1411 (113s)
-[16:53:03]   GEFS downloaded 400/1411 (151s)
-[16:53:41]   GEFS downloaded 500/1411 (188s)
-[16:54:18]   GEFS downloaded 600/1411 (226s)
-[16:54:56]   GEFS downloaded 700/1411 (263s)
-[16:55:34]   GEFS downloaded 800/1411 (302s)
-[16:56:12]   GEFS downloaded 900/1411 (339s)
-[16:56:49]   GEFS downloaded 1000/1411 (377s)
-[16:57:27]   GEFS downloaded 1100/1411 (414s)
-[16:58:04]   GEFS downloaded 1200/1411 (452s)
-[16:58:42]   GEFS downloaded 1300/1411 (489s)
-[16:59:19]   GEFS downloaded 1400/1411 (527s)
-[16:59:27]   GEFS: 1408/1411 files ok
-[16:59:27]   first errors: 2026101418_c00_f006.grb2: GET failed for https://nomads.ncep.noaa.gov/cgi-bin/filter_gefs_atmos_0p50a.pl: HTTP 404: <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html><head><ti | 2026101412_c00_f006.grb2: GET failed for https://nomads.ncep.noaa.gov/cgi-bin/filter_gefs_atmos_0p50a.pl: HTTP 404: <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html><head><ti | 2026101406_c00_f006.grb2: GET failed for https://nomads.ncep.noaa.gov/cgi-bin/filter_gefs_atmos_0p50a.pl: HTTP 404: <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html><head><ti
-[16:59:36]   ECMWF aifs-ens 2026-10-18 06Z from cache
-[16:59:37]   merged ECMWF: 56 weather forecasts in total
-[16:59:37]   climate: RONI +1.69 (JAS 2026); DMI +0.15 (May 2026)
-[16:59:37] NEA history and past-season analogs
-[17:00:19]   history: backfilled 1 recent days
-[17:00:20] extra sources
-[17:00:22]   airports: 8 with recent reports, 5 reporting haze or smoke
-[17:00:23]   CAMS: 168 hourly PM2.5 values for Singapore
-[17:03:52]   News (GDELT) failed: GET failed for https://api.gdeltproject.org/api/v2/doc/doc: HTTP 429: Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset: https://blog.gdeltproject.org/using-the
-[17:03:52]   dryness: Kalimantan 86.6 mm in 30 days, Sumatra 130.4 mm in 30 days
-[17:03:57]   OpenAQ: 28 recent PM2.5 readings in the region
-[17:03:57] t0 2026-10-18T16:00:00+00:00, weather times -82..374 h, 56 members
-[17:03:57] 27050 detections -> 420 fire cells
-[17:03:57] back-tracing from Singapore
-[17:03:57]   traced member 1/56
-[17:04:00]   traced member 9/56
-[17:04:03]   traced member 17/56
-[17:04:06]   traced member 25/56
-[17:04:09]   traced member 33/56
-[17:04:12]   traced member 41/56
-[17:04:15]   traced member 49/56
-[17:04:18]   traced member 56/56
-[17:04:18] wrote /home/runner/work/haze-twin/haze-twin/site/data/inputs.json (4.43 MB) in 856.8 s
-[17:04:19] back-tracing from Kuala Lumpur (31 forecasts); reading PM2.5 65.5 at Kuala Lumpur
-[17:04:31]   CAMS: 168 hourly PM2.5 values for Kuala Lumpur
-[17:04:31] back-tracing from Penang (31 forecasts); reading PM2.5 49.3 at Minden, Pulau Pinang, Malaysia
-[17:04:42]   CAMS: 168 hourly PM2.5 values for Penang
-[17:04:43] back-tracing from Johor Bahru (31 forecasts); reading PM2.5 43.2 at Larkin Lama, Johor, Malaysia
-[17:04:55]   CAMS: 168 hourly PM2.5 values for Johor Bahru
-[17:04:55] home cities written: kl, penang, jb
-engine: 100000 futures in 13s, effective sample 63345, anchored true
-national now 161, clear by Sat 24 Oct: 37.1%
-classes: Clears early 16.7% | Clears later in the week 3.8% | Stays unhealthy 1.4% | Gets worse 78.1% | Best case 10% | Worst case 10%
-days p50: Mon 19 Oct 160, Tue 20 Oct 235, Wed 21 Oct 253, Thu 22 Oct 220, Fri 23 Oct 218, Sat 24 Oct 209, Sun 25 Oct 160, Mon 26 Oct 125, Tue 27 Oct 118, Wed 28 Oct 117, Thu 29 Oct 119, Fri 30 Oct 113, Sat 31 Oct 114, Sun 1 Nov 110, Mon 2 Nov 111
-Kuala Lumpur: now 111, Clears early 26.1% | Clears later in the week 3.1% | Stays unhealthy 1.5% | Gets worse 69.4%
-Penang: now 93, Stays clear 21.8% | Brief haze 35.7% | Haze returns 18.9% | Heavy haze 23.6%
-Johor Bahru: now 86, Stays clear 3.7% | Brief haze 16.3% | Haze returns 21.3% | Heavy haze 58.7%
+[21:47:52] NEA readings
+[21:48:19]   NEA: 174 PSI hours, 174 24-h PM2.5 hours, 174 1-h PM2.5 hours
+[21:48:19] FIRMS hotspots
+[21:48:20]   FIRMS VIIRS_NOAA21_NRT: 9770 detections
+[21:48:21]   FIRMS VIIRS_NOAA20_NRT: 14621 detections
+[21:48:22]   FIRMS VIIRS_SNPP_NRT: 11709 detections
+[21:48:22] GEFS ensemble
+[21:48:23]   GEFS cycle 2026-10-18 12Z
+[21:49:00]   GEFS downloaded 100/1411 (37s)
+[21:49:38]   GEFS downloaded 200/1411 (75s)
+[21:50:16]   GEFS downloaded 300/1411 (112s)
+[21:50:53]   GEFS downloaded 400/1411 (150s)
+[21:51:31]   GEFS downloaded 500/1411 (188s)
+[21:52:08]   GEFS downloaded 600/1411 (225s)
+[21:52:46]   GEFS downloaded 700/1411 (263s)
+[21:53:23]   GEFS downloaded 800/1411 (300s)
+[21:54:01]   GEFS downloaded 900/1411 (338s)
+[21:54:39]   GEFS downloaded 1000/1411 (375s)
+[21:55:16]   GEFS downloaded 1100/1411 (413s)
+[21:55:54]   GEFS downloaded 1200/1411 (451s)
+[21:56:31]   GEFS downloaded 1300/1411 (488s)
+[21:57:09]   GEFS downloaded 1400/1411 (526s)
+[21:57:15]   GEFS: 1409/1411 files ok
+[21:57:15]   first errors: 2026101418_c00_f006.grb2: GET failed for https://nomads.ncep.noaa.gov/cgi-bin/filter_gefs_atmos_0p50a.pl: HTTP 404: <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html><head><ti | 2026101412_c00_f006.grb2: GET failed for https://nomads.ncep.noaa.gov/cgi-bin/filter_gefs_atmos_0p50a.pl: HTTP 404: <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html><head><ti
+[21:57:24]   ECMWF aifs-ens 2026-10-18 12Z: fetching u/v 850 hPa and rain for 50 members, 31 steps
+[21:59:51]   ECMWF aifs-ens: 4600/4600 fields in 142s
+[21:59:55]   ECMWF: 1550/1550 member-steps decoded
+[21:59:55]   merged ECMWF: 56 weather forecasts in total
+[21:59:55]   climate: RONI +1.69 (JAS 2026); DMI +0.15 (May 2026)
+[21:59:55] NEA history and past-season analogs
+[21:59:55]   history: backfilled 0 recent days
+[21:59:55] extra sources
+[21:59:56]   airports: 8 with recent reports, 4 reporting haze or smoke
+[21:59:56]   CAMS: 168 hourly PM2.5 values for Singapore
+[22:03:16]   News (GDELT) failed: GET failed for https://api.gdeltproject.org/api/v2/doc/doc: HTTP 429: Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset: https://blog.gdeltproject.org/using-the
+[22:03:17]   dryness: Kalimantan 86.6 mm in 30 days, Sumatra 130.4 mm in 30 days
+[22:03:22]   OpenAQ: 27 recent PM2.5 readings in the region
+[22:03:22] t0 2026-10-18T21:00:00+00:00, weather times -87..375 h, 56 members
+[22:03:22] 36100 detections -> 438 fire cells
+[22:03:22] back-tracing from Singapore
+[22:03:22]   traced member 1/56
+[22:03:25]   traced member 9/56
+[22:03:28]   traced member 17/56
+[22:03:31]   traced member 25/56
+[22:03:34]   traced member 33/56
+[22:03:37]   traced member 41/56
+[22:03:40]   traced member 49/56
+[22:03:43]   traced member 56/56
+[22:03:43] wrote /home/runner/work/haze-twin/haze-twin/site/data/inputs.json (4.30 MB) in 951.1 s
+[22:03:44] back-tracing from Kuala Lumpur (31 forecasts); reading PM2.5 56.9 at Kuala Lumpur
+[22:03:56]   CAMS: 168 hourly PM2.5 values for Kuala Lumpur
+[22:03:57] back-tracing from Penang (31 forecasts); reading PM2.5 40.8 at Minden, Pulau Pinang, Malaysia
+[22:04:08]   CAMS: 168 hourly PM2.5 values for Penang
+[22:04:09] back-tracing from Johor Bahru (31 forecasts); reading PM2.5 50.9 at Larkin Lama, Johor, Malaysia
+[22:04:21]   CAMS: 168 hourly PM2.5 values for Johor Bahru
+[22:04:21] home cities written: kl, penang, jb
+engine: 100000 futures in 12.8s, effective sample 80341, anchored true
+national now 141, clear by Sat 24 Oct: 39.2%
+classes: Clears early 18% | Clears later in the week 9.1% | Stays unhealthy 9.1% | Gets worse 63.8% | Best case 10% | Worst case 10%
+days p50: Mon 19 Oct 138, Tue 20 Oct 176, Wed 21 Oct 176, Thu 22 Oct 167, Fri 23 Oct 169, Sat 24 Oct 162, Sun 25 Oct 140, Mon 26 Oct 121, Tue 27 Oct 110, Wed 28 Oct 105, Thu 29 Oct 104, Fri 30 Oct 101, Sat 31 Oct 106, Sun 1 Nov 103, Mon 2 Nov 101, Tue 3 Nov 98
+Kuala Lumpur: now 102, Clears early 78.8% | Clears later in the week 2.3% | Stays unhealthy 1.2% | Gets worse 17.8%
+Penang: now 83, Stays clear 65.6% | Brief haze 24.5% | Haze returns 7.7% | Heavy haze 2.3%
+Johor Bahru: now 95, Stays clear 7% | Brief haze 25.3% | Haze returns 46.3% | Heavy haze 21.4%
