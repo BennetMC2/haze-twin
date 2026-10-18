@@ -93,9 +93,10 @@
     const days = [];
     const s0 = sgt(t0);
     const lastH = inputs.arrivals_h[inputs.arrivals_h.length - 1];
-    for (let d = 1; d <= 20; d++) {
+    for (let d = 0; d <= 20; d++) {
       const noon = Date.UTC(s0.getUTCFullYear(), s0.getUTCMonth(), s0.getUTCDate() + d, 12) - 8 * 3600e3;
       const h = (noon - t0.getTime()) / 3600e3;
+      if (h < 3) continue;   // today counts when its noon is still at least 3 hours after the run starts
       if (h > lastH + 3) break;
       let best = futA[0]; for (const i of futA) if (Math.abs(inputs.arrivals_h[i] - h) < Math.abs(inputs.arrivals_h[best] - h)) best = i;
       const dd = sgt(new Date(noon));

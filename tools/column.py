@@ -55,9 +55,10 @@ def facts():
     return fc, "\n".join(L)
 
 
-def numbers_ok(text, fact_text):
+def bad_numbers(text, fact_text):
+    """Numbers in the text that are not in the facts. Small numbers (day counts, dates) are allowed."""
     allowed = set(re.findall(r"\d+", fact_text))
-    return all(x in allowed for x in re.findall(r"\d+", text))
+    return [x for x in re.findall(r"\d+", text) if x not in allowed and int(x) > 31]
 
 
 def main():
@@ -66,21 +67,24 @@ def main():
         print("column: no ANTHROPIC_API_KEY, skipped")
         return
     fc, f = facts()
-    for attempt in range(2):
+    note = ""
+    for attempt in range(3):
         try:
             r = requests.post("https://api.anthropic.com/v1/messages", timeout=90, headers={
                 "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json"},
-                json={"model": MODEL, "max_tokens": 400, "system": SYSTEM, "messages": [{"role": "user", "content": "Facts:\n" + f}]})
+                json={"model": MODEL, "max_tokens": 400, "system": SYSTEM, "messages": [{"role": "user", "content": "Facts:\n" + f + note}]})
             r.raise_for_status()
             text = " ".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text").strip()
         except Exception as e:
             print(f"column: request failed ({type(e).__name__})")
             continue
-        if text and numbers_ok(text, f) and len(text) < 900:
+        bad = bad_numbers(text, f) if text else []
+        if text and not bad and len(text) < 900:
             (DATA / "column.json").write_text(json.dumps({"t0": fc.get("t0"), "issued": fc.get("issued"), "model": MODEL, "text": text}))
             print("column written:", len(text), "chars")
             return
-        print("column: rejected (a number not in the facts, or too long)")
+        print("column: rejected", ("numbers not in the facts: " + ", ".join(bad)) if bad else "(empty or too long)")
+        note = "\n\nYour last draft used numbers that are not in the facts (" + ", ".join(bad) + "). Use only numbers from the facts." if bad else ""
     print("column: not written; the page uses its own text")
 
 

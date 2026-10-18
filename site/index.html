@@ -1178,7 +1178,7 @@ function renderAnswer(){
   const word=(v)=>v>=60?'Likely':v>=40?'Toss-up':'Unlikely';
   const qa=(q,v,detail)=>'<div class="qa"><span class="qq">'+q+'</span><span class="qv"><b class="w'+(v>=60?'y':v>=40?'m':'n')+'">'+word(v)+'</b> <span class="qp">'+(v<1?'<1':v>99?'>99':Math.round(v))+'%</span></span>'+(detail?'<span class="qd">'+detail+'</span>':'')+'</div>';
   if(reg.mode==='haze'){
-    const lk=top.odds>=50?'likely to':'could';
+    const lk=top.odds>=60?'likely to':'could';   // same scale as the answers below: 60%+ likely, 40-60 toss-up
     if(top.id==='stays')h='Haze '+lk+' stay '+bandWord(typicalCore())+' through '+end+'.';
     else if(top.id==='worse')h='Haze '+lk+' get worse this week.';
     else h='PSI '+lk+' ease to 100 or below by '+end+'.';
