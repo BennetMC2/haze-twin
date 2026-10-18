@@ -66,7 +66,7 @@ jobs:
           git add history/runs.json history/obs.json
           if ! git diff --cached --quiet; then
             git commit -m "Hourly refresh [skip ci]"
-            for i in 1 2 3; do git pull --rebase -X theirs origin main && git push origin HEAD:main && break; git rebase --abort 2>/dev/null || true; sleep 5; done
+            for i in 1 2 3; do git pull --rebase --autostash -X theirs origin main && git push origin HEAD:main && break; git rebase --abort 2>/dev/null || true; sleep 5; done
           fi
           # keep every hourly issuance as published
           DAY=$(date -u +%Y-%m-%d); STAMP=$(date -u +%Y%m%dT%H%MZ)

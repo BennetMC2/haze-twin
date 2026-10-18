@@ -106,7 +106,7 @@ jobs:
             T0=$(python -c "import json;print(json.load(open('site/data/inputs.json'))['t0'])" 2>/dev/null || date -u +%Y-%m-%dT%H:%M)
             git commit -m "Run ${T0} [skip ci]"
             for i in 1 2 3; do
-              git pull --rebase -X theirs origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && break
+              git pull --rebase --autostash -X theirs origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && break
               git rebase --abort 2>/dev/null || true
               sleep 5
             done

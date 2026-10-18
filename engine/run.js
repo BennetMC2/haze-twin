@@ -55,12 +55,25 @@ for (const reg of E.NEA_REGIONS) {
   fc.why[reg] = prev ? E.why({ regions: prev.regions }, fc, prev.summary, inputs.summary, reg) : { deltas: [], drivers: [] };
 }
 fc.prevLabel = prev ? (prev.issued || prev.t0) : null;
+// the headline changes since that forecast, for the "Since yesterday" box (national)
+if (prev && prev.regions && prev.regions.national) {
+  const P = prev.regions.national, C = fc.regions.national;
+  const odds = (r, id) => { const c = (r.classes || []).find(x => x.id === id); return c ? c.odds : null; };
+  fc.change = {
+    since: prev.issued || prev.t0,
+    now: [P.now, C.now],
+    worse: [odds(P, 'worse'), odds(C, 'worse')],
+    clear: [P.clear, C.clear],
+    season: [prev.season ? prev.season.median : null, fc.season ? fc.season.median : null],
+  };
+}
 
 // append this issuance (compact, never overwritten: every hourly forecast gets its own entry)
 const entry = {
   id: fc.id, issued: fc.issued, obs_time: fc.obsTime, version: fc.version, degraded: fc.degraded,
   t0: inputs.t0, built: fc.built, cycle: inputs.cycle, sample: !!inputs.sample, summary: inputs.summary,
   learn: inputs.learn ? { bias: inputs.learn.bias, spread: inputs.learn.spread } : null,
+  season: fc.season ? { median: fc.season.median, p10: fc.season.p10, p90: fc.season.p90 } : null,
   regions: Object.fromEntries(Object.entries(fc.regions).filter(([k]) => k === 'national').map(([k, v]) => [k, {
     now: v.now, mode: v.mode, clear: v.clear,
     classes: v.classes.map(c => ({ id: c.id, name: c.name, odds: c.odds })),
