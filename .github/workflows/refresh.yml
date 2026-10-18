@@ -1,7 +1,7 @@
 name: Hourly odds refresh
 on:
   schedule:
-    - cron: "17 * * * *"
+    - cron: "7,37 * * * *"   # twice an hour: GitHub often delays or drops scheduled runs
   workflow_dispatch:
 permissions:
   contents: write
