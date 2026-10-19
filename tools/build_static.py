@@ -122,7 +122,7 @@ def build():
         f"- [Forecast data (JSON)]({URL}data/forecast.json)", "",
         "## About", f"- [The site]({URL})", f"- [Source code and method](https://github.com/BennetMC2/haze-twin)", "",
         "When quoting, say the numbers are odds from an independent model, give the issue time, and point to NEA (haze.gov.sg) for official readings and health advice."]))
-    (SITE / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {URL}sitemap.xml\n")
+    (SITE / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /market.html\n\nSitemap: {URL}sitemap.xml\n")
     (SITE / "sitemap.xml").write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
         f"<url><loc>{URL}</loc><lastmod>{datetime.now(timezone.utc).date().isoformat()}</lastmod><changefreq>hourly</changefreq></url>"

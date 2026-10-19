@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'">
+<title>Haze markets (preview)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap">
+<style>
+:root{--bg:#0E1820;--panel:#14222C;--raise:#1A2B37;--line:#223542;--line-hi:#33495A;--ink:#E8EEF1;--ink-2:#A9B9C3;--ink-3:#7F929F;--yes:#7CD69A;--no:#F07A9A;--sky:#86CBE6;
+  --sans:'Barlow',system-ui,sans-serif;--num:'Barlow Semi Condensed','Barlow',system-ui,sans-serif;--serif:'Newsreader',Georgia,serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45;font-variant-numeric:tabular-nums}
+a{color:var(--sky)}
+.wrap{max-width:1240px;margin:0 auto;padding:20px 20px 60px;display:flex;flex-direction:column;gap:22px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 18px}
+h1{margin:0;font-family:var(--serif);font-weight:600;font-size:26px}
+.live{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--ink-2)}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--yes);box-shadow:0 0 0 0 rgba(124,214,154,.6);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(124,214,154,.6)}70%{box-shadow:0 0 0 8px rgba(124,214,154,0)}100%{box-shadow:0 0 0 0 rgba(124,214,154,0)}}
+@media (prefers-reduced-motion:reduce){.live i{animation:none}}
+.back{margin-left:auto;font-size:14px}
+.notice{margin:0;font-size:13.5px;color:var(--ink-2);max-width:90ch}
+.feature{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:20px;background:var(--panel);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:18px}
+.feature h2{margin:0 0 4px;font-family:var(--serif);font-weight:600;font-size:22px}
+.big{display:flex;align-items:baseline;gap:12px;margin:6px 0 10px}
+.big b{font-family:var(--num);font-size:44px;line-height:1}
+.chg{font-family:var(--num);font-weight:600;font-size:16px}
+.up{color:var(--yes)}.down{color:var(--no)}.flat{color:var(--ink-3)}
+canvas.chart{width:100%;height:240px;display:block}
+.trade{display:flex;flex-direction:column;gap:10px;justify-content:center}
+.side{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{border:0;border-radius:10px;padding:14px 10px;font:inherit;font-weight:600;font-size:16px;cursor:pointer;display:flex;justify-content:space-between;align-items:baseline}
+.btn b{font-family:var(--num);font-size:20px}
+.btn.yes{background:rgba(124,214,154,.16);color:var(--yes)}
+.btn.no{background:rgba(240,122,154,.16);color:var(--no)}
+.btn:hover{filter:brightness(1.2)}
+.closed{font-size:13px;color:var(--ink-3);min-height:1.4em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px;cursor:pointer;text-align:left;color:inherit;font:inherit}
+.card:hover,.card[aria-pressed="true"]{border-color:var(--line-hi)}
+.card .q{font-weight:600;font-size:14.5px;line-height:1.3;min-height:2.6em}
+.card .row{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.card .p{font-family:var(--num);font-weight:700;font-size:28px;line-height:1}
+.card canvas{width:100%;height:46px;display:block}
+.card .yn{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px;font-weight:600}
+.card .yn span{padding:6px 8px;border-radius:7px;display:flex;justify-content:space-between}
+.card .yn .y{background:rgba(124,214,154,.12);color:var(--yes)}.card .yn .n{background:rgba(240,122,154,.12);color:var(--no)}
+.flash-up{animation:fu 1.4s}.flash-down{animation:fd 1.4s}
+@keyframes fu{0%{background:rgba(124,214,154,.35)}100%{background:transparent}}
+@keyframes fd{0%{background:rgba(240,122,154,.35)}100%{background:transparent}}
+.foot{font-size:12.5px;color:var(--ink-3)}
+@media (max-width:820px){.feature{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Haze markets</h1>
+    <span class="live"><i></i><span id="liveTxt">Connecting…</span></span>
+    <a class="back" href="./">Back to the forecast</a>
+  </header>
+  <p class="notice"><b>Preview.</b> Prices are the Singapore Haze Prediction Model's odds, in cents: a Yes at 62¢ means the model gives it a 62% chance. They move every time the model reruns with new readings, fire and weather data. Trading is not open.</p>
+
+  <section class="feature" aria-live="polite">
+    <div>
+      <h2 id="fq">Loading…</h2>
+      <div class="big"><b id="fp">–</b><span class="chg" id="fc"></span><span class="foot" id="fr"></span></div>
+      <canvas class="chart" id="fchart" role="img" aria-label="Price history"></canvas>
+    </div>
+    <div class="trade">
+      <div class="side">
+        <button type="button" class="btn yes" id="byes">Yes <b id="pyes">–</b></button>
+        <button type="button" class="btn no" id="bno">No <b id="pno">–</b></button>
+      </div>
+      <p class="closed" id="closed"></p>
+      <p class="foot" id="resol"></p>
+    </div>
+  </section>
+
+  <section class="grid" id="grid" aria-label="Markets"></section>
+  <p class="foot">Rolling markets ("next 6 days") always look ahead from the latest run. Season markets settle when NEA's 24-hour PSI has stayed at 100 or below for 7 days in a row. Independent and experimental, not an official forecast.</p>
+</div>
+<script>
+(function(){
+'use strict';
+const $=(id)=>document.getElementById(id);
+const RES={above200_6:'Yes if NEA\'s 24-hour PSI goes above 200 at any time in the 6 days after the price was set.',hazardous6:'Yes if NEA\'s 24-hour PSI goes above 300 at any time in the next 6 days.',hazardous15:'Yes if NEA\'s 24-hour PSI goes above 300 at any time in the next 15 days.',below100_15:'Yes if NEA\'s 24-hour PSI is 100 or below on any day in the next 15 days.'};
+let H=null,sel=null,lastIssued=null,prevNow={};
+const SGT=(d)=>new Date(d.getTime()+8*3600e3);
+const clock=(d)=>{const s=SGT(d);let h=s.getUTCHours();const m=s.getUTCMinutes();const ap=h<12?'am':'pm';h=h%12||12;return h+(m?':'+String(m).padStart(2,'0'):'')+ap;};
+function marketsOf(fc){const n=(fc.regions||{}).national||{};const m=n.markets||{};const o={};
+  ['above200_6','hazardous6','hazardous15','below100_15'].forEach(k=>{if(typeof m[k]==='number')o[k]=Math.round(m[k]*10)/10;});
+  ((fc.season||{}).dates||[]).forEach(d=>{o['over_'+d.label]=d.p;});return o;}
+async function get(p){const r=await fetch(p+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw new Error(p);return r.json();}
+const cents=(v)=>Math.max(1,Math.min(99,Math.round(v)));
+function series(k){return H.points.filter(p=>p[1][k]!=null).map(p=>[new Date(p[0]).getTime(),p[1][k]]);}
+function change24(s){if(s.length<2)return 0;const last=s[s.length-1];const t=last[0]-24*3600e3;let base=s[0];for(const p of s){if(p[0]<=t)base=p;}return cents(last[1])-cents(base[1]);}
+function draw(cv,s,big,upHint){const dpr=Math.min(2,window.devicePixelRatio||1);const w=cv.clientWidth,h=cv.clientHeight;if(w<10)return;cv.width=w*dpr;cv.height=h*dpr;const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,w,h);
+  if(s.length<1)return;const pad=big?{l:34,r:8,t:10,b:20}:{l:2,r:2,t:4,b:4};const t0=s[0][0],t1=Math.max(s[s.length-1][0],t0+1);
+  const X=(t)=>pad.l+(t-t0)/(t1-t0)*(w-pad.l-pad.r),Y=(v)=>pad.t+(1-v/100)*(h-pad.t-pad.b);
+  if(big){c.font='12px Barlow, sans-serif';c.fillStyle='#7F929F';c.strokeStyle='rgba(127,146,159,.15)';[0,25,50,75,100].forEach(v=>{c.beginPath();c.moveTo(pad.l,Y(v)+.5);c.lineTo(w-pad.r,Y(v)+.5);c.stroke();c.fillText(v+'¢',2,Y(v)+4);});
+    const days=new Set();s.forEach(p=>{const d=SGT(new Date(p[0]));const k=d.getUTCDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getUTCMonth()];if(!days.has(k)){days.add(k);c.fillText(k,Math.min(X(p[0]),w-40),h-4);}});}
+  const up=upHint!=null?upHint:s[s.length-1][1]>=s[0][1];const col=up?'#7CD69A':'#F07A9A';
+  const g=c.createLinearGradient(0,pad.t,0,h-pad.b);g.addColorStop(0,up?'rgba(124,214,154,.25)':'rgba(240,122,154,.25)');g.addColorStop(1,'rgba(0,0,0,0)');
+  c.beginPath();s.forEach((p,i)=>{const x=X(p[0]),y=Y(p[1]);if(i===0)c.moveTo(x,y);else{c.lineTo(x,Y(s[i-1][1]));c.lineTo(x,y);}});c.lineTo(X(s[s.length-1][0]),h-pad.b);c.lineTo(X(s[0][0]),h-pad.b);c.closePath();c.fillStyle=g;c.fill();
+  c.beginPath();s.forEach((p,i)=>{const x=X(p[0]),y=Y(p[1]);if(i===0)c.moveTo(x,y);else{c.lineTo(x,Y(s[i-1][1]));c.lineTo(x,y);}});c.strokeStyle=col;c.lineWidth=big?2:1.5;c.stroke();
+  const L=s[s.length-1];c.fillStyle=col;c.beginPath();c.arc(X(L[0]),Y(L[1]),big?4:2.5,0,7);c.fill();}
+function chgHtml(d){return d>0?'<span class="up">▲ '+d+'¢</span>':d<0?'<span class="down">▼ '+(-d)+'¢</span>':'<span class="flat">0¢</span>';}
+function render(){
+  const keys=Object.keys(H.labels).filter(k=>series(k).length);if(!sel||!keys.includes(sel))sel=keys[0];
+  const grid=$('grid');grid.innerHTML='';
+  keys.forEach(k=>{const s=series(k);const p=cents(s[s.length-1][1]);const d=change24(s);
+    const b=document.createElement('button');b.type='button';b.className='card';b.setAttribute('aria-pressed',String(k===sel));
+    b.innerHTML='<span class="q"></span><span class="row"><span class="p">'+p+'¢</span><span class="chg">'+chgHtml(d)+' <span class="flat" style="font-size:12px">24h</span></span></span><canvas aria-hidden="true"></canvas><span class="yn"><span class="y">Yes <b>'+p+'¢</b></span><span class="n">No <b>'+(100-p)+'¢</b></span></span>';
+    b.querySelector('.q').textContent=H.labels[k];
+    if(prevNow[k]!=null&&prevNow[k]!==p)b.classList.add(p>prevNow[k]?'flash-up':'flash-down');prevNow[k]=p;
+    b.addEventListener('click',()=>{sel=k;render();});grid.appendChild(b);draw(b.querySelector('canvas'),s,false,d>=0);});
+  const s=series(sel);const p=cents(s[s.length-1][1]);
+  $('fq').textContent=H.labels[sel];$('fp').textContent=p+'¢';$('fc').innerHTML=chgHtml(change24(s))+' <span class="flat" style="font-size:13px">24h</span>';
+  $('pyes').textContent=p+'¢';$('pno').textContent=(100-p)+'¢';$('fr').textContent=s.length+' prices since '+clock(new Date(s[0][0]))+' '+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][SGT(new Date(s[0][0])).getUTCDay()];
+  $('resol').textContent=RES[sel]||'Yes if NEA\'s 24-hour PSI has been 100 or below for 7 days in a row by this date.';
+  draw($('fchart'),s,true,change24(s)>=0);
+}
+async function tick(){
+  try{
+    const [hist,fc]=await Promise.all([get('data/market_history.json').catch(()=>({labels:{},points:[]})),get('data/forecast.json')]);
+    H=hist;if(!H.labels||!Object.keys(H.labels).length)H.labels={above200_6:'PSI above 200 in the next 6 days?',hazardous6:'PSI above 300 in the next 6 days?',hazardous15:'PSI above 300 in the next 15 days?',below100_15:'Back to 100 or below within 15 days?'};
+    const last=H.points.length?H.points[H.points.length-1][0]:null;
+    if(fc.issued&&(!last||new Date(fc.issued)>new Date(last)))H.points.push([fc.issued,marketsOf(fc)]);
+    lastIssued=fc.issued;render();
+    const nx=new Date(new Date(fc.issued).getTime()+30*60e3);
+    $('liveTxt').textContent='Live. Last price update '+clock(new Date(fc.issued))+(nx>new Date()?', next about '+clock(nx):', next update due');
+  }catch(e){$('liveTxt').textContent='Reconnecting…';}
+}
+$('byes').addEventListener('click',()=>{$('closed').textContent='Trading isn\'t open yet. This is a preview of the prices.';});
+$('bno').addEventListener('click',()=>{$('closed').textContent='Trading isn\'t open yet. This is a preview of the prices.';});
+window.addEventListener('resize',()=>{if(H)render();});
+tick();setInterval(tick,60e3);
+})();
+</script>
+</body>
+</html>

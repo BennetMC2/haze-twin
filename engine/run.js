@@ -74,6 +74,10 @@ const entry = {
   t0: inputs.t0, built: fc.built, cycle: inputs.cycle, sample: !!inputs.sample, summary: inputs.summary,
   learn: inputs.learn ? { bias: inputs.learn.bias, spread: inputs.learn.spread } : null,
   season: fc.season ? { median: fc.season.median, p10: fc.season.p10, p90: fc.season.p90 } : null,
+  markets: (() => { const m = (fc.regions.national || {}).markets || {}; const o = {};
+    for (const k of ['above200_6', 'hazardous6', 'hazardous15', 'below100_15']) if (typeof m[k] === 'number') o[k] = Math.round(m[k] * 10) / 10;
+    for (const d of (fc.season && fc.season.dates) || []) o['over_' + d.label] = d.p;
+    return o; })(),
   regions: Object.fromEntries(Object.entries(fc.regions).filter(([k]) => k === 'national').map(([k, v]) => [k, {
     now: v.now, mode: v.mode, clear: v.clear,
     classes: v.classes.map(c => ({ id: c.id, name: c.name, odds: c.odds })),

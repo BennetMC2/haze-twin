@@ -85,6 +85,7 @@ jobs:
           cp history/learn/log.json site/data/learn.json 2>/dev/null || true
           SITE_URL="${{ vars.SITE_URL }}" python tools/build_static.py || echo "static copies failed"
           python tools/scorecard.py || echo "scorecard failed"
+          python tools/market_history.py || echo "market history failed"
           python tools/column.py || echo "column failed"
           python tools/fetch_aq.py site/data/aq.json || true
           node engine/run_city.js --n 60000 2>&1 | tee -a run.log || true

@@ -50,6 +50,7 @@ jobs:
           cp history/learn/log.json site/data/learn.json 2>/dev/null || true
           SITE_URL="${{ vars.SITE_URL }}" python tools/build_static.py || echo "static copies failed"
           python tools/scorecard.py || echo "scorecard failed"
+          python tools/market_history.py || echo "market history failed"
           python tools/column.py || echo "column failed"
           # home cities: latest saved run, re-anchored to each city's newest reading
           CREL=$(gh api "repos/${GITHUB_REPOSITORY}/releases?per_page=4" -q '[.[] | select(.tag_name|startswith("archive-"))] | .[].tag_name' | head -2)
