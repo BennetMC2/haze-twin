@@ -313,9 +313,9 @@
       for (let f = 0; f < F; f++) {
         const hh = model.inputs.arrivals_h[futA[f]]; if (hh <= 0) continue;
         const ramp = Math.min(1, hh / 24);
-        const b = Math.max(-0.4, Math.min(0.4, ((L.bias || [])[g(hh)] || 0))) * ramp;
+        const b = Math.max(-0.7, Math.min(0.7, ((L.bias || [])[g(hh)] || 0))) * ramp;
         const k = 1 + (Math.max(0.7, Math.min(1.5, (L.spread || [])[g(hh)] || 1)) - 1) * ramp;
-        const wc = Math.max(0, Math.min(0.5, (L.cams || [])[g(hh)] || 0)) * ramp; const cp = wc ? model.camsPsi(hh) : null;
+        const wc = Math.max(0, Math.min(0.8, (L.cams || [])[g(hh)] || 0)) * ramp; const cp = wc ? model.camsPsi(hh) : null;
         if (!b && k === 1 && !cp) continue;
         let n = 0; for (let s = 0; s < N && n < tmp.length; s += stp) tmp[n++] = Math.log(Math.max(1, psiOf(pm24[s * F + f])));
         const srt = Array.from(tmp.subarray(0, n)).sort((a, c) => a - c); const med = srt[Math.floor(n / 2)];

@@ -29,9 +29,11 @@ SGT = timezone(timedelta(hours=8))
 GROUPS = [("Days 1-3", 12, 84), ("Days 4-6", 84, 156), ("Days 7-15", 156, 372)]
 MODEL = "claude-opus-5-5"
 STEP_CAP = 0.08          # most the bias can move in one day (log units, about 8%)
-BIAS_CAP = 0.4           # total bias cap (about x1.5 either way)
+BIG_STEP_CAP = 0.25      # ... when the forecasts have been far off (over ~35% for a week): about 28% a day
+BIAS_CAP = 0.7           # total bias cap (about x2 either way)
 SPREAD_LIMITS = (0.7, 1.5)
-MIN_DAYS = 3
+MIN_DAYS = 2
+CAMS_MIN_DAYS = 3
 
 
 def load(p, d):
@@ -180,9 +182,9 @@ def main():
     new_bias, new_spread, new_cams, changes = list(params["bias"]), list(params["spread"]), list(params["cams"]), []
     # how much to lean on CAMS: only after 5 scored days, and only as far as it actually beat the twin
     for i, g in enumerate(stats):
-        if g.get("cams_days", 0) >= 5 and g.get("mae_twin_same"):
-            target = max(0.0, min(0.5, (g["mae_twin_same"] - g["mae_cams"]) / g["mae_twin_same"] * 2))
-            step = max(-0.1, min(0.1, 0.5 * (target - params["cams"][i])))
+        if g.get("cams_days", 0) >= CAMS_MIN_DAYS and g.get("mae_twin_same"):
+            target = max(0.0, min(0.8, (g["mae_twin_same"] - g["mae_cams"]) / g["mae_twin_same"] * 2))
+            step = max(-0.3, min(0.3, 0.6 * (target - params["cams"][i])))
             if abs(step) >= 0.01:
                 new_cams[i] = round(params["cams"][i] + step, 3)
                 changes.append({"group": g["name"], "what": f"leaning on CAMS {'more' if step > 0 else 'less'} (weight now {round(new_cams[i] * 100)}%)",
@@ -191,7 +193,8 @@ def main():
         if g.get("days", 0) < MIN_DAYS:
             changes.append({"group": g["name"], "what": "no change", "why": f"only {g.get('days', 0)} scored days so far; waiting for {MIN_DAYS}"})
             continue
-        step = max(-STEP_CAP, min(STEP_CAP, 0.5 * g["bias_log_7d"]))
+        cap = BIG_STEP_CAP if abs(g["bias_log_7d"]) > 0.3 else STEP_CAP
+        step = max(-cap, min(cap, 0.5 * g["bias_log_7d"]))
         if abs(step) >= 0.01:
             new_bias[i] = round(max(-BIAS_CAP, min(BIAS_CAP, params["bias"][i] + step)), 3)
             changes.append({"group": g["name"], "what": f"forecasts {'up' if step > 0 else 'down'} about {abs(round((math.exp(step) - 1) * 100))}%",
@@ -200,7 +203,7 @@ def main():
         if g["coverage90"] < 75:
             new_spread[i] = round(min(SPREAD_LIMITS[1], sp * 1.08), 3)
             changes.append({"group": g["name"], "what": "range wider by 8%", "why": f"only {g['coverage90']}% of readings fell inside the possible range (aim: 90%)"})
-        elif g["coverage90"] > 97 and g["days"] >= 7:
+        elif g["coverage90"] > 97 and g["days"] >= 3:
             new_spread[i] = round(max(SPREAD_LIMITS[0], sp * 0.95), 3)
             changes.append({"group": g["name"], "what": "range narrower by 5%", "why": f"{g['coverage90']}% of readings fell inside the possible range (aim: 90%)"})
 
