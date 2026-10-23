@@ -1602,6 +1602,14 @@ async function latestNEA(){
     return {time:it.timestamp,psi_now:low(psi),pm24_now:low(pm)};
   }catch(e){return null;}
 }
+// GitHub's scheduled updates can run hours late. If NEA has a newer reading than the published forecast,
+// rerun the odds on this device straight away so every visitor sees the latest reading.
+async function autoLive(){
+  if(CITY||state.running||!FC||!INP)return;
+  const live=await latestNEA();if(!live)return;
+  const pub=new Date(FC.obsTime||INP.obs.time||INP.t0).getTime();
+  if(new Date(live.time).getTime()-pub>=45*60e3)rerun();
+}
 // first view loads the forecast and a light copy of the inputs; the footprints (about 1 MB) come after
 let FULLP=null;
 function ensureFull(){if(!INP||INP.S)return Promise.resolve();if(!FULLP)FULLP=getJSON(CITY?'data/cities/'+CITY.id+'/inputs.json':'data/inputs.json').then(full=>{if(full.t0===INP.t0){INP.S=full.S;}else if(full.S&&full.members){INP=full;}try{prepWhy();}catch(e){WHY=null;}renderShowing();}).catch(()=>{}).finally(()=>{FULLP=null;});return FULLP;}
@@ -2044,6 +2052,7 @@ async function boot(){
     try{prepWhy();}catch(e){WHY=null;}
     selectLikely();buildHot();buildWinds();buildThreads();renderAll();layout();initWind();syncT();syncCases();
     initCities();setTimeout(ensureFull,300);
+    setTimeout(autoLive,1200);
     let seen=false;try{seen=localStorage.getItem('hazeTourSeen')==='1';}catch(e){}
   }catch(e){showError('The latest forecast could not be loaded ('+e.message+'). Reload the page to try again.');$('statusText').textContent='No forecast loaded';$('headline').textContent='The latest forecast could not be loaded.';}
 }
